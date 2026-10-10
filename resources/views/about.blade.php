@@ -48,7 +48,7 @@
             <h2 id="licences-titre" class="text-[28px] sm:text-[32px]">Les briques et leurs licences</h2>
             <p class="mt-3 text-ink-soft">Toutes sous licence permissive, lues dans <code class="font-mono text-sm">composer.lock</code> et <code class="font-mono text-sm">package-lock.json</code>.</p>
             <x-card padding="p-0" class="mt-5 overflow-hidden">
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto" tabindex="0" role="region" aria-label="Tableau des licences">
                     <table class="w-full min-w-[30rem] text-left text-sm" data-licenses>
                         <thead class="bg-bg-alt text-ink-muted">
                             <tr><th scope="col" class="px-5 py-3 font-medium">Brique</th><th scope="col" class="px-5 py-3 font-medium">Rôle</th><th scope="col" class="px-5 py-3 font-medium">Licence</th></tr>
@@ -67,7 +67,7 @@
                     <summary class="flex min-h-12 cursor-pointer items-center justify-between gap-3 px-5 font-medium text-ink [&::-webkit-details-marker]:hidden">
                         Outils de développement ({{ $tools->count() }}) <x-icon name="chevron-down" class="size-4" />
                     </summary>
-                    <div class="overflow-x-auto">
+                    <div class="overflow-x-auto" tabindex="0" role="region" aria-label="Outils de développement">
                         <table class="w-full min-w-[30rem] text-left text-sm">
                             <tbody class="divide-y divide-line">
                                 @foreach ($tools as $row)

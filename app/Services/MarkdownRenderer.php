@@ -94,7 +94,7 @@ class MarkdownRenderer implements NodeRendererInterface
             .'<div class="code-toolbar"><span class="code-lang">'.$label.'</span>'
             .'<button type="button" class="code-copy" x-on:click="navigator.clipboard.writeText($root.querySelector(\'code\').innerText); copied = true; setTimeout(() => copied = false, 2000)">'
             .'<span x-text="copied ? \'Copié\' : \'Copier\'">Copier</span></button></div>'
-            .'<pre><code class="hljs'.($language ? ' language-'.e($language) : '').'">'.$html.'</code></pre>'
+            .'<pre tabindex="0"><code class="hljs'.($language ? ' language-'.e($language) : '').'">'.$html.'</code></pre>'
             .'</div>';
     }
 }

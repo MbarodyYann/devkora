@@ -143,3 +143,10 @@ test('pages ville : devs, événements, annonces et questions de la ville ; lien
     $this->get(route('devs.show', $moussa))->assertSee(route('cities.show', 'dakar'));
     $this->get('/evenements')->assertSee(route('cities.show', 'dakar'));
 });
+
+test('les tableaux défilants sont atteignables au clavier et nommés (À propos, Le Pouls)', function () {
+    $about = $this->get('/a-propos')->assertOk()->getContent();
+
+    expect($about)->toContain('<div class="overflow-x-auto" tabindex="0" role="region" aria-label="Tableau des licences">')
+        ->toContain('<div class="overflow-x-auto" tabindex="0" role="region" aria-label="Outils de développement">');
+});

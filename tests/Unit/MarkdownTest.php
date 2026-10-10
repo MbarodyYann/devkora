@@ -40,7 +40,9 @@ test('le code est coloré côté serveur, échappé, avec un bouton « Copier »
         ->toContain('Copier')
         ->toContain('hljs-string')
         ->toContain('&lt;b&gt;')
-        ->not->toContain("'<b>'");
+        ->not->toContain("'<b>'")
+        // Bloc défilant horizontalement : atteignable au clavier (axe, scrollable-region-focusable).
+        ->toContain('<pre tabindex="0">');
 });
 
 test('au moins 14 langages colorés, les autres en texte brut', function () {

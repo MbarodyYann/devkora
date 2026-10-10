@@ -65,6 +65,7 @@ test('la page /pouls : textes de 11, tableaux, sélecteur de pays, barres en CSS
         ->assertSee('Tarifs médians en FCFA, compétences recherchées et activité de la communauté, calculés à partir des échanges réels.')
         ->assertSee("150\u{202F}000\u{00A0}FCFA")
         ->assertSeeInOrder(['Compétence', 'Tarif médian', 'Fourchette habituelle', 'Données'])
+        ->assertSee('<div class="overflow-x-auto" tabindex="0" role="region" aria-label="Tableau des tarifs médians">', false)
         ->assertSee('href="'.route('listings.index', ['competence' => $laravel->slug]).'"', false)
         ->assertSee('data-devs-by-country', false)
         ->assertSee('style="width:', false)

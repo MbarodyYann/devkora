@@ -30,7 +30,7 @@
             <x-empty-state title="Pas encore assez de missions pour un tarif fiable." class="mt-6">Les tarifs apparaissent dès 3 montants pour une compétence.</x-empty-state>
         @else
             <x-card padding="p-0" class="mt-6 overflow-hidden">
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto" tabindex="0" role="region" aria-label="Tableau des tarifs médians">
                     <table class="w-full min-w-[34rem] text-left text-sm" data-rates>
                         <thead class="bg-bg-alt text-ink-muted">
                             <tr>
