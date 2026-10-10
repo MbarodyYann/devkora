@@ -31,6 +31,13 @@
             <button type="button" wire:click="$set('type', '')" class="font-semibold text-primary-600 underline-offset-4 hover:underline dark:text-primary-300">Changer de type</button>
         </p>
 
+        @if ($team && $this->event)
+            <p class="mt-6 flex items-start gap-2 rounded-field bg-primary-50 px-3.5 py-3 text-sm text-primary-700 dark:bg-primary-900 dark:text-primary-200" data-event-link>
+                <x-icon name="calendar" class="mt-0.5 size-4 shrink-0" />
+                <span>Ton équipe sera liée au hackathon « {{ $this->event->title }} » et apparaîtra sur sa fiche.</span>
+            </p>
+        @endif
+
         <x-card class="mt-8">
             <form wire:submit="publish" class="space-y-6" novalidate>
                 <x-field label="Titre" name="title" :hint="$team ? 'Ex. « Hackathon fintech à Abidjan : il nous manque un dev back-end »' : 'Ex. « Intégrer Orange Money dans une caisse Laravel »'">

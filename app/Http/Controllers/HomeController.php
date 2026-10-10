@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Enums\ListingStatus;
 use App\Models\Article;
+use App\Models\Event;
 use App\Models\Listing;
 use App\Models\Profile;
 use App\Models\Question;
 use App\Models\User;
+use App\Services\Contributors;
 use App\Support\Countries;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
@@ -17,7 +19,7 @@ class HomeController extends Controller
     /** Durée de cache des chiffres de la bande de confiance (10 minutes). */
     public const STATS_TTL = 600;
 
-    public function __invoke(): View
+    public function __invoke(Contributors $contributors): View
     {
         // Chiffres réels, sans arrondi (08, « Bande de confiance »).
         $stats = Cache::remember('home.stats', self::STATS_TTL, function () {
@@ -54,6 +56,9 @@ class HomeController extends Controller
             'openListings' => Listing::query()->visible()->where('status', ListingStatus::Open)
                 ->with(['user.profile', 'skills', 'acceptedProposals.user.profile'])->withCount('proposals')
                 ->latest()->limit(3)->get(),
+            'upcomingEvents' => Event::query()->visible()->where('ends_at', '>=', now())->orderBy('starts_at')
+                ->with(['participants' => fn ($q) => $q->with('profile')->limit(50)])->withCount('participants')->limit(3)->get(),
+            'contributors' => $contributors->ofMonth(5),
             'latestArticles' => Article::query()->visible()->with('user.profile')->latest()->limit(3)->get(),
         ]);
     }

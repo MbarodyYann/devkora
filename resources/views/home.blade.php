@@ -167,4 +167,27 @@
             </ul>
         </section>
     @endif
+    {{-- Prochains événements --}}
+    @if ($upcomingEvents->isNotEmpty())
+        <section class="pt-16 sm:pt-24" aria-labelledby="evenements-titre">
+            <div class="flex flex-wrap items-end justify-between gap-4">
+                <h2 id="evenements-titre" class="max-w-2xl text-[32px] sm:text-[44px]">Les prochaines occasions de se rencontrer.</h2>
+                <a href="{{ route('events.index') }}" class="font-semibold text-primary-600 underline-offset-4 hover:underline dark:text-primary-300">Voir les événements →</a>
+            </div>
+            <ul class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach ($upcomingEvents as $event)
+                    <li class="min-w-0"><x-event-card :event="$event" /></li>
+                @endforeach
+            </ul>
+        </section>
+    @endif
+
+    {{-- Contributeurs du mois (02, P1) --}}
+    @if ($contributors->isNotEmpty())
+        <section class="pt-16 sm:pt-24" aria-labelledby="contributeurs-titre">
+            <h2 id="contributeurs-titre" class="max-w-2xl text-[32px] sm:text-[44px]">Ils ont fait avancer la communauté ce mois-ci.</h2>
+            <p class="mt-3 max-w-2xl text-ink-soft">Les cauris gagnés en 30 jours : réponses utiles, articles, missions livrées. <a href="{{ route('privileges') }}" class="font-semibold text-primary-600 underline-offset-4 hover:underline dark:text-primary-300">À quoi servent les cauris ?</a></p>
+            <x-contributors :contributors="$contributors" class="mt-8" />
+        </section>
+    @endif
 </x-layouts.app>

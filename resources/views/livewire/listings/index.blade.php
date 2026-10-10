@@ -33,6 +33,12 @@
         @endif
     </x-card>
 
+    {{-- Les événements, absents de la barre du bas sur mobile, sont proposés ici. --}}
+    <a href="{{ route('events.index') }}" class="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-line bg-bg-alt px-4 py-3 text-sm font-medium text-ink hover:bg-surface" data-events-link>
+        <span class="flex items-center gap-2"><x-icon name="calendar" class="size-4 text-primary-600 dark:text-secondary-400" /> Hackathons, meetups et ateliers : trouve des coéquipiers en vrai</span>
+        <x-icon name="arrow-right" class="size-4 shrink-0" />
+    </a>
+
     <div wire:loading.class="opacity-60" class="mt-6 transition-opacity">
         @if ($this->listings->isEmpty())
             <x-empty-state title="Aucune annonce avec ces critères, pour l'instant.">

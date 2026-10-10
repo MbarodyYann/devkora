@@ -35,7 +35,11 @@
                 <div class="flex flex-wrap items-center gap-2">
                     <x-chip :tone="$mission ? 'info' : 'neutral'">{{ $listing->type->label() }}</x-chip>
                     <x-chip :tone="$status->tone()">{{ $status->label($listing->type) }}</x-chip>
+                    <x-report-button :content="$listing" type="listing" class="ml-auto" />
                 </div>
+                @if ($listing->event)
+                    <a href="{{ route('events.show', $listing->event) }}" class="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-primary-600 underline-offset-4 hover:underline dark:text-primary-300"><x-icon name="calendar" class="size-4" /> Pour {{ $listing->event->title }}</a>
+                @endif
                 <h1 class="mt-4 break-words text-[30px] leading-[1.15] sm:text-[40px]">{{ $listing->title }}</h1>
                 <div class="mt-4">
                     <x-author :user="$listing->user" :date="$listing->created_at" verb="Publiée" />
@@ -113,7 +117,7 @@
             @if ($isAuthor && $mission && $status === ListingStatus::Open)
                 <section id="propositions" class="scroll-mt-24" aria-labelledby="propositions-titre">
                     <h2 id="propositions-titre" class="text-[28px] sm:text-[32px]">Choisis ton dev</h2>
-                    <p class="mt-2 text-ink-soft">Quand tu retiens un dev, tu sécurises les fonds (simulation) et les autres propositions passent en « Non retenue ».</p>
+                    <p class="mt-2 text-ink-soft">Quand tu retiens un dev, les autres sont prévenus. Tu sécurises alors les fonds (simulation).</p>
                     @if ($proposals->isEmpty())
                         <p class="mt-4 text-ink-muted">Pas encore de proposition. Les devs qui ont ces compétences voient ta mission dans les annonces.</p>
                     @else

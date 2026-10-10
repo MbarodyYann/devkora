@@ -72,6 +72,16 @@ class Listing extends Model
     }
 
     /**
+     * Hackathon auquel l'équipe est liée.
+     *
+     * @return BelongsTo<Event, $this>
+     */
+    public function event(): BelongsTo
+    {
+        return $this->belongsTo(Event::class);
+    }
+
+    /**
      * @return HasMany<Proposal, $this>
      */
     public function proposals(): HasMany

@@ -2,7 +2,9 @@
 
 namespace App\Livewire\Listings;
 
+use App\Enums\EventType;
 use App\Enums\ListingType;
+use App\Models\Event;
 use App\Models\Listing;
 use App\Models\Skill;
 use App\Services\BudgetEstimator;
@@ -31,6 +33,10 @@ class Create extends Component
     #[Url(except: '')]
     public string $type = '';
 
+    /** Hackathon pour lequel l'équipe se forme (« Chercher des coéquipiers pour cet événement »). */
+    #[Url(as: 'evenement', except: '')]
+    public string $eventId = '';
+
     public string $title = '';
 
     public string $description = '';
@@ -55,6 +61,22 @@ class Create extends Component
     {
         Gate::authorize('create', Listing::class);
         $this->country = auth()->user()->profile->country ?? '';
+
+        // Depuis un hackathon : annonce d'équipe, lieu et titre préremplis.
+        if ($event = $this->event) {
+            $this->type = ListingType::Team->value;
+            $this->remote = $event->online;
+            $this->country = $event->country ?? $this->country;
+            $this->title = $this->title ?: 'Équipe pour '.$event->title;
+        }
+    }
+
+    #[Computed]
+    public function event(): ?Event
+    {
+        return $this->eventId !== '' && ctype_digit($this->eventId)
+            ? Event::query()->visible()->where('type', EventType::Hackathon)->where('ends_at', '>=', now())->find((int) $this->eventId)
+            : null;
     }
 
     #[Computed]
@@ -157,6 +179,7 @@ class Create extends Component
             'hours_per_week' => $team ? (int) $this->hoursPerWeek : null,
             'budget_fcfa' => $team ? null : (int) $this->budget,
             'delivery_days' => $team ? null : (int) $this->deliveryDays,
+            'event_id' => $team ? $this->event?->id : null,
         ], $skills);
 
         session()->flash('status', $team

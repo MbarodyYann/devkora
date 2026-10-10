@@ -6,6 +6,7 @@ use App\Enums\Availability;
 use App\Models\Profile;
 use App\Models\Skill;
 use App\Models\User;
+use App\Services\Contributors;
 use App\Support\Countries;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -100,6 +101,17 @@ class Directory extends Component
     public function skillOptions(): Collection
     {
         return Skill::query()->whereHas('users')->orderBy('name')->get(['name', 'slug']);
+    }
+
+    /**
+     * « Les plus utiles ce mois-ci » (11), en tête de l'annuaire, sans filtre et en première page.
+     *
+     * @return Collection<int, User>
+     */
+    #[Computed]
+    public function contributors(): Collection
+    {
+        return $this->hasFilters || $this->getPage() > 1 ? collect() : app(Contributors::class)->ofMonth(5);
     }
 
     #[Computed]

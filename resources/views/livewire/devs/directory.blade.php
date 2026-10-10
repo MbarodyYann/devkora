@@ -51,6 +51,13 @@
         @endif
     </x-card>
 
+    @if ($this->contributors->isNotEmpty())
+        <section class="mt-8" aria-labelledby="utiles-titre">
+            <h2 id="utiles-titre" class="text-[28px] sm:text-[32px]">Les plus utiles ce mois-ci</h2>
+            <x-contributors :contributors="$this->contributors" :compact="true" class="mt-4" />
+        </section>
+    @endif
+
     <div wire:loading.class="opacity-60" class="mt-6 transition-opacity">
         @if ($this->devs->isEmpty())
             <x-empty-state title="Personne avec ces critères, pour l'instant.">

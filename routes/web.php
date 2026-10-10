@@ -3,17 +3,24 @@
 use App\Http\Controllers\AnswerController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\DemoLoginController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ListingController;
 use App\Http\Controllers\ListingStatusController;
+use App\Http\Controllers\ModerationController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\QuestionTagController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ReviewController;
 use App\Livewire\Articles\Create as ArticleCreate;
 use App\Livewire\Articles\Index as ArticleIndex;
 use App\Livewire\Devs\Directory;
+use App\Livewire\Events\Create as EventCreate;
+use App\Livewire\Events\Index as EventIndex;
 use App\Livewire\Listings\Create as ListingCreate;
 use App\Livewire\Listings\Index as ListingIndex;
 use App\Livewire\Questions\Index as QuestionIndex;
@@ -70,4 +77,34 @@ Route::middleware('auth')->prefix('annonces')->group(function () {
     Route::post('/{listing}/terminer', [ListingStatusController::class, 'complete'])->middleware('throttle:actions')->name('listings.complete');
     Route::post('/{listing}/annuler', [ListingStatusController::class, 'cancel'])->middleware('throttle:actions')->name('listings.cancel');
     Route::post('/{listing}/avis', [ReviewController::class, 'store'])->middleware('throttle:actions')->name('reviews.store');
+});
+
+// Notifications (cloche)
+Route::middleware('auth')->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/lire', [NotificationController::class, 'readAll'])->middleware('throttle:actions')->name('notifications.read-all');
+    Route::get('/notifications/{notification}', [NotificationController::class, 'open'])->whereUuid('notification')->name('notifications.open');
+});
+
+// Par les devs : privilèges, signalement, modération communautaire
+Route::view('/privileges', 'privileges')->name('privileges');
+
+Route::middleware('auth')->group(function () {
+    Route::post('/signalements', [ReportController::class, 'store'])->middleware('throttle:reports')->name('reports.store');
+    Route::put('/questions/{question}/tags', [QuestionTagController::class, 'update'])->middleware('throttle:actions')->name('questions.retag');
+
+    Route::get('/moderation', [ModerationController::class, 'index'])->name('moderation.index');
+    Route::middleware('throttle:actions')->prefix('moderation/{type}/{id}')->whereIn('type', ['question', 'answer', 'article', 'listing', 'event'])->whereNumber('id')->group(function () {
+        Route::post('/masquer', [ModerationController::class, 'hide'])->name('moderation.hide');
+        Route::post('/retablir', [ModerationController::class, 'restore'])->name('moderation.restore');
+        Route::post('/classer', [ModerationController::class, 'dismiss'])->name('moderation.dismiss');
+    });
+});
+
+// Communauté : événements
+Route::get('/evenements', EventIndex::class)->name('events.index');
+Route::get('/evenements/{event}', [EventController::class, 'show'])->name('events.show');
+Route::middleware('auth')->group(function () {
+    Route::get('/evenements/proposer', EventCreate::class)->name('events.create');
+    Route::post('/evenements/{event}/participer', [EventController::class, 'participate'])->middleware('throttle:actions')->name('events.participate');
 });

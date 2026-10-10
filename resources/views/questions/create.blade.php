@@ -10,7 +10,7 @@
             <form method="post" action="{{ route('questions.store') }}" class="space-y-6" novalidate>
                 @csrf
                 <x-field label="Titre" name="title" hint="Résume ton problème en une phrase, comme si tu le cherchais sur Google.">
-                    <x-input name="title" required minlength="15" maxlength="150" autofocus aria-describedby="title-hint" placeholder="Ex. Le webhook Wave renvoie 401 en production" />
+                    <livewire:questions.similar-title :value="old('title')" />
                 </x-field>
 
                 <x-field label="Détail" name="body" hint="Ce que tu veux faire, ce que tu as essayé, le message d'erreur. Markdown accepté : `code`, ```php pour un bloc de code, **gras**.">

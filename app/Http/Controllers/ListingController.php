@@ -16,7 +16,7 @@ class ListingController extends Controller
 
         $me = auth()->user();
         $isAuthor = $me?->id === $listing->user_id;
-        $listing->load(['user.profile', 'skills', 'payment', 'review.reviewer', 'acceptedProposals.user.profile']);
+        $listing->load(['event', 'user.profile', 'skills', 'payment', 'review.reviewer', 'acceptedProposals.user.profile']);
 
         // L'auteur compare toutes les réponses ; un autre membre ne voit que la sienne.
         $proposals = $isAuthor
