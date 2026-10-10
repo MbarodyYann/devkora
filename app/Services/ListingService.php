@@ -28,6 +28,7 @@ class ListingService
         private readonly MarkdownRenderer $markdown,
         private readonly PaymentService $payments,
         private readonly ReputationService $reputation,
+        private readonly Notifier $notifier,
     ) {}
 
     /**
@@ -37,13 +38,15 @@ class ListingService
     public function publish(User $author, ListingType $type, array $data, array $skills): Listing
     {
         return DB::transaction(function () use ($author, $type, $data, $skills) {
-            $listing = new Listing(['title' => French::typography($data['title'])] + $data);
+            $listing = new Listing(['title' => French::typography($data['title'])] + collect($data)->except('event_id')->all());
             $listing->forceFill([
                 'user_id' => $author->id,
                 'type' => $type,
                 'status' => ListingStatus::Open,
                 'description_html' => $this->markdown->toHtml($data['description']),
                 'excerpt' => Text::excerpt($data['description']),
+                // Équipe formée pour un hackathon de la communauté.
+                'event_id' => $type === ListingType::Team ? ($data['event_id'] ?? null) : null,
             ])->save();
 
             $listing->skills()->sync(Skill::idsFor($skills));
@@ -61,6 +64,8 @@ class ListingService
             'status' => ProposalStatus::Pending,
         ])->save();
 
+        $this->notifier->proposalReceived($proposal, $listing);
+
         return $proposal;
     }
 
@@ -71,6 +76,8 @@ class ListingService
             'status' => $accept ? ProposalStatus::Accepted : ProposalStatus::Declined,
             'decided_at' => now(),
         ])->save();
+
+        $this->notifier->teamRequestDecided($proposal, $proposal->listing()->firstOrFail());
     }
 
     /** Équipe complète : l'annonce se ferme, les demandes en attente sont refusées. */
@@ -96,6 +103,7 @@ class ListingService
 
             $dev = $listing->acceptedProposals()->with('user')->sole()->user;
             $this->reputation->award($dev, ReputationReason::MissionCompleted, $listing);
+            $this->notifier->missionCompleted($listing, $dev);
         });
     }
 

@@ -16,11 +16,12 @@ class AnswerService
     public function __construct(
         private readonly ReputationService $reputation,
         private readonly MarkdownRenderer $markdown,
+        private readonly Notifier $notifier,
     ) {}
 
     public function publish(User $author, Question $question, string $body): Answer
     {
-        return DB::transaction(function () use ($author, $question, $body) {
+        $answer = DB::transaction(function () use ($author, $question, $body) {
             $answer = new Answer(['body' => $body]);
             $answer->forceFill([
                 'question_id' => $question->id,
@@ -32,6 +33,10 @@ class AnswerService
 
             return $answer;
         });
+
+        $this->notifier->answerPosted($answer, $question);
+
+        return $answer;
     }
 
     /**
@@ -53,6 +58,7 @@ class AnswerService
             // Pas de cauris pour sa propre réponse.
             if (! $unaccept && $answer->user_id !== $question->user_id) {
                 $this->reputation->award($answer->user()->firstOrFail(), ReputationReason::AnswerAccepted, $answer);
+                $this->notifier->answerAccepted($answer, $question);
             }
         });
     }

@@ -15,7 +15,10 @@ use LogicException;
  */
 class ReviewService
 {
-    public function __construct(private readonly ReputationService $reputation) {}
+    public function __construct(
+        private readonly ReputationService $reputation,
+        private readonly Notifier $notifier,
+    ) {}
 
     /**
      * @param  array{rating: int, communication: int, quality: int, timeliness: int, comment?: string|null}  $data
@@ -40,6 +43,8 @@ class ReviewService
             if ($bonus = ReputationReason::reviewBonus($review->rating)) {
                 $this->reputation->award($dev, ReputationReason::ReviewBonus, $review, $bonus);
             }
+
+            $this->notifier->reviewReceived($review, $listing);
 
             return $review;
         });

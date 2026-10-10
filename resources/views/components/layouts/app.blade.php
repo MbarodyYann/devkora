@@ -6,6 +6,9 @@
     use App\Support\Navigation;
 
     $me = auth()->user()?->loadMissing('profile');
+    // Cloche : nombre de non lues et les 8 dernières.
+    $unreadCount = $me ? $me->unreadNotifications()->count() : 0;
+    $latestNotifications = $me ? $me->notifications()->limit(8)->get() : collect();
     $mainNav = Navigation::main();
     $bottomNav = Navigation::bottom();
     $meActive = $me ? request()->routeIs('devs.show', 'profile.edit') && request()->route('user')?->is($me) : request()->routeIs('login', 'register');
@@ -127,6 +130,40 @@
                         </div>
                     @endif
 
+                    {{-- Cloche (02, P1) : compteur ambre des non lues, 8 dernières, « Tout marquer comme lu ». --}}
+                    <div class="relative hidden lg:block" x-data="{ open: false }" x-on:keydown.escape="open = false" x-on:click.outside="open = false" data-bell>
+                        <button type="button" x-on:click="open = ! open" x-bind:aria-expanded="open.toString()" aria-expanded="false"
+                                aria-label="Notifications{{ $unreadCount ? ', '.$unreadCount.' non lue'.($unreadCount > 1 ? 's' : '') : '' }}"
+                                class="relative inline-flex size-10 items-center justify-center rounded-btn text-ink-soft transition hover:bg-surface hover:text-ink">
+                            <x-icon name="bell" class="size-5" />
+                            @if ($unreadCount)
+                                <span class="absolute -right-0.5 -top-0.5 inline-flex min-w-5 items-center justify-center rounded-full bg-secondary-400 px-1 text-xs font-semibold text-primary-950" aria-hidden="true">{{ $unreadCount > 9 ? '9+' : $unreadCount }}</span>
+                            @endif
+                        </button>
+                        <div x-cloak x-show="open" x-transition.opacity
+                             class="nav-menu absolute right-0 mt-2 w-96 overflow-hidden rounded-2xl border border-line bg-surface shadow-card-hover">
+                            <div class="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
+                                <p class="font-semibold text-ink">Notifications</p>
+                                @if ($unreadCount)
+                                    <form method="post" action="{{ route('notifications.read-all') }}">
+                                        @csrf
+                                        <button type="submit" class="text-sm font-semibold text-primary-600 underline-offset-4 hover:underline dark:text-primary-300">Tout marquer comme lu</button>
+                                    </form>
+                                @endif
+                            </div>
+                            @if ($latestNotifications->isEmpty())
+                                <p class="px-4 py-6 text-sm text-ink-muted">Rien de neuf pour l'instant.</p>
+                            @else
+                                <ul class="max-h-96 overflow-y-auto p-1.5">
+                                    @foreach ($latestNotifications as $notification)
+                                        <li><x-notification-item :notification="$notification" /></li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                            <a href="{{ route('notifications.index') }}" class="block border-t border-line px-4 py-3 text-center text-sm font-semibold text-primary-600 hover:bg-bg-alt dark:text-primary-300">Voir toutes les notifications</a>
+                        </div>
+                    </div>
+
                     <div class="relative hidden lg:block" x-data="{ open: false }" x-on:keydown.escape="open = false" x-on:click.outside="open = false">
                         <button type="button" x-on:click="open = ! open" x-bind:aria-expanded="open.toString()" aria-expanded="false"
                                 class="flex items-center gap-2 rounded-btn py-1 pl-1 pr-2 text-ink transition hover:bg-surface">
@@ -226,14 +263,18 @@
             @endforeach
             <li class="relative min-w-0 flex-1" @auth x-data="{ open: false }" x-on:keydown.escape="open = false" x-on:click.outside="open = false" @endauth>
                 @auth
-                    <button type="button" x-on:click="open = ! open" x-bind:aria-expanded="open.toString()" aria-expanded="false"
+                    <button type="button" x-on:click="open = ! open" x-bind:aria-expanded="open.toString()" aria-expanded="false" data-me-menu
+                            aria-label="Moi{{ $unreadCount ? ', '.$unreadCount.' notification'.($unreadCount > 1 ? 's' : '').' non lue'.($unreadCount > 1 ? 's' : '') : '' }}"
                             @class([
-                                'flex h-14 w-full flex-col items-center justify-center gap-0.5 rounded-xl text-xs font-medium transition',
+                                'relative flex h-14 w-full flex-col items-center justify-center gap-0.5 rounded-xl text-xs font-medium transition',
                                 'bg-bg-alt text-primary-600 ring-1 ring-secondary-400 dark:text-secondary-400' => $meActive,
                                 'text-ink-muted' => ! $meActive,
                             ])>
                         <x-icon name="user" class="size-5" />
                         Moi
+                        @if ($unreadCount)
+                            <span class="absolute right-3 top-1.5 inline-flex min-w-5 items-center justify-center rounded-full bg-secondary-400 px-1 text-xs font-semibold text-primary-950" aria-hidden="true">{{ $unreadCount > 9 ? '9+' : $unreadCount }}</span>
+                        @endif
                     </button>
                     <div x-cloak x-show="open" x-transition.opacity
                          class="nav-menu absolute bottom-full right-0 z-10 mb-3 w-64 overflow-hidden rounded-2xl border border-line bg-surface p-1.5 shadow-card-hover">

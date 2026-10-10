@@ -30,7 +30,7 @@ class QuestionController extends Controller
 
         return redirect()
             ->route('questions.show', $question)
-            ->with('status', 'Question publiée. Les réponses de la communauté apparaîtront juste en dessous.');
+            ->with('status', 'Question publiée. Tu seras prévenu dès la première réponse.');
     }
 
     public function show(Question $question): View

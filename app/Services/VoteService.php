@@ -17,7 +17,10 @@ use Illuminate\Support\Facades\DB;
  */
 class VoteService
 {
-    public function __construct(private readonly ReputationService $reputation) {}
+    public function __construct(
+        private readonly ReputationService $reputation,
+        private readonly Notifier $notifier,
+    ) {}
 
     /**
      * @return int|null le vote du membre après l'opération (null s'il est annulé)
@@ -49,6 +52,10 @@ class VoteService
                     'value' => $value,
                 ])->save();
                 $this->reputationFor($votable, $value);
+
+                if ($votable instanceof Article) {
+                    $this->notifier->articleUseful($votable, $voter);
+                }
             }
 
             $votable->forceFill([

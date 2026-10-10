@@ -63,6 +63,18 @@
         @case('alert')
             <circle cx="12" cy="12" r="9"/><path d="M12 8v4.5M12 16h.01"/>
             @break
+        @case('bell')
+            <path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/>
+            @break
+        @case('flag')
+            <path d="M4 22V4a1 1 0 0 1 1-1h11l-1.5 4L16 11H5"/>
+            @break
+        @case('calendar')
+            <rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+            @break
+        @case('shield')
+            <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>
+            @break
         @case('check')
             <path d="M20 6 9 17l-5-5"/>
             @break

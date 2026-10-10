@@ -19,6 +19,8 @@ use LogicException;
  */
 class PaymentService
 {
+    public function __construct(private readonly Notifier $notifier) {}
+
     /** Code de confirmation simulé, à saisir par l'auteur (il s'affiche à l'écran, rien n'est envoyé). */
     public function confirmationCode(): string
     {
@@ -52,6 +54,7 @@ class PaymentService
             $listing->proposals()->whereKeyNot($proposal->id)->where('status', ProposalStatus::Pending)
                 ->update(['status' => ProposalStatus::Declined, 'decided_at' => now()]);
             $listing->forceFill(['status' => ListingStatus::InProgress, 'assigned_at' => now()])->save();
+            $this->notifier->devRetained($listing, $proposal);
 
             return $payment;
         });
