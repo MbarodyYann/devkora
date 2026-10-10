@@ -10,6 +10,8 @@ use Illuminate\Foundation\Testing\RefreshDatabaseState;
 use Illuminate\Support\Facades\Artisan;
 use Symfony\Component\Process\Process;
 
+require_once __DIR__.'/server.php';
+
 /*
 | Aucun débordement horizontal à 360 px (08, « Mise en page ») : mesure réelle dans Chromium
 | (getBoundingClientRect), en clair et en sombre, sans masquer avec overflow-x: clip.
@@ -21,35 +23,6 @@ beforeAll(function () {
         throw new RuntimeException('Playwright manque : npm install, puis npx playwright install chromium.');
     }
 });
-
-function serve(): Process
-{
-    $port = 8765;
-    // Un ancien serveur encore actif fausserait toutes les mesures : on refuse de continuer.
-    if (@fsockopen('127.0.0.1', $port)) {
-        throw new RuntimeException("Le port $port est déjà utilisé : arrête l'ancien serveur de test.");
-    }
-    $server = new Process(
-        [PHP_BINARY, '-S', "127.0.0.1:$port", base_path('tests/Browser/router.php')],
-        public_path(),
-        ['APP_ENV' => 'local', 'APP_DEBUG' => 'false', 'APP_URL' => "http://127.0.0.1:$port", 'APP_DEMO' => 'true',
-            'DB_CONNECTION' => 'pgsql', 'DB_DATABASE' => config('database.connections.pgsql.database'),
-            'SESSION_DRIVER' => 'file', 'CACHE_STORE' => 'array', 'QUEUE_CONNECTION' => 'sync'],
-    );
-    // Journal du serveur ignoré : un tube jamais lu finit par se remplir et bloquer le serveur.
-    $server->disableOutput();
-    $server->start();
-
-    // Attend que le serveur réponde (5 s au plus).
-    foreach (range(1, 50) as $attempt) {
-        if (@fsockopen('127.0.0.1', $port)) {
-            break;
-        }
-        usleep(100_000);
-    }
-
-    return $server;
-}
 
 function measure(array $pages, ?string $persona = null, int $width = 360, bool $javascript = true): array
 {
