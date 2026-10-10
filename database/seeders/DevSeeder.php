@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Hash;
 class DevSeeder extends Seeder
 {
     /** Compétences propres au contexte africain (02, tags locaux). */
-    public const LOCAL_SKILLS = ['Wave', 'Orange Money', 'MTN MoMo', 'USSD', 'SMS', 'Hors ligne', '3G'];
+    public const LOCAL_SKILLS = ['Wave', 'Orange Money', 'MTN MoMo', 'Moov Money', 'Free Money', 'USSD', 'SMS', 'Hors ligne', '3G'];
 
     public function run(): void
     {

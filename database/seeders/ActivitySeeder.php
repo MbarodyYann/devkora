@@ -19,6 +19,8 @@ class ActivitySeeder extends Seeder
                 (select max(created_at) from questions where user_id = users.id),
                 (select max(created_at) from answers where user_id = users.id),
                 (select max(created_at) from articles where user_id = users.id),
+                (select max(created_at) from listings where user_id = users.id),
+                (select max(created_at) from proposals where user_id = users.id),
                 (select max(created_at) from votes where user_id = users.id)
             ))
             where users.last_seen_at is not null
