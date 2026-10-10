@@ -30,6 +30,20 @@ class Navigation
     }
 
     /**
+     * Menu « Publier » des membres (08) : les actions de publication qui existent.
+     *
+     * @return list<array{label: string, route: string, icon: string}>
+     */
+    public static function publish(): array
+    {
+        return array_values(array_filter([
+            ['label' => 'Poser une question', 'route' => 'questions.create', 'icon' => 'message'],
+            ['label' => 'Écrire un article', 'route' => 'articles.create', 'icon' => 'book'],
+            ['label' => 'Publier une annonce', 'route' => 'listings.create', 'icon' => 'megaphone'],
+        ], fn (array $item) => Route::has($item['route'])));
+    }
+
+    /**
      * Rubriques de la barre du bas mobile (sans Le Pouls ; « Moi » est ajouté par le gabarit).
      *
      * @return list<array{label: string, route: string, active: string, icon: string}>

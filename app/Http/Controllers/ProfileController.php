@@ -20,7 +20,7 @@ class ProfileController extends Controller
     {
         abort_unless($user->profile()->exists(), 404);
 
-        // « Ce qu'il partage » (02) : ses réponses acceptées, puis ses questions.
+        // « Ce qu'il partage » (02) : ses articles, ses réponses acceptées, puis ses questions.
         $acceptedAnswers = $user->answers()->visible()
             ->whereHas('question', fn ($q) => $q->visible()->whereColumn('questions.accepted_answer_id', 'answers.id'))
             ->with('question:id,title,answers_count')
@@ -32,6 +32,8 @@ class ProfileController extends Controller
             'acceptedCount' => $user->answers()->visible()->whereHas('question', fn ($q) => $q->visible()->whereColumn('questions.accepted_answer_id', 'answers.id'))->count(),
             'questions' => $user->questions()->visible()->latest()->limit(5)->get(['id', 'title', 'answers_count', 'accepted_answer_id', 'created_at']),
             'questionsCount' => $user->questions()->visible()->count(),
+            'articles' => $user->articles()->visible()->latest()->limit(5)->get(['id', 'slug', 'title', 'category', 'score', 'created_at']),
+            'articlesCount' => $user->articles()->visible()->count(),
         ]);
     }
 

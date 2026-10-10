@@ -90,4 +90,12 @@ class Skill extends Model
     {
         return $this->belongsToMany(Question::class);
     }
+
+    /**
+     * @return BelongsToMany<Article, $this>
+     */
+    public function articles(): BelongsToMany
+    {
+        return $this->belongsToMany(Article::class);
+    }
 }

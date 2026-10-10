@@ -83,6 +83,14 @@ class User extends Authenticatable
     }
 
     /**
+     * @return HasMany<Article, $this>
+     */
+    public function articles(): HasMany
+    {
+        return $this->hasMany(Article::class);
+    }
+
+    /**
      * @return HasMany<ReputationEvent, $this>
      */
     public function reputationEvents(): HasMany

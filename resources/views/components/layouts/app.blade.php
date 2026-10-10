@@ -103,6 +103,24 @@
                 <x-theme-toggle class="max-lg:hidden" />
 
                 @auth
+                    {{-- « Publier » (08) : menu global des membres ; les en-têtes de liste gardent leur propre action. --}}
+                    @if ($publishMenu = Navigation::publish())
+                        <div class="relative" x-data="{ open: false }" x-on:keydown.escape="open = false" x-on:click.outside="open = false" data-publish-menu>
+                            <button type="button" x-on:click="open = ! open" x-bind:aria-expanded="open.toString()" aria-expanded="false" aria-haspopup="true"
+                                    class="btn-amber inline-flex min-h-9 items-center gap-1.5 rounded-btn px-3 text-[13px] font-semibold lg:min-h-10 lg:px-3.5 lg:text-sm">
+                                <x-icon name="plus" class="size-4" /> Publier <x-icon name="chevron-down" class="size-4" />
+                            </button>
+                            <div x-cloak x-show="open" x-transition.opacity
+                                 class="nav-menu absolute right-0 mt-2 w-60 overflow-hidden rounded-2xl border border-line bg-surface p-1.5 shadow-card-hover">
+                                @foreach ($publishMenu as $item)
+                                    <a href="{{ route($item['route']) }}" class="flex min-h-11 items-center gap-2 rounded-btn px-3 font-medium text-ink hover:bg-bg-alt">
+                                        <x-icon :name="$item['icon']" class="size-4" /> {{ $item['label'] }}
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
                     <div class="relative hidden lg:block" x-data="{ open: false }" x-on:keydown.escape="open = false" x-on:click.outside="open = false">
                         <button type="button" x-on:click="open = ! open" x-bind:aria-expanded="open.toString()" aria-expanded="false"
                                 class="flex items-center gap-2 rounded-btn py-1 pl-1 pr-2 text-ink transition hover:bg-surface">

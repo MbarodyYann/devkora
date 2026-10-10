@@ -74,10 +74,21 @@
         {{-- Ce qu'il partage (02) : réponses acceptées et questions, avant le reste --}}
         <x-card data-shares>
             <h2 class="text-[28px] sm:text-[32px]">{{ $isOwner ? 'Ce que tu partages' : 'Ce que '.$dev->firstName().' partage' }}</h2>
-            @if ($acceptedAnswers->isEmpty() && $questions->isEmpty())
+            @if ($articles->isEmpty() && $acceptedAnswers->isEmpty() && $questions->isEmpty())
                 <p class="mt-4 text-ink-muted">
-                    {{ $isOwner ? 'Tes réponses acceptées et tes questions apparaîtront ici. Une réponse acceptée te rapporte +15 cauris.' : $dev->firstName().' n\'a encore rien partagé.' }}
+                    {{ $isOwner ? 'Tes articles, tes réponses acceptées et tes questions apparaîtront ici. Une réponse acceptée te rapporte +15 cauris.' : $dev->firstName().' n\'a encore rien partagé.' }}
                 </p>
+            @endif
+            @if ($articles->isNotEmpty())
+                <h3 class="mt-6 font-sans text-base font-semibold tracking-normal text-ink">Articles <span class="font-normal text-ink-muted">({{ $articlesCount }})</span></h3>
+                <ul class="mt-2 divide-y divide-line">
+                    @foreach ($articles as $article)
+                        <li class="flex items-start gap-3 py-3">
+                            <a href="{{ route('articles.show', $article) }}" class="min-w-0 flex-1 break-words font-medium text-ink hover:text-primary-600 dark:hover:text-primary-300">{{ $article->title }}</a>
+                            <span class="shrink-0 text-sm text-ink-muted">{{ $article->score }} × Utile</span>
+                        </li>
+                    @endforeach
+                </ul>
             @endif
             @if ($acceptedAnswers->isNotEmpty())
                 <h3 class="mt-6 font-sans text-base font-semibold tracking-normal text-ink">Réponses acceptées <span class="font-normal text-ink-muted">({{ $acceptedCount }})</span></h3>

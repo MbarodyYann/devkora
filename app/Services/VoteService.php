@@ -4,15 +4,16 @@ namespace App\Services;
 
 use App\Enums\ReputationReason;
 use App\Models\Answer;
+use App\Models\Article;
 use App\Models\Question;
 use App\Models\User;
 use App\Models\Vote;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Votes +1 / −1 sur les questions et les réponses. Revoter dans le même sens annule le vote ;
- * voter dans l'autre sens le remplace. Les cauris ne concernent que les réponses : +10 / −2 pour
- * l'auteur, un événement par vote, dont la source est la réponse.
+ * Votes +1 / −1 sur les questions et les réponses, « Utile » (+1 seulement) sur les articles.
+ * Revoter dans le même sens annule le vote ; voter dans l'autre sens le remplace.
+ * Cauris pour l'auteur : réponse +10 / −2, article +5. Un événement par vote, dont la source est le contenu.
  */
 class VoteService
 {
@@ -21,7 +22,7 @@ class VoteService
     /**
      * @return int|null le vote du membre après l'opération (null s'il est annulé)
      */
-    public function vote(User $voter, Question|Answer $votable, int $value): ?int
+    public function vote(User $voter, Question|Answer|Article $votable, int $value): ?int
     {
         return DB::transaction(function () use ($voter, $votable, $value) {
             // Verrou sur le contenu : deux votes simultanés ne faussent pas le score.
@@ -61,14 +62,19 @@ class VoteService
         });
     }
 
-    private function reputationFor(Question|Answer $votable, int $value, bool $revoke = false): void
+    private function reputationFor(Question|Answer|Article $votable, int $value, bool $revoke = false): void
     {
-        if (! $votable instanceof Answer) {
+        $reason = match (true) {
+            $votable instanceof Answer => $value > 0 ? ReputationReason::AnswerUpvoted : ReputationReason::AnswerDownvoted,
+            $votable instanceof Article => ReputationReason::ArticleUseful,
+            default => null,
+        };
+
+        if ($reason === null) {
             return;
         }
 
         $author = $votable->user()->firstOrFail();
-        $reason = $value > 0 ? ReputationReason::AnswerUpvoted : ReputationReason::AnswerDownvoted;
 
         $revoke
             ? $this->reputation->revokeOne($author, $reason, $votable)

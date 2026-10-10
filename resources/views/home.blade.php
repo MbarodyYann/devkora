@@ -117,8 +117,8 @@
                     <dd class="mt-2 font-serif text-xl font-medium text-ink" data-stat="resolved">{{ $stats['resolved'] }}</dd>
                 </div>
                 <div class="flex min-w-0 flex-col items-center">
-                    <dt class="text-[11px] font-semibold uppercase tracking-[.14em] text-ink-muted">Pensé pour</dt>
-                    <dd class="mt-2 font-serif text-xl font-medium text-ink">Wave · Orange Money · MTN MoMo</dd>
+                    <dt class="text-[11px] font-semibold uppercase tracking-[.14em] text-ink-muted">Articles partagés</dt>
+                    <dd class="mt-2 font-serif text-xl font-medium text-ink" data-stat="articles">{{ $stats['articles'] }}</dd>
                 </div>
             </dl>
         </section>
@@ -134,6 +134,21 @@
             <ul class="mt-8 space-y-4">
                 @foreach ($resolvedQuestions as $question)
                     <li><x-question-card :question="$question" /></li>
+                @endforeach
+            </ul>
+        </section>
+    @endif
+
+    {{-- Derniers articles --}}
+    @if ($latestArticles->isNotEmpty())
+        <section class="pt-16 sm:pt-24" aria-labelledby="articles-titre">
+            <div class="flex flex-wrap items-end justify-between gap-4">
+                <h2 id="articles-titre" class="max-w-2xl text-[32px] sm:text-[44px]">Ce que les devs du continent ont appris, pour toi.</h2>
+                <a href="{{ route('articles.index') }}" class="font-semibold text-primary-600 underline-offset-4 hover:underline dark:text-primary-300">Voir les articles →</a>
+            </div>
+            <ul class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach ($latestArticles as $article)
+                    <li class="min-w-0"><x-article-card :article="$article" /></li>
                 @endforeach
             </ul>
         </section>

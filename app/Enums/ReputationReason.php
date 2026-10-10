@@ -10,6 +10,7 @@ enum ReputationReason: string
     case AnswerUpvoted = 'answer_upvoted';
     case AnswerDownvoted = 'answer_downvoted';
     case AnswerAccepted = 'answer_accepted';
+    case ArticleUseful = 'article_useful';
 
     public function points(): int
     {
@@ -17,6 +18,7 @@ enum ReputationReason: string
             self::AnswerUpvoted => 10,
             self::AnswerDownvoted => -2,
             self::AnswerAccepted => 15,
+            self::ArticleUseful => 5,
         };
     }
 
@@ -26,6 +28,7 @@ enum ReputationReason: string
             self::AnswerUpvoted => 'Réponse jugée utile',
             self::AnswerDownvoted => 'Réponse jugée peu utile',
             self::AnswerAccepted => 'Réponse acceptée',
+            self::ArticleUseful => 'Article jugé utile',
         };
     }
 }

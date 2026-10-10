@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Answer;
+use App\Models\Article;
 use App\Models\Question;
 use App\Models\User;
 use App\Policies\VotePolicy;
@@ -42,6 +43,7 @@ class AppServiceProvider extends ServiceProvider
             'user' => User::class,
             'question' => Question::class,
             'answer' => Answer::class,
+            'article' => Article::class,
         ]);
 
         // Le vote porte sur une question OU une réponse : la policy est déclarée explicitement.
@@ -54,6 +56,7 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('questions', fn (Request $request) => Limit::perHour(10)->by($byMember($request)));
         RateLimiter::for('answers', fn (Request $request) => Limit::perHour(30)->by($byMember($request)));
         RateLimiter::for('actions', fn (Request $request) => Limit::perMinute(30)->by($byMember($request)));
+        RateLimiter::for('articles', fn (Request $request) => Limit::perHour(5)->by($byMember($request)));
         RateLimiter::for('demo', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));
         // Requêtes Livewire (filtres de l'annuaire) : limite large.
         RateLimiter::for('livewire', fn (Request $request) => Limit::perMinute(120)->by($byMember($request)));

@@ -1,10 +1,13 @@
 <?php
 
 use App\Http\Controllers\AnswerController;
+use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\DemoLoginController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuestionController;
+use App\Livewire\Articles\Create as ArticleCreate;
+use App\Livewire\Articles\Index as ArticleIndex;
 use App\Livewire\Devs\Directory;
 use App\Livewire\Questions\Index as QuestionIndex;
 use Illuminate\Support\Facades\Route;
@@ -36,3 +39,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/questions/{question}/reponses', [AnswerController::class, 'store'])->middleware('throttle:answers')->name('answers.store');
     Route::post('/questions/{question}/reponses/{answer}/accepter', [AnswerController::class, 'accept'])->middleware('throttle:actions')->name('answers.accept');
 });
+
+// Entraide : articles
+Route::get('/articles', ArticleIndex::class)->name('articles.index');
+Route::get('/articles/ecrire', ArticleCreate::class)->middleware('auth')->name('articles.create');
+Route::get('/articles/{article}', [ArticleController::class, 'show'])->name('articles.show');
