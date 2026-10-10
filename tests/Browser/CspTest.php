@@ -26,6 +26,15 @@ function csp(array $pages, ?string $persona = null): array
     return json_decode($process->getOutput(), true);
 }
 
+/** Statut HTTP d'un formulaire envoyé sans jeton CSRF (requête réelle, hors du client HTTP de Laravel). */
+function postWithoutToken(string $url): int
+{
+    $context = stream_context_create(['http' => ['method' => 'POST', 'header' => 'Content-Type: application/x-www-form-urlencoded', 'content' => 'email=x%40y.z', 'ignore_errors' => true]]);
+    file_get_contents($url, false, $context);
+
+    return (int) explode(' ', $http_response_header[0])[1];
+}
+
 test('la CSP de production ne bloque rien, sur toutes les pages et pour chaque rôle', function () {
     Artisan::call('migrate:fresh', ['--seed' => true]);
     RefreshDatabaseState::$migrated = false;
@@ -46,6 +55,8 @@ test('la CSP de production ne bloque rien, sur toutes les pages et pour chaque r
         $member = csp(['/', "/questions/{$other->id}", '/questions/poser', '/articles/ecrire', '/annonces/publier', '/evenements/proposer', "/devs/{$moussa->id}/modifier", '/notifications', "/annonces/{$openMission->id}"], 'Moussa');
         $moderator = csp(['/moderation'], 'Koffi');
         $author = csp(["/annonces/{$openMission->id}", "/annonces/{$openMission->id}/reponses/{$openMission->proposals()->first()->id}/paiement"], 'Aïssatou');
+        // CSRF (désactivé dans les tests Feature, actif ici) : un formulaire envoyé sans jeton est refusé.
+        $csrf = collect(['/connexion', '/inscription', '/demo/moussa', '/livewire/update'])->mapWithKeys(fn ($path) => [$path => postWithoutToken("http://127.0.0.1:8765$path")]);
     } finally {
         $server->stop();
     }
@@ -60,6 +71,8 @@ test('la CSP de production ne bloque rien, sur toutes les pages et pour chaque r
             ->and($page['alpine'])->toBeTrue("Alpine n'a pas démarré : {$page['path']}")
             ->and($page['violations'])->toBe([], "Violation de la CSP : {$page['path']}");
     }
+
+    expect($csrf->unique()->values()->all())->toBe([419], 'Envoi sans jeton CSRF accepté : '.$csrf->toJson());
 
     // Les interactions ont bien eu lieu (sinon le test ne prouverait rien).
     $actions = $pages->pluck('actions')->flatten();
