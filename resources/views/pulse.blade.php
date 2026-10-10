@@ -35,16 +35,16 @@
                         <thead class="bg-bg-alt text-ink-muted">
                             <tr>
                                 <th scope="col" class="px-5 py-3 font-medium">Compétence</th>
-                                <th scope="col" class="px-5 py-3 text-right font-medium">Médiane</th>
-                                <th scope="col" class="px-5 py-3 text-right font-medium">Fourchette</th>
-                                <th scope="col" class="px-5 py-3 text-right font-medium">Montants</th>
+                                <th scope="col" class="px-5 py-3 text-right font-medium">Tarif médian</th>
+                                <th scope="col" class="px-5 py-3 text-right font-medium">Fourchette habituelle</th>
+                                <th scope="col" class="px-5 py-3 text-right font-medium">Données</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-line">
                             @foreach ($rates as $rate)
                                 <tr>
                                     <th scope="row" class="px-5 py-3 font-medium text-ink">
-                                        <span class="flex items-center gap-2"><x-icon name="check" class="size-4 shrink-0 text-primary-600 dark:text-secondary-400" /> {{ $rate['skill'] }}</span>
+                                        <a href="{{ route('listings.index', ['competence' => $rate['slug']]) }}" class="text-primary-600 underline-offset-4 hover:underline dark:text-secondary-400">{{ $rate['skill'] }}</a>
                                     </th>
                                     <td class="whitespace-nowrap px-5 py-3 text-right font-serif text-lg text-ink">{{ Money::fcfa($rate['median']) }}</td>
                                     <td class="whitespace-nowrap px-5 py-3 text-right text-ink-soft">{{ Money::format($rate['low']) }} à {{ Money::fcfa($rate['high']) }}</td>

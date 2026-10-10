@@ -64,6 +64,8 @@ test('la page /pouls : textes de 11, tableaux, sélecteur de pays, barres en CSS
         ->assertSee('<em class="font-serif italic text-secondary-400">Le marché te répond.</em>', false)
         ->assertSee('Tarifs médians en FCFA, compétences recherchées et activité de la communauté, calculés à partir des échanges réels.')
         ->assertSee("150\u{202F}000\u{00A0}FCFA")
+        ->assertSeeInOrder(['Compétence', 'Tarif médian', 'Fourchette habituelle', 'Données'])
+        ->assertSee('href="'.route('listings.index', ['competence' => $laravel->slug]).'"', false)
         ->assertSee('data-devs-by-country', false)
         ->assertSee('style="width:', false)
         ->assertDontSee('chart.js');
@@ -84,4 +86,16 @@ test('Le Pouls : dans la navigation à partir de 1 280 px, dans le pied de page 
     expect($html)->toMatch('/hidden xl:inline-block[^>]*>\s*Le Pouls/')
         ->toContain('Voir le Pouls →')
         ->and(substr($html, strpos($html, '<footer')))->toContain('>Le Pouls<');
+});
+
+test('le tableau des tarifs n\'a aucune coche : une coche veut dire « fait »', function () {
+    $laravel = Skill::factory()->create(['name' => 'Laravel']);
+    foreach ([100000, 150000, 200000] as $budget) {
+        missionWith($laravel, $budget);
+    }
+
+    $html = $this->get('/pouls')->assertOk()->getContent();
+    preg_match('/<table[^>]*data-rates.*?<\/table>/s', $html, $table);
+
+    expect($table[0])->not->toContain('<svg');
 });
