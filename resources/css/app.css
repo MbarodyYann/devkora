@@ -351,3 +351,238 @@
 @utility pb-safe {
     padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));
 }
+
+/* -------------------------------------------------------------------------
+ | Contenu Markdown (questions, réponses) et blocs de code.
+ | Coloration : jetons de la charte (primary et secondary), écrite à la main.
+ * ---------------------------------------------------------------------- */
+@layer components {
+    .prose-dk {
+        color: var(--color-ink-soft);
+        line-height: 1.7;
+        overflow-wrap: anywhere;
+
+        & > * + * {
+            margin-top: 1em;
+        }
+
+        & h1,
+        & h2,
+        & h3,
+        & h4 {
+            font-family: var(--font-sans);
+            font-weight: 700;
+            letter-spacing: 0;
+            color: var(--color-ink);
+            margin-top: 1.5em;
+        }
+
+        & h1 {
+            font-size: 1.375rem;
+        }
+
+        & h2 {
+            font-size: 1.25rem;
+        }
+
+        & h3,
+        & h4 {
+            font-size: 1.0625rem;
+        }
+
+        & a {
+            color: var(--color-primary-600);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        & strong {
+            color: var(--color-ink);
+            font-weight: 600;
+        }
+
+        & ul,
+        & ol {
+            padding-left: 1.4em;
+        }
+
+        & ul {
+            list-style: disc;
+        }
+
+        & ol {
+            list-style: decimal;
+        }
+
+        & li + li {
+            margin-top: 0.35em;
+        }
+
+        & blockquote {
+            border-left: 3px solid var(--color-secondary-400);
+            padding-left: 1em;
+            color: var(--color-ink-muted);
+        }
+
+        & :not(pre) > code {
+            font-family: var(--font-mono);
+            font-size: 0.875em;
+            font-variant-ligatures: none;
+            background-color: var(--color-bg-alt);
+            border: 1px solid var(--color-line);
+            border-radius: 6px;
+            padding: 0.1em 0.35em;
+            color: var(--color-ink);
+        }
+
+        & table {
+            display: block;
+            max-width: 100%;
+            overflow-x: auto;
+            border-collapse: collapse;
+            font-size: 0.9375rem;
+        }
+
+        & th,
+        & td {
+            border: 1px solid var(--color-line);
+            padding: 0.4em 0.7em;
+            text-align: left;
+        }
+
+        & th {
+            background-color: var(--color-bg-alt);
+            color: var(--color-ink);
+        }
+
+        & hr {
+            border-color: var(--color-line);
+        }
+
+        & img {
+            max-width: 100%;
+            height: auto;
+        }
+    }
+
+    .dark .prose-dk a {
+        color: var(--color-primary-300);
+    }
+
+    /* Bloc de code : défile horizontalement DANS le bloc, jamais la page. */
+    .code-block {
+        max-width: 100%;
+        overflow: hidden;
+        border: 1px solid var(--color-line);
+        border-radius: 12px;
+        background-color: var(--color-primary-950);
+    }
+
+    .code-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        padding: 0.35rem 0.5rem 0.35rem 0.85rem;
+        border-bottom: 1px solid rgb(255 255 255 / 0.08);
+        font-size: 0.75rem;
+        color: var(--color-primary-200);
+    }
+
+    .code-lang {
+        font-family: var(--font-mono);
+        text-transform: lowercase;
+    }
+
+    .code-copy {
+        min-height: 2rem;
+        padding: 0 0.7rem;
+        border-radius: 7px;
+        font-weight: 600;
+        color: var(--color-primary-950);
+        background-color: var(--color-secondary-400);
+    }
+
+    /* Bouton ambre : la couleur ne change pas au survol, seule l'ombre apparaît. */
+    .code-copy:hover {
+        box-shadow: 0 2px 8px rgb(0 0 0 / 0.35);
+    }
+
+    .code-block pre {
+        margin: 0;
+        overflow-x: auto;
+        padding: 0.9rem 1rem;
+        font-family: var(--font-mono);
+        font-size: 0.8125rem;
+        line-height: 1.65;
+        color: #e2e6ee; /* primary-100 */
+        tab-size: 4;
+        font-variant-ligatures: none; /* « -> » reste « -> », pas une flèche */
+    }
+
+    .code-block code {
+        font-family: inherit;
+        white-space: pre;
+    }
+
+    /* Jetons de coloration (sur fond primary-950, identiques en clair et en sombre). */
+    .hljs-keyword,
+    .hljs-selector-tag,
+    .hljs-built_in,
+    .hljs-doctag {
+        color: var(--color-secondary-300);
+    }
+
+    .hljs-string,
+    .hljs-regexp,
+    .hljs-addition,
+    .hljs-attribute,
+    .hljs-template-tag {
+        color: var(--color-secondary-200);
+    }
+
+    .hljs-number,
+    .hljs-literal,
+    .hljs-symbol,
+    .hljs-bullet {
+        color: var(--color-secondary-400);
+    }
+
+    .hljs-title,
+    .hljs-title.function_,
+    .hljs-section,
+    .hljs-name {
+        color: var(--color-primary-200);
+        font-weight: 600;
+    }
+
+    .hljs-variable,
+    .hljs-template-variable,
+    .hljs-params,
+    .hljs-attr,
+    .hljs-property {
+        color: var(--color-primary-300);
+    }
+
+    .hljs-comment,
+    .hljs-quote,
+    .hljs-deletion,
+    .hljs-meta {
+        color: var(--color-primary-400);
+        font-style: italic;
+    }
+
+    .hljs-type,
+    .hljs-class .hljs-title,
+    .hljs-tag {
+        color: var(--color-secondary-300);
+    }
+
+    .hljs-emphasis {
+        font-style: italic;
+    }
+
+    .hljs-strong {
+        font-weight: 700;
+    }
+}

@@ -66,6 +66,9 @@
         @case('check')
             <path d="M20 6 9 17l-5-5"/>
             @break
+        @case('chevron-up')
+            <path d="m18 15-6-6-6 6"/>
+            @break
         @case('chevron-down')
             <path d="m6 9 6 6 6-6"/>
             @break
