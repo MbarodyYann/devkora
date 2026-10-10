@@ -114,6 +114,61 @@
             @endif
         </x-card>
 
+        {{-- Projets et équipes (02) --}}
+        @if ($teams->isNotEmpty() || $isOwner)
+            <x-card data-teams>
+                <h2 class="text-[28px] sm:text-[32px]">Projets et équipes</h2>
+                @if ($teams->isEmpty())
+                    <p class="mt-4 text-ink-muted">Les équipes que tu montes ou que tu rejoins apparaîtront ici. Les annonces « Cherche coéquipiers » t'attendent.</p>
+                @else
+                    <ul class="mt-4 divide-y divide-line">
+                        @foreach ($teams as $team)
+                            <li class="flex items-center gap-3 py-3">
+                                <div class="min-w-0 flex-1">
+                                    <a href="{{ route('listings.show', $team) }}" class="block break-words font-medium text-ink hover:text-primary-600 dark:hover:text-primary-300">{{ $team->title }}</a>
+                                    <p class="text-sm text-ink-muted">{{ $team->user_id === $dev->id ? 'Porteur du projet' : 'Membre de l\'équipe' }} · {{ $team->acceptedProposals->count() + 1 }} dans l'équipe</p>
+                                </div>
+                                <span class="flex shrink-0 -space-x-1.5" aria-hidden="true">
+                                    <x-avatar :user="$team->user" size="stack" class="font-sans! font-semibold!" />
+                                    @foreach ($team->acceptedProposals->take(3) as $member)
+                                        <x-avatar :user="$member->user" size="stack" class="font-sans! font-semibold!" />
+                                    @endforeach
+                                </span>
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+            </x-card>
+        @endif
+
+        {{-- Missions réalisées et avis (02) --}}
+        @if ($completedMissions->isNotEmpty() || $isOwner)
+            <x-card id="missions" data-missions>
+                <div class="flex flex-wrap items-baseline justify-between gap-3">
+                    <h2 class="text-[28px] sm:text-[32px]">Missions réalisées</h2>
+                    @if ($reviewStats?->count)
+                        <p class="flex items-center gap-2 text-sm text-ink-muted"><x-stars :value="(float) $reviewStats->average" /> {{ number_format((float) $reviewStats->average, 1, ',', '') }} · {{ $reviewStats->count }} avis</p>
+                    @endif
+                </div>
+                @if ($completedMissions->isEmpty())
+                    <p class="mt-4 text-ink-muted">Ta première mission terminée apparaîtra ici, avec +20 cauris et l'avis de l'auteur.</p>
+                @else
+                    <ul class="mt-4 divide-y divide-line">
+                        @foreach ($completedMissions as $done)
+                            <li class="py-4">
+                                @if ($done->review)
+                                    <x-review-detail :review="$done->review" :mission="$done" />
+                                @else
+                                    <a href="{{ route('listings.show', $done) }}" class="font-medium text-ink hover:text-primary-600 dark:hover:text-primary-300">{{ $done->title }}</a>
+                                    <p class="mt-1 text-sm text-ink-muted">Pour {{ $done->user->name }} · terminée le {{ $done->completed_at->translatedFormat('j M Y') }}</p>
+                                @endif
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+            </x-card>
+        @endif
+
         <x-card>
             <h2 class="text-[28px] sm:text-[32px]">À propos</h2>
             @if ($profile->bio)

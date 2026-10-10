@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ListingStatus;
 use App\Models\Article;
+use App\Models\Listing;
 use App\Models\Profile;
 use App\Models\Question;
 use App\Models\User;
@@ -48,6 +50,10 @@ class HomeController extends Controller
             // Questions résolues récemment (08, « Sections suivantes de l'accueil »).
             'resolvedQuestions' => Question::query()->visible()->whereNotNull('accepted_answer_id')
                 ->with(['user.profile', 'skills'])->latest()->limit(3)->get(),
+            // Annonces ouvertes (08) : équipes et missions mélangées, les plus récentes.
+            'openListings' => Listing::query()->visible()->where('status', ListingStatus::Open)
+                ->with(['user.profile', 'skills', 'acceptedProposals.user.profile'])->withCount('proposals')
+                ->latest()->limit(3)->get(),
             'latestArticles' => Article::query()->visible()->with('user.profile')->latest()->limit(3)->get(),
         ]);
     }

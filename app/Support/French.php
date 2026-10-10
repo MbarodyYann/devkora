@@ -20,6 +20,17 @@ class French
         return (self::elides($word) ? "d'" : 'de ').$word;
     }
 
+    /**
+     * Espaces insécables de la typographie française : avant « : ; ! ? » et à l'intérieur des guillemets,
+     * pour qu'un titre ne commence jamais une ligne par « : ».
+     */
+    public static function typography(string $text): string
+    {
+        $text = preg_replace('/[ \t]+([:;!?»])/u', "\u{00A0}$1", $text);
+
+        return preg_replace('/«[ \t]+/u', "«\u{00A0}", $text);
+    }
+
     /** Le mot commence-t-il par une voyelle ou un h muet ? (Y est traité comme une consonne : « de Yaya ».) */
     public static function elides(string $word): bool
     {

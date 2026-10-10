@@ -619,3 +619,10 @@
         }
     }
 }
+
+/* Barre d'action collante d'une fiche (mobile) : place réservée en plus de la barre du bas. */
+@media (max-width: 1023.98px) {
+    body:has([data-action-bar]) {
+        padding-bottom: calc(11rem + env(safe-area-inset-bottom));
+    }
+}

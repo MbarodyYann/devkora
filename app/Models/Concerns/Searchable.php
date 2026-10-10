@@ -10,11 +10,18 @@ use Illuminate\Database\Eloquent\Builder;
  */
 trait Searchable
 {
+    /** Colonne du corps du texte (« description » pour les annonces). */
+    public function searchBodyColumn(): string
+    {
+        return 'body';
+    }
+
     public function searchVector(): string
     {
         $table = $this->getTable();
+        $body = $this->searchBodyColumn();
 
-        return "(setweight(to_tsvector('french', f_unaccent($table.title)), 'A') || setweight(to_tsvector('french', f_unaccent($table.body)), 'B'))";
+        return "(setweight(to_tsvector('french', f_unaccent($table.title)), 'A') || setweight(to_tsvector('french', f_unaccent($table.$body)), 'B'))";
     }
 
     /**

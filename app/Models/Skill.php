@@ -98,4 +98,12 @@ class Skill extends Model
     {
         return $this->belongsToMany(Article::class);
     }
+
+    /**
+     * @return BelongsToMany<Listing, $this>
+     */
+    public function listings(): BelongsToMany
+    {
+        return $this->belongsToMany(Listing::class);
+    }
 }

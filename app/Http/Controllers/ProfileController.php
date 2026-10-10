@@ -3,7 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Enums\Availability;
+use App\Enums\ListingStatus;
+use App\Enums\ListingType;
+use App\Enums\ProposalStatus;
 use App\Http\Requests\UpdateProfileRequest;
+use App\Models\Listing;
 use App\Models\Skill;
 use App\Models\User;
 use App\Services\AvatarService;
@@ -34,6 +38,18 @@ class ProfileController extends Controller
             'questionsCount' => $user->questions()->visible()->count(),
             'articles' => $user->articles()->visible()->latest()->limit(5)->get(['id', 'slug', 'title', 'category', 'score', 'created_at']),
             'articlesCount' => $user->articles()->visible()->count(),
+            // « Projets et équipes » (02) : annonces d'équipe portées ou rejointes.
+            'teams' => Listing::query()->visible()->where('type', ListingType::Team)
+                ->where(fn ($q) => $q->where('user_id', $user->id)
+                    ->orWhereHas('proposals', fn ($p) => $p->where('user_id', $user->id)->where('status', ProposalStatus::Accepted)))
+                ->with(['user.profile', 'acceptedProposals.user.profile'])
+                ->latest()->limit(6)->get(),
+            // « Missions réalisées » (02) et leurs avis.
+            'completedMissions' => Listing::query()->visible()->where('type', ListingType::Mission)->where('status', ListingStatus::Completed)
+                ->whereHas('proposals', fn ($p) => $p->where('user_id', $user->id)->where('status', ProposalStatus::Accepted))
+                ->with(['user', 'review.reviewer'])
+                ->latest('completed_at')->limit(6)->get(),
+            'reviewStats' => $user->receivedReviews()->selectRaw('count(*) as count, avg(rating) as average')->first(),
         ]);
     }
 

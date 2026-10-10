@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Question;
 use App\Models\Skill;
 use App\Models\User;
+use App\Support\French;
 use App\Support\Text;
 use Illuminate\Support\Facades\DB;
 
@@ -18,7 +19,7 @@ class QuestionService
     public function publish(User $author, string $title, string $body, array $tags): Question
     {
         return DB::transaction(function () use ($author, $title, $body, $tags) {
-            $question = new Question(['title' => $title, 'body' => $body]);
+            $question = new Question(['title' => French::typography($title), 'body' => $body]);
             $question->forceFill([
                 'user_id' => $author->id,
                 'body_html' => $this->markdown->toHtml($body),

@@ -14,19 +14,24 @@ use Illuminate\Support\Facades\DB;
  */
 class ReputationService
 {
-    public function award(User $user, ReputationReason $reason, Model $source): ReputationEvent
+    /**
+     * @param  int|null  $points  points de cet événement quand ils varient (bonus d'avis), sinon ceux de la raison
+     */
+    public function award(User $user, ReputationReason $reason, Model $source, ?int $points = null): ReputationEvent
     {
-        return DB::transaction(function () use ($user, $reason, $source) {
+        $points ??= $reason->points();
+
+        return DB::transaction(function () use ($user, $reason, $source, $points) {
             $event = (new ReputationEvent)->forceFill([
                 'user_id' => $user->id,
-                'points' => $reason->points(),
+                'points' => $points,
                 'reason' => $reason,
                 'source_type' => $source->getMorphClass(),
                 'source_id' => $source->getKey(),
             ]);
             $event->save();
 
-            User::whereKey($user->id)->increment('reputation', $reason->points());
+            User::whereKey($user->id)->increment('reputation', $points);
 
             return $event;
         });

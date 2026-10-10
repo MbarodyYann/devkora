@@ -91,6 +91,36 @@ class User extends Authenticatable
     }
 
     /**
+     * Annonces publiées.
+     *
+     * @return HasMany<Listing, $this>
+     */
+    public function listings(): HasMany
+    {
+        return $this->hasMany(Listing::class);
+    }
+
+    /**
+     * Réponses aux annonces (demandes d'équipe, propositions d'aide).
+     *
+     * @return HasMany<Proposal, $this>
+     */
+    public function proposals(): HasMany
+    {
+        return $this->hasMany(Proposal::class);
+    }
+
+    /**
+     * Avis reçus en tant que dev retenu.
+     *
+     * @return HasMany<Review, $this>
+     */
+    public function receivedReviews(): HasMany
+    {
+        return $this->hasMany(Review::class, 'reviewee_id');
+    }
+
+    /**
      * @return HasMany<ReputationEvent, $this>
      */
     public function reputationEvents(): HasMany

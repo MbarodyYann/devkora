@@ -6,6 +6,7 @@ use App\Enums\ArticleCategory;
 use App\Models\Article;
 use App\Models\Skill;
 use App\Models\User;
+use App\Support\French;
 use App\Support\Text;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -23,7 +24,7 @@ class ArticleService
     public function publish(User $author, ArticleCategory $category, string $title, string $body, array $tags): Article
     {
         return DB::transaction(function () use ($author, $category, $title, $body, $tags) {
-            $article = new Article(['category' => $category, 'title' => $title, 'body' => $body]);
+            $article = new Article(['category' => $category, 'title' => French::typography($title), 'body' => $body]);
             $article->forceFill([
                 'user_id' => $author->id,
                 'slug' => $this->uniqueSlug($title),

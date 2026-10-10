@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use App\Models\Answer;
 use App\Models\Article;
+use App\Models\Listing;
 use App\Models\Question;
+use App\Models\Review;
 use App\Models\User;
 use App\Policies\VotePolicy;
 use App\Services\MarkdownRenderer;
@@ -37,6 +39,8 @@ class AppServiceProvider extends ServiceProvider
         Route::pattern('user', '[0-9]+');
         Route::pattern('question', '[0-9]+');
         Route::pattern('answer', '[0-9]+');
+        Route::pattern('listing', '[0-9]+');
+        Route::pattern('proposal', '[0-9]+');
 
         // Noms stables dans les colonnes polymorphes (votes, événements de réputation).
         Relation::enforceMorphMap([
@@ -44,6 +48,8 @@ class AppServiceProvider extends ServiceProvider
             'question' => Question::class,
             'answer' => Answer::class,
             'article' => Article::class,
+            'listing' => Listing::class,
+            'review' => Review::class,
         ]);
 
         // Le vote porte sur une question OU une réponse : la policy est déclarée explicitement.
@@ -57,6 +63,9 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('answers', fn (Request $request) => Limit::perHour(30)->by($byMember($request)));
         RateLimiter::for('actions', fn (Request $request) => Limit::perMinute(30)->by($byMember($request)));
         RateLimiter::for('articles', fn (Request $request) => Limit::perHour(5)->by($byMember($request)));
+        RateLimiter::for('listings', fn (Request $request) => Limit::perHour(10)->by($byMember($request)));
+        RateLimiter::for('proposals', fn (Request $request) => Limit::perHour(30)->by($byMember($request)));
+        RateLimiter::for('payments', fn (Request $request) => Limit::perMinute(10)->by($byMember($request)));
         RateLimiter::for('demo', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));
         // Requêtes Livewire (filtres de l'annuaire) : limite large.
         RateLimiter::for('livewire', fn (Request $request) => Limit::perMinute(120)->by($byMember($request)));

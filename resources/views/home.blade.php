@@ -153,4 +153,18 @@
             </ul>
         </section>
     @endif
+    {{-- Annonces ouvertes --}}
+    @if ($openListings->isNotEmpty())
+        <section class="pt-16 sm:pt-24" aria-labelledby="annonces-titre">
+            <div class="flex flex-wrap items-end justify-between gap-4">
+                <h2 id="annonces-titre" class="max-w-2xl text-[32px] sm:text-[44px]">Des devs cherchent du renfort, peut-être le tien.</h2>
+                <a href="{{ route('listings.index') }}" class="font-semibold text-primary-600 underline-offset-4 hover:underline dark:text-primary-300">Voir les annonces →</a>
+            </div>
+            <ul class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach ($openListings as $listing)
+                    <li class="min-w-0"><x-listing-card :listing="$listing" /></li>
+                @endforeach
+            </ul>
+        </section>
+    @endif
 </x-layouts.app>
