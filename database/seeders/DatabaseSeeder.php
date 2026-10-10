@@ -15,7 +15,9 @@ class DatabaseSeeder extends Seeder
             DevSeeder::class,
             QuestionSeeder::class,
             ArticleSeeder::class,
+            EventSeeder::class,
             ListingSeeder::class,
+            ModerationSeeder::class,
             ActivitySeeder::class,
         ]);
     }

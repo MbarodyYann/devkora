@@ -13,6 +13,7 @@ return [
         [
             'author' => 'Aïssatou Koné', 'age' => 0.35, 'country' => 'CI', 'hours' => 10,
             'title' => 'Hackathon fintech d\'Abidjan : il nous manque un dev back-end',
+            'event' => 'Hackathon Inclusion financière d\'Abidjan',
             'roles' => 'Dev back-end Laravel ou Node.js',
             'skills' => ['Flutter', 'Laravel', 'MTN MoMo'],
             'description' => <<<'MD'

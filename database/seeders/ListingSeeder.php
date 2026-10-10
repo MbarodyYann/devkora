@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Enums\ListingType;
 use App\Enums\PaymentProvider;
+use App\Models\Event;
 use App\Models\Listing;
 use App\Models\Proposal;
 use App\Models\User;
@@ -73,6 +74,7 @@ class ListingSeeder extends Seeder
             'roles_wanted' => $data['roles'],
             'hours_per_week' => $data['hours'],
             'country' => $data['country'],
+            'event_id' => isset($data['event']) ? Event::where('title', $data['event'])->value('id') : null,
         ], $data['skills']);
 
         foreach ($data['members'] ?? [] as $i => [$name, $message]) {
