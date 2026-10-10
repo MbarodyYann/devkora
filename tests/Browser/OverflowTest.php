@@ -90,6 +90,13 @@ test('aucun débordement horizontal à 360 px, en clair et en sombre', function 
     // Garde-fou : les pages ont bien été servies par l'application (et non une page d'erreur).
     expect(collect([...$visitor, ...$member, ...$author, ...$desktop, ...$noScript])->pluck('title')->filter(fn ($t) => str_contains($t, 'DevKora')))->toHaveCount(78);
 
+    // F1 : la barre d'action de la fiche (Aïssatou, 360 px, défilée à 250 px) est visible et opaque.
+    $bars = collect($author)->filter(fn ($p) => $p['actionBar'] !== null);
+    expect($bars)->toHaveCount(2); // fiche en clair et en sombre
+    foreach ($bars as $page) {
+        expect($page['actionBar'])->toBe(['opacity' => 1, 'bgAlpha' => 1, 'buttonOpacity' => 1, 'hit' => true], "Barre d'action translucide : {$page['path']} ({$page['scheme']})");
+    }
+
     foreach ($noScript as $page) {
         expect($page['navTopCovered'])->toBeTrue("Texte visible au-dessus de la navigation sans JavaScript : {$page['path']} ({$page['scheme']})");
     }

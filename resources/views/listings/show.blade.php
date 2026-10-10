@@ -322,12 +322,13 @@
     </div>
 
     {{-- Barre d'action collante (mobile) : l'action principale de l'écran, au-dessus de la barre du bas.
-         Masquée quand la zone d'action est visible, pour ne jamais doubler le bouton. --}}
+         Masquée quand la zone d'action occupe le haut de l'écran (pas dès son premier pixel), pour ne jamais doubler le bouton. --}}
     @if ($primary)
-        <div class="fixed inset-x-3 bottom-[5.75rem] z-30 transition-opacity motion-reduce:transition-none lg:hidden" data-action-bar
+        {{-- Affichée ou masquée, jamais à mi-chemin : pas de transition d'opacité (F1), fond surface à 100 %. --}}
+        <div class="fixed inset-x-3 bottom-[5.75rem] z-30 lg:hidden" data-action-bar
              x-data="{ hidden: false }"
-             x-init="const target = document.querySelector('{{ $primary['href'] === '#agir' ? '[data-action-box]' : $primary['href'] }}'); if (target && 'IntersectionObserver' in window) new IntersectionObserver(([e]) => hidden = e.isIntersecting).observe(target)"
-             x-bind:class="hidden && 'pointer-events-none opacity-0'">
+             x-init="const target = document.querySelector('{{ $primary['href'] === '#agir' ? '[data-action-box]' : $primary['href'] }}'); if (target && 'IntersectionObserver' in window) new IntersectionObserver(([e]) => hidden = e.isIntersecting, { rootMargin: '0px 0px -35% 0px' }).observe(target)"
+             x-show="! hidden">
             <div class="flex items-center gap-3 rounded-2xl border border-line bg-surface p-2 pl-4 shadow-card-hover">
                 @if ($mission)
                     <x-budget :amount="$listing->budget_fcfa" class="min-w-0 [&>span:first-child]:text-xl" />

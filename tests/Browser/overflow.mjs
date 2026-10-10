@@ -75,7 +75,25 @@ for (const scheme of ['light', 'dark']) {
             return color === 'rgba(0, 0, 0, 0)' || color === 'transparent' ? 0 : (alpha ? Number(alpha[1]) : 1);
         });
 
-        report.push({ path, scheme, navAlpha, navTopCovered, ...result });
+        // Barre d'action collante (mobile) : une fois visible, opaque, bouton plein, et c'est elle qu'on touche (F1).
+        await page.evaluate(() => window.scrollTo(0, 250));
+        await page.waitForTimeout(400);
+        const actionBar = await page.evaluate(() => {
+            const bar = document.querySelector('[data-action-bar]');
+            if (!bar || getComputedStyle(bar).display === 'none' || bar.getBoundingClientRect().height === 0) return null;
+            let opacity = 1;
+            for (let el = bar; el; el = el.parentElement) opacity *= Number(getComputedStyle(el).opacity);
+            const surface = bar.firstElementChild;
+            const color = getComputedStyle(surface).backgroundColor;
+            const alpha = color.match(/\/\s*([\d.]+)\s*\)$/) || color.match(/^rgba\(.*,\s*([\d.]+)\)$/);
+            const button = bar.querySelector('a, button');
+            const r = surface.getBoundingClientRect();
+            const hit = [[r.left + 8, r.top + r.height / 2], [r.right - 8, r.top + r.height / 2], [r.left + r.width / 2, r.top + 6]]
+                .every(([x, y]) => bar.contains(document.elementFromPoint(x, y)));
+            return { opacity, bgAlpha: alpha ? Number(alpha[1]) : 1, buttonOpacity: Number(getComputedStyle(button).opacity), hit };
+        });
+
+        report.push({ path, scheme, navAlpha, navTopCovered, actionBar, ...result });
     }
 
     await context.close();
