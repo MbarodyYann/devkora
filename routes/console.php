@@ -1,8 +1,10 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
+use App\Services\ReputationService;
 use Illuminate\Support\Facades\Artisan;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+// Recalcule les cauris de chaque membre à partir de reputation_events (filet de sécurité).
+Artisan::command('reputation:recalculate', function (ReputationService $reputation) {
+    $fixed = $reputation->recalculate();
+    $this->info($fixed === 0 ? 'Tous les cauris sont justes.' : "$fixed membre(s) corrigé(s).");
+})->purpose('Recalcule users.reputation à partir des événements de réputation');

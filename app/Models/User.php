@@ -6,6 +6,7 @@ use App\Enums\Level;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -65,6 +66,30 @@ class User extends Authenticatable
         return $this->belongsToMany(Skill::class)->withPivot('position')->orderByPivot('position');
     }
 
+    /**
+     * @return HasMany<Question, $this>
+     */
+    public function questions(): HasMany
+    {
+        return $this->hasMany(Question::class);
+    }
+
+    /**
+     * @return HasMany<Answer, $this>
+     */
+    public function answers(): HasMany
+    {
+        return $this->hasMany(Answer::class);
+    }
+
+    /**
+     * @return HasMany<ReputationEvent, $this>
+     */
+    public function reputationEvents(): HasMany
+    {
+        return $this->hasMany(ReputationEvent::class);
+    }
+
     public function level(): Level
     {
         return Level::for($this->reputation);
@@ -85,6 +110,12 @@ class User extends Authenticatable
             $this->last_seen_at->gte(now()->subDays(7)->startOfDay()) => 'Actif cette semaine',
             default => null,
         };
+    }
+
+    /** Étiquette « Nouveau » (02, « Bienveillance ») : inscrit depuis moins de 14 jours. */
+    public function isNewMember(): bool
+    {
+        return $this->created_at !== null && $this->created_at->gt(now()->subDays(14));
     }
 
     public function initials(): string
