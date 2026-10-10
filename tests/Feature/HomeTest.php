@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\HomeController;
+use App\Models\Answer;
+use App\Models\Question;
 use App\Models\User;
 use App\Support\Copy;
 use Illuminate\Support\Facades\Cache;
@@ -62,11 +64,11 @@ test('les chiffres sont mis en cache 10 minutes', function () {
 test('un membre voit son action, pas le CTA d\'inscription', function () {
     $this->actingAs(User::factory()->withProfile()->create())
         ->get('/')
-        ->assertSee('Trouver des devs')
+        ->assertSee('Poser une question')
         ->assertDontSee(Copy::SIGNUP_CTA);
 });
 
-test('bande de confiance : 8 drapeaux au plus, puis le reste en texte', function () {
+test('bande de confiance : sur une ligne, 6 drapeaux sous 640 px et 8 au-dessus, puis le reste en texte', function () {
     foreach (['SN', 'CI', 'TG', 'BJ', 'ML', 'BF', 'CM', 'GN', 'NE', 'GH'] as $country) {
         User::factory()->withProfile(['country' => $country])->create();
     }
@@ -74,8 +76,11 @@ test('bande de confiance : 8 drapeaux au plus, puis le reste en texte', function
     $html = $this->get('/')->getContent();
     $flags = substr($html, strpos($html, 'data-flags'), 1500);
 
-    expect(substr_count($flags, '<span>'))->toBe(8)
-        ->and($flags)->toContain('>+2</span>');
+    expect(substr_count($flags, '<span class="">') + substr_count($flags, '<span>'))->toBe(6)
+        ->and(substr_count($flags, '<span class="max-sm:hidden">'))->toBe(2)
+        ->and($flags)->toContain('sm:hidden">+4</span>')
+        ->toContain('sm:inline">+2</span>')
+        ->and($html)->toContain('flex-nowrap items-center gap-1 text-base leading-7" aria-hidden="true" data-flags');
 });
 
 test('le sous-titre du hero et tous les H1 et H2 sont équilibrés (pas de mot orphelin)', function () {
@@ -83,4 +88,22 @@ test('le sous-titre du hero et tous les H1 et H2 sont équilibrés (pas de mot o
 
     expect($css)->toMatch('/h1,\s+h2 \{\s+text-wrap: balance;/')
         ->and($this->get('/')->getContent())->toContain('<p class="mt-6 max-w-xl text-balance');
+});
+
+test('questions résolues : colonne de la bande de confiance et section récente', function () {
+    $resolved = Question::factory()->create(['title' => 'Question résolue sur le webhook Wave']);
+    $answer = Answer::factory()->for($resolved)->create();
+    $resolved->forceFill(['accepted_answer_id' => $answer->id])->save();
+    Question::factory()->create(['title' => 'Question encore ouverte sur USSD']);
+
+    $this->get('/')
+        ->assertSee('Questions résolues')
+        ->assertSee('data-stat="resolved">1<', false)
+        ->assertSee('Ces blocages ont déjà trouvé leur solution.')
+        ->assertSee('Question résolue sur le webhook Wave')
+        ->assertDontSee('Question encore ouverte sur USSD');
+});
+
+test('le membre voit « Poser une question » sur l\'accueil', function () {
+    $this->actingAs(User::factory()->withProfile()->create())->get('/')->assertSee('Poser une question');
 });

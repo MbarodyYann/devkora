@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Question;
 use App\Models\User;
 use App\Support\Demo;
 use Illuminate\Foundation\Testing\RefreshDatabaseState;
@@ -61,17 +62,18 @@ test('aucun débordement horizontal à 360 px, en clair et en sombre', function 
     $server = serve();
 
     try {
-        $visitor = measure(['/', '/devs', '/devs?competence=laravel', "/devs/{$moussa->id}", "/devs/{$longest->id}", '/connexion', '/inscription', '/mot-de-passe-oublie', '/devs/999999']);
-        $member = measure(['/', '/devs', "/devs/{$moussa->id}", "/devs/{$moussa->id}/modifier"], 'Moussa');
-        $desktop = measure(['/', '/devs', "/devs/{$moussa->id}"], width: 1280);
+        $question = Question::orderByDesc('answers_count')->first();
+        $visitor = measure(['/questions', '/questions?statut=resolues', "/questions/{$question->id}", '/', '/devs', '/devs?competence=laravel', "/devs/{$moussa->id}", "/devs/{$longest->id}", '/connexion', '/inscription', '/mot-de-passe-oublie', '/devs/999999']);
+        $member = measure(['/', '/devs', "/devs/{$moussa->id}", "/devs/{$moussa->id}/modifier", '/questions', '/questions/poser', "/questions/{$question->id}"], 'Moussa');
+        $desktop = measure(['/', '/devs', "/devs/{$moussa->id}", "/questions/{$question->id}"], width: 1280);
     } finally {
         $server->stop();
     }
 
-    expect($visitor)->toHaveCount(18)->and($member)->toHaveCount(8)->and($desktop)->toHaveCount(6);
+    expect($visitor)->toHaveCount(24)->and($member)->toHaveCount(14)->and($desktop)->toHaveCount(8);
 
     // Garde-fou : les pages ont bien été servies par l'application (et non une page d'erreur).
-    expect(collect([...$visitor, ...$member, ...$desktop])->pluck('title')->filter(fn ($t) => str_contains($t, 'DevKora')))->toHaveCount(32);
+    expect(collect([...$visitor, ...$member, ...$desktop])->pluck('title')->filter(fn ($t) => str_contains($t, 'DevKora')))->toHaveCount(46);
 
     foreach ([...$visitor, ...$member, ...$desktop] as $page) {
         $where = "{$page['path']} ({$page['scheme']}, {$page['viewport']} px)";

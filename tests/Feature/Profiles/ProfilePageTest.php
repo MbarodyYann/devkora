@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Answer;
+use App\Models\Question;
 use App\Models\Skill;
 use App\Models\User;
 
@@ -105,4 +107,25 @@ test('la dernière activité est mise à jour au plus toutes les 5 minutes', fun
     $before = $user->fresh()->last_seen_at;
     $this->actingAs($user->fresh())->get('/');
     expect($user->fresh()->last_seen_at->equalTo($before))->toBeTrue();
+});
+
+test('« Ce que … partage » : réponses acceptées puis questions, avant le reste', function () {
+    $user = dev(user: ['name' => 'Koffi Mensah']);
+    $question = Question::factory()->create(['title' => 'Comment vérifier un webhook Wave ?']);
+    $accepted = Answer::factory()->for($question)->for($user)->create();
+    $question->forceFill(['accepted_answer_id' => $accepted->id])->save();
+    Answer::factory()->for($user)->create(); // non acceptée : n'apparaît pas
+    Question::factory()->for($user)->create(['title' => 'Quelle base pour un service USSD ?']);
+
+    $this->get(route('devs.show', $user))
+        ->assertSeeInOrder(['Ce que Koffi partage', 'Réponses acceptées', 'Comment vérifier un webhook Wave ?', 'Questions', 'Quelle base pour un service USSD ?', 'À propos']);
+
+    $this->actingAs($user)->get(route('devs.show', $user))->assertSee('Ce que tu partages');
+});
+
+test('rien de partagé : une invitation pour le propriétaire', function () {
+    $user = dev(user: ['name' => 'Awa Sarr']);
+
+    $this->get(route('devs.show', $user))->assertSee('Awa n&#039;a encore rien partagé.', false);
+    $this->actingAs($user)->get(route('devs.show', $user))->assertSee('Une réponse acceptée te rapporte +15 cauris.');
 });

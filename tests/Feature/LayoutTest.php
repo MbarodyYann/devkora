@@ -35,8 +35,9 @@ test('la navigation ne montre que les rubriques qui existent', function () {
     $html = $this->get('/devs')->getContent();
 
     expect($html)->toContain('aria-current="page"')
-        ->not->toContain('>Questions<')
-        ->and(Route::has('questions.index'))->toBeFalse();
+        ->toContain('>Questions<')
+        ->not->toContain('>Articles<')
+        ->and(Route::has('articles.index'))->toBeFalse();
 });
 
 test('chaque page : français, thème sans flash, favicon, lien d\'évitement, pied de page lisible', function () {

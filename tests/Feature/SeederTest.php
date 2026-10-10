@@ -1,10 +1,14 @@
 <?php
 
+use App\Models\Answer;
 use App\Models\Profile;
+use App\Models\Question;
 use App\Models\Skill;
 use App\Models\User;
+use App\Models\Vote;
 use App\Support\Demo;
 use Database\Seeders\DatabaseSeeder;
+use Database\Seeders\DemoClock;
 use Database\Seeders\DevSeeder;
 use Illuminate\Support\Carbon;
 
@@ -85,3 +89,56 @@ test('les inscriptions tiennent dans la fenêtre du concours, relative à la dat
     'pendant le vote du jury' => ['2026-11-01 09:00', 'octobre 2026'],
     'juste après minuit' => ['2026-10-25 00:03', 'septembre 2026'],
 ]);
+
+test('entraide : environ 35 questions et 90 réponses, des résolues et des sans réponse', function () {
+    expect(Question::count())->toBeBetween(35, 40)
+        ->and(Answer::count())->toBeBetween(85, 100)
+        ->and(Question::whereNotNull('accepted_answer_id')->count())->toBeGreaterThan(20)
+        ->and(Question::where('answers_count', 0)->count())->toBeGreaterThanOrEqual(2)
+        ->and(Question::sum('answers_count'))->toEqual(Answer::count());
+});
+
+test('les cauris viennent des événements, et Koffi dépasse 250', function () {
+    foreach (User::all() as $user) {
+        expect($user->reputation)->toBe((int) $user->reputationEvents()->sum('points'));
+    }
+
+    expect(User::where('email', Demo::KOFFI_EMAIL)->value('reputation'))->toBeGreaterThan(250);
+    $this->artisan('reputation:recalculate')->expectsOutput('Tous les cauris sont justes.');
+});
+
+test('chaque contenu et chaque vote arrivent après l\'inscription de leur auteur, dans la fenêtre', function () {
+    $start = DemoClock::make()->start();
+
+    foreach ([Question::with('user')->get(), Answer::with(['user', 'question'])->get(), Vote::with('user')->get()] as $items) {
+        foreach ($items as $item) {
+            expect($item->created_at->gte($item->user->created_at))->toBeTrue()
+                ->and($item->created_at->gte($start))->toBeTrue()
+                ->and($item->created_at->lte(now()))->toBeTrue();
+        }
+    }
+
+    foreach (Answer::with('question')->get() as $answer) {
+        expect($answer->created_at->gte($answer->question->created_at))->toBeTrue();
+    }
+
+    // Personne ne paraît absent après avoir publié.
+    foreach (User::with(['answers', 'questions'])->whereNotNull('last_seen_at')->get() as $user) {
+        $latest = $user->answers->merge($user->questions)->max('created_at');
+        expect($latest === null || $user->last_seen_at->gte($latest))->toBeTrue();
+    }
+});
+
+test('aucun vote pour son propre contenu dans la démo', function () {
+    foreach (Vote::with('votable')->get() as $vote) {
+        expect($vote->user_id)->not->toBe($vote->votable->user_id);
+    }
+});
+
+test('le contenu de démo est en français, sans lorem, avec du code', function () {
+    $text = Question::pluck('body')->merge(Answer::pluck('body'))->join("\n");
+
+    expect(mb_strtolower($text))->not->toContain('lorem')
+        ->and(substr_count($text, '```'))->toBeGreaterThan(40)
+        ->and(Question::pluck('title')->filter(fn ($t) => preg_match('/\b(the|how to|with)\b/i', $t))->all())->toBe([]);
+});
