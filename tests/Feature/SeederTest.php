@@ -2,9 +2,13 @@
 
 use App\Models\Answer;
 use App\Models\Article;
+use App\Models\Listing;
+use App\Models\Payment;
 use App\Models\Profile;
+use App\Models\Proposal;
 use App\Models\Question;
 use App\Models\ReputationEvent;
+use App\Models\Review;
 use App\Models\Skill;
 use App\Models\User;
 use App\Models\Vote;
@@ -168,4 +172,44 @@ test('les votes « Utile » de la démo donnent des événements article_useful'
 
     expect($useful)->toBe((int) Article::sum('score'))
         ->and(ReputationEvent::where('reason', 'article_useful')->count())->toBe($useful);
+});
+
+test('annonces : 10 équipes et 15 missions à tous les stades', function () {
+    $missions = Listing::where('type', 'mission')->get();
+
+    expect(Listing::where('type', 'team')->count())->toBe(10)
+        ->and(Listing::where('type', 'team')->where('status', 'closed')->count())->toBeGreaterThanOrEqual(1)
+        ->and($missions)->toHaveCount(15)
+        ->and($missions->pluck('status')->map->value->unique()->sort()->values()->all())->toBe(['cancelled', 'completed', 'in_progress', 'open'])
+        ->and(Payment::where('status', 'held')->count())->toBe($missions->where('status.value', 'in_progress')->count())
+        ->and(Payment::where('status', 'released')->count())->toBe($missions->where('status.value', 'completed')->count())
+        ->and(Payment::where('status', 'refunded')->count())->toBe(1)
+        ->and($missions->pluck('budget_fcfa')->min())->toBeGreaterThanOrEqual(5000);
+});
+
+test('Aïssatou : une mission ouverte avec 3 propositions dont Moussa, et une équipe de hackathon ; Moussa a un avis 5 étoiles', function () {
+    $aissatou = User::where('email', Demo::AISSATOU_EMAIL)->sole();
+    $moussa = User::where('email', Demo::MOUSSA_EMAIL)->sole();
+
+    $open = Listing::where('user_id', $aissatou->id)->where('type', 'mission')->where('status', 'open')->sole();
+    expect($open->proposals()->count())->toBe(3)
+        ->and($open->proposals()->where('user_id', $moussa->id)->exists())->toBeTrue()
+        ->and(Listing::where('user_id', $aissatou->id)->where('type', 'team')->where('title', 'like', '%ackathon%')->exists())->toBeTrue()
+        ->and($moussa->receivedReviews()->where('rating', 5)->exists())->toBeTrue();
+});
+
+test('les cauris de missions et d\'avis viennent des événements', function () {
+    $completed = Listing::where('status', 'completed')->count();
+
+    expect(ReputationEvent::where('reason', 'mission_completed')->count())->toBe($completed)
+        ->and(ReputationEvent::where('reason', 'review_bonus')->count())->toBe(Review::where('rating', '>=', 3)->count());
+    $this->artisan('reputation:recalculate')->expectsOutput('Tous les cauris sont justes.');
+});
+
+test('chaque réponse à une annonce arrive après l\'annonce et après l\'inscription de son auteur', function () {
+    foreach (Proposal::with(['listing', 'user'])->get() as $proposal) {
+        expect($proposal->created_at->gte($proposal->listing->created_at))->toBeTrue()
+            ->and($proposal->created_at->gte($proposal->user->created_at))->toBeTrue()
+            ->and($proposal->user_id)->not->toBe($proposal->listing->user_id);
+    }
 });

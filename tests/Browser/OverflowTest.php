@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Article;
+use App\Models\Listing;
 use App\Models\Question;
 use App\Models\User;
 use App\Support\Demo;
@@ -70,25 +71,30 @@ test('aucun débordement horizontal à 360 px, en clair et en sombre', function 
     try {
         $question = Question::orderByDesc('answers_count')->first();
         $article = Article::orderByDesc('reading_minutes')->first();
-        $visitor = measure(['/articles', "/articles/{$article->slug}", '/questions', '/questions?statut=resolues', "/questions/{$question->id}", '/', '/devs', '/devs?competence=laravel', "/devs/{$moussa->id}", "/devs/{$longest->id}", '/connexion', '/inscription', '/mot-de-passe-oublie', '/devs/999999']);
-        $member = measure(['/', '/devs', "/devs/{$moussa->id}", "/devs/{$moussa->id}/modifier", '/questions', '/questions/poser', "/questions/{$question->id}", '/articles/ecrire'], 'Moussa');
-        $desktop = measure(['/', '/devs', "/devs/{$moussa->id}", "/questions/{$question->id}", "/articles/{$article->slug}"], width: 1280);
+        $aissatou = User::where('email', Demo::AISSATOU_EMAIL)->sole();
+        $openMission = Listing::where('user_id', $aissatou->id)->where('type', 'mission')->where('status', 'open')->sole();
+        $doneMission = Listing::where('status', 'completed')->has('review')->first();
+        $team = Listing::where('type', 'team')->has('acceptedProposals')->first();
+        $visitor = measure(['/annonces', "/annonces/{$openMission->id}", "/annonces/{$doneMission->id}", "/annonces/{$team->id}", '/articles', "/articles/{$article->slug}", '/questions', '/questions?statut=resolues', "/questions/{$question->id}", '/', '/devs', '/devs?competence=laravel', "/devs/{$moussa->id}", "/devs/{$longest->id}", '/connexion', '/inscription', '/mot-de-passe-oublie', '/devs/999999']);
+        $member = measure(['/', '/devs', "/devs/{$moussa->id}", "/devs/{$moussa->id}/modifier", '/questions', '/questions/poser', "/questions/{$question->id}", '/articles/ecrire', '/annonces/publier', "/annonces/{$openMission->id}"], 'Moussa');
+        $author = measure(["/annonces/{$openMission->id}", "/annonces/{$openMission->id}/reponses/{$openMission->proposals()->first()->id}/paiement"], 'Aïssatou');
+        $desktop = measure(['/', '/devs', "/devs/{$moussa->id}", "/questions/{$question->id}", "/articles/{$article->slug}", "/annonces/{$openMission->id}"], width: 1280);
         // Sans JavaScript (script pas encore arrivé en 3G) : la bande au-dessus de la barre reste couverte.
         $noScript = measure(['/', '/questions', "/devs/{$moussa->id}"], javascript: false);
     } finally {
         $server->stop();
     }
 
-    expect($visitor)->toHaveCount(28)->and($member)->toHaveCount(16)->and($desktop)->toHaveCount(10)->and($noScript)->toHaveCount(6);
+    expect($visitor)->toHaveCount(36)->and($member)->toHaveCount(20)->and($author)->toHaveCount(4)->and($desktop)->toHaveCount(12)->and($noScript)->toHaveCount(6);
 
     // Garde-fou : les pages ont bien été servies par l'application (et non une page d'erreur).
-    expect(collect([...$visitor, ...$member, ...$desktop, ...$noScript])->pluck('title')->filter(fn ($t) => str_contains($t, 'DevKora')))->toHaveCount(60);
+    expect(collect([...$visitor, ...$member, ...$author, ...$desktop, ...$noScript])->pluck('title')->filter(fn ($t) => str_contains($t, 'DevKora')))->toHaveCount(78);
 
     foreach ($noScript as $page) {
         expect($page['navTopCovered'])->toBeTrue("Texte visible au-dessus de la navigation sans JavaScript : {$page['path']} ({$page['scheme']})");
     }
 
-    foreach ([...$visitor, ...$member, ...$desktop] as $page) {
+    foreach ([...$visitor, ...$member, ...$author, ...$desktop] as $page) {
         $where = "{$page['path']} ({$page['scheme']}, {$page['viewport']} px)";
         expect($page['scrollWidth'])->toBe($page['viewport'], "La page défile horizontalement : $where ".json_encode($page['offenders']))
             // Navigation défilée : opaque sur mobile, 96 % au moins sur ordinateur.

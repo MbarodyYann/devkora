@@ -3,6 +3,7 @@
 use App\Http\Controllers\HomeController;
 use App\Models\Answer;
 use App\Models\Article;
+use App\Models\Listing;
 use App\Models\Question;
 use App\Models\User;
 use App\Support\Copy;
@@ -121,4 +122,16 @@ test('bande de confiance finale : devs, pays, questions résolues, articles part
         ->and($band)->toContain('data-stat="articles">3<')
         ->and($html)->toContain('Ce que les devs du continent ont appris, pour toi.')
         ->and(strpos($html, 'Le tout dernier article publié'))->toBeGreaterThan(strpos($html, 'articles-titre'));
+});
+
+test('accueil : section des annonces ouvertes, équipes et missions mélangées', function () {
+    Listing::factory()->create(['title' => 'Mission ouverte de démonstration']);
+    Listing::factory()->team()->create(['title' => 'Équipe ouverte de démonstration']);
+    Listing::factory()->create(['title' => 'Mission annulée de démonstration', 'status' => 'cancelled']);
+
+    $this->get('/')
+        ->assertSee('Des devs cherchent du renfort, peut-être le tien.')
+        ->assertSee('Mission ouverte de démonstration')
+        ->assertSee('Équipe ouverte de démonstration')
+        ->assertDontSee('Mission annulée de démonstration');
 });
