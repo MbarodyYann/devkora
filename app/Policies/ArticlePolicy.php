@@ -7,10 +7,10 @@ use App\Models\User;
 
 class ArticlePolicy
 {
-    /** Article masqué : visible seulement de son auteur (la modération arrive au lot 5). */
+    /** Article masqué : visible de son auteur et des modérateurs communautaires, 404 pour les autres. */
     public function view(?User $user, Article $article): bool
     {
-        return $article->hidden_at === null || $user?->id === $article->user_id;
+        return $article->hidden_at === null || $user?->id === $article->user_id || ModerationPolicy::canModerate($user);
     }
 
     /** Un membre avec un profil écrit des articles. */

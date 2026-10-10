@@ -20,9 +20,27 @@
                         @if ($question->isResolved())
                             <x-chip tone="done">Résolue</x-chip>
                         @endif
+                        @if ($question->hidden_at)
+                            <x-chip tone="muted">Masquée</x-chip>
+                        @endif
+                        <x-report-button :content="$question" type="question" class="ml-auto" />
                     </div>
                     <div class="prose-dk mt-6">{!! $question->body_html !!}</div>
                     <x-tags :skills="$question->skills" class="mt-6" />
+                    @can('retag', $question)
+                        {{-- À partir de 500 cauris : corriger les tags d'une question d'un autre membre (journalisé). --}}
+                        <details class="mt-4" data-retag>
+                            <summary class="inline-flex min-h-9 cursor-pointer list-none items-center gap-1.5 text-sm font-semibold text-primary-600 dark:text-primary-300 [&::-webkit-details-marker]:hidden"><x-icon name="pencil" class="size-4" /> Modifier les tags</summary>
+                            <form method="post" action="{{ route('questions.retag', $question) }}" class="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">
+                                @csrf
+                                @method('put')
+                                <x-field label="Tags" name="tags" hint="1 à 5, séparés par des virgules. Ta modification est journalisée." class="flex-1">
+                                    <x-input name="tags" :value="$question->skills->pluck('name')->join(', ')" maxlength="300" aria-describedby="tags-hint" />
+                                </x-field>
+                                <x-button type="submit" variant="secondary" size="sm" class="sm:mb-7">Enregistrer les tags</x-button>
+                            </form>
+                        </details>
+                    @endcan
                 </div>
             </x-card>
 
@@ -53,6 +71,7 @@
                                     <div class="prose-dk">{!! $answer->body_html !!}</div>
                                     <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
                                         <x-author :user="$answer->user" :date="$answer->created_at" verb="Répondu" />
+                                        <x-report-button :content="$answer" type="answer" />
                                         @can('accept', $question)
                                             <form method="post" action="{{ route('answers.accept', [$question, $answer]) }}">
                                                 @csrf

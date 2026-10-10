@@ -7,10 +7,10 @@ use App\Models\User;
 
 class QuestionPolicy
 {
-    /** Contenu masqué : visible seulement de son auteur (la modération arrive au lot 5). */
+    /** Contenu masqué : visible de son auteur et des modérateurs communautaires, 404 pour les autres. */
     public function view(?User $user, Question $question): bool
     {
-        return $question->hidden_at === null || $user?->id === $question->user_id;
+        return $question->hidden_at === null || $user?->id === $question->user_id || ModerationPolicy::canModerate($user);
     }
 
     /** Un membre avec un profil pose des questions. */

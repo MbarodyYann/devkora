@@ -16,7 +16,7 @@ class ListingPolicy
 {
     public function view(?User $user, Listing $listing): bool
     {
-        return $listing->hidden_at === null || $user?->id === $listing->user_id;
+        return $listing->hidden_at === null || $user?->id === $listing->user_id || ModerationPolicy::canModerate($user);
     }
 
     public function create(User $user): bool

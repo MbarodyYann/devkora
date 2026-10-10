@@ -4,10 +4,12 @@ namespace App\Providers;
 
 use App\Models\Answer;
 use App\Models\Article;
+use App\Models\Event;
 use App\Models\Listing;
 use App\Models\Question;
 use App\Models\Review;
 use App\Models\User;
+use App\Policies\ModerationPolicy;
 use App\Policies\VotePolicy;
 use App\Services\MarkdownRenderer;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -41,6 +43,7 @@ class AppServiceProvider extends ServiceProvider
         Route::pattern('answer', '[0-9]+');
         Route::pattern('listing', '[0-9]+');
         Route::pattern('proposal', '[0-9]+');
+        Route::pattern('event', '[0-9]+');
 
         // Noms stables dans les colonnes polymorphes (votes, événements de réputation).
         Relation::enforceMorphMap([
@@ -50,10 +53,16 @@ class AppServiceProvider extends ServiceProvider
             'article' => Article::class,
             'listing' => Listing::class,
             'review' => Review::class,
+            'event' => Event::class,
         ]);
 
         // Le vote porte sur une question OU une réponse : la policy est déclarée explicitement.
         Gate::define('vote', [VotePolicy::class, 'vote']);
+
+        // Privilèges débloqués par les cauris (config/privileges.php).
+        Gate::define('moderate', fn (User $user) => ModerationPolicy::canModerate($user));
+        Gate::define('moderate-content', [ModerationPolicy::class, 'act']);
+        Gate::define('retag', fn (User $user, Question $question) => ModerationPolicy::canRetag($user) && $question->user_id !== $user->id);
 
         // Limites anti-abus (03, « Sécurité ») : chaque route POST en a une.
         $byMember = fn (Request $request) => $request->user()?->id ?: $request->ip();
@@ -66,6 +75,8 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('listings', fn (Request $request) => Limit::perHour(10)->by($byMember($request)));
         RateLimiter::for('proposals', fn (Request $request) => Limit::perHour(30)->by($byMember($request)));
         RateLimiter::for('payments', fn (Request $request) => Limit::perMinute(10)->by($byMember($request)));
+        RateLimiter::for('reports', fn (Request $request) => Limit::perHour(20)->by($byMember($request)));
+        RateLimiter::for('events', fn (Request $request) => Limit::perDay(5)->by($byMember($request)));
         RateLimiter::for('demo', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));
         // Requêtes Livewire (filtres de l'annuaire) : limite large.
         RateLimiter::for('livewire', fn (Request $request) => Limit::perMinute(120)->by($byMember($request)));

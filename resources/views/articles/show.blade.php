@@ -5,7 +5,10 @@
         </a>
 
         <header>
-            <x-chip>{{ $article->category->label() }}</x-chip>
+            <div class="flex items-center justify-between gap-3">
+                <x-chip>{{ $article->category->label() }}</x-chip>
+                <x-report-button :content="$article" type="article" />
+            </div>
             <h1 class="mt-4 break-words text-[34px] leading-[1.12] sm:text-5xl">{{ $article->title }}</h1>
             <div class="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-line pb-6 text-sm text-ink-muted">
                 <x-author :user="$article->user" :date="$article->created_at" verb="Publié" />
