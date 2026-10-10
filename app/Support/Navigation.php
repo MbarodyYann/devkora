@@ -10,14 +10,15 @@ use Illuminate\Support\Facades\Route;
  */
 class Navigation
 {
-    /** @var list<array{label: string, route: string, active: string, icon: string}> */
+    /** @var list<array{label: string, route: string, active: string, icon: string, wide?: bool}> */
     private const ITEMS = [
         ['label' => 'Questions', 'route' => 'questions.index', 'active' => 'questions.*', 'icon' => 'message'],
         ['label' => 'Articles', 'route' => 'articles.index', 'active' => 'articles.*', 'icon' => 'book'],
         ['label' => 'Annonces', 'route' => 'listings.index', 'active' => 'listings.*', 'icon' => 'megaphone'],
         ['label' => 'Événements', 'route' => 'events.index', 'active' => 'events.*', 'icon' => 'calendar'],
         ['label' => 'Devs', 'route' => 'devs.index', 'active' => 'devs.*', 'icon' => 'users'],
-        ['label' => 'Le Pouls', 'route' => 'pulse', 'active' => 'pulse', 'icon' => 'chart'],
+        // Le Pouls ne tient dans la barre du haut qu'à partir de 1 280 px ; en dessous : pied de page et accueil.
+        ['label' => 'Le Pouls', 'route' => 'pulse', 'active' => 'pulse', 'icon' => 'chart', 'wide' => true],
     ];
 
     /**
