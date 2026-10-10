@@ -5,12 +5,14 @@
 import { chromium } from 'playwright';
 
 const [base, width, pagesJson, persona] = process.argv.slice(2);
+// NOJS=1 : sans JavaScript, comme une page dont le script n'est pas encore arrivé en 3G.
+const javaScriptEnabled = process.env.NOJS !== '1';
 const pages = JSON.parse(pagesJson);
 const browser = await chromium.launch();
 const report = [];
 
 for (const scheme of ['light', 'dark']) {
-    const context = await browser.newContext({ viewport: { width: Number(width), height: 740 }, colorScheme: scheme });
+    const context = await browser.newContext({ viewport: { width: Number(width), height: 740 }, colorScheme: scheme, javaScriptEnabled });
     const page = await context.newPage();
 
     if (persona) {
@@ -61,13 +63,19 @@ for (const scheme of ['light', 'dark']) {
         // Navigation une fois la page défilée : opacité de son fond (08 : aucun texte lisible au travers).
         await page.evaluate(() => window.scrollTo(0, 600));
         await page.waitForTimeout(150);
+        // Bande au-dessus de la barre (12 px sur mobile) : rien de la page ne doit y apparaître.
+        const navTopCovered = await page.evaluate(() => {
+            const bar = document.querySelector('header').parentElement;
+            const top = bar.getBoundingClientRect().top;
+            return [1, 6, 11].every((dy) => [4, innerWidth / 2, innerWidth - 4].every((x) => bar.contains(document.elementFromPoint(x, top + dy))));
+        });
         const navAlpha = await page.evaluate(() => {
             const color = getComputedStyle(document.querySelector('header')).backgroundColor;
             const alpha = color.match(/\/\s*([\d.]+)\s*\)$/) || color.match(/^rgba\(.*,\s*([\d.]+)\)$/);
             return color === 'rgba(0, 0, 0, 0)' || color === 'transparent' ? 0 : (alpha ? Number(alpha[1]) : 1);
         });
 
-        report.push({ path, scheme, navAlpha, ...result });
+        report.push({ path, scheme, navAlpha, navTopCovered, ...result });
     }
 
     await context.close();

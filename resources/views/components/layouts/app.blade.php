@@ -68,7 +68,13 @@
     {{-- Navigation flottante, à 12 px du haut. Sur un bandeau indigo : transparente tout en haut, puis opaque
          (primary-800) dès le premier pixel de défilement. Sous 1 024 px, une fois la page défilée, elle se colle
          au bord haut, sans espace où le contenu se lirait au-dessus ; sa hauteur totale ne change pas. --}}
-    <div class="sticky top-0 z-40 px-2 pt-3 sm:px-6"
+    {{-- Sous 1 024 px, l'espace au-dessus de la barre a un fond opaque de la couleur du haut de page (bandeau indigo
+         ou fond) : même avant le chargement du JavaScript, aucun texte ne se lit au-dessus de la navigation. --}}
+    <div @class([
+             'sticky top-0 z-40 px-2 pt-3 sm:px-6',
+             'max-lg:bg-primary-800 dark:max-lg:bg-primary-950' => $hasHero,
+             'max-lg:bg-bg' => ! $hasHero,
+         ])
          x-data="{ scrolled: window.scrollY > 0 }"
          x-on:scroll.window.passive="scrolled = window.scrollY > 0"
          x-bind:class="scrolled && 'max-lg:px-0! max-lg:pt-0!'">
@@ -77,7 +83,7 @@
                     'nav-glass' => ! $hasHero,
                     'nav-on-hero' => $hasHero,
                 ])
-                x-bind:class="{ 'is-scrolled': scrolled, 'max-lg:h-[68px]! max-lg:rounded-none max-lg:border-x-0 max-lg:border-t-0 max-lg:pt-3 sm:max-lg:h-[76px]!': scrolled }">
+                x-bind:class="{ 'max-lg:h-[68px]! max-lg:rounded-none max-lg:border-x-0 max-lg:border-t-0 max-lg:pt-3 sm:max-lg:h-[76px]!': scrolled }">
             <a href="{{ route('home') }}" class="shrink-0" aria-label="{{ Brand::NAME }}, accueil">
                 <x-logo class="max-[379px]:text-[22px]" />
             </a>

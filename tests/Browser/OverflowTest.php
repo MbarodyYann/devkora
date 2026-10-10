@@ -23,14 +23,19 @@ beforeAll(function () {
 function serve(): Process
 {
     $port = 8765;
+    // Un ancien serveur encore actif fausserait toutes les mesures : on refuse de continuer.
+    if (@fsockopen('127.0.0.1', $port)) {
+        throw new RuntimeException("Le port $port est déjà utilisé : arrête l'ancien serveur de test.");
+    }
     $server = new Process(
-        // Le routeur de Laravel attend d'être lancé depuis public/.
-        [PHP_BINARY, '-S', "127.0.0.1:$port", base_path('vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php')],
+        [PHP_BINARY, '-S', "127.0.0.1:$port", base_path('tests/Browser/router.php')],
         public_path(),
         ['APP_ENV' => 'local', 'APP_DEBUG' => 'false', 'APP_URL' => "http://127.0.0.1:$port", 'APP_DEMO' => 'true',
             'DB_CONNECTION' => 'pgsql', 'DB_DATABASE' => config('database.connections.pgsql.database'),
             'SESSION_DRIVER' => 'file', 'CACHE_STORE' => 'array', 'QUEUE_CONNECTION' => 'sync'],
     );
+    // Journal du serveur ignoré : un tube jamais lu finit par se remplir et bloquer le serveur.
+    $server->disableOutput();
     $server->start();
 
     // Attend que le serveur réponde (5 s au plus).
@@ -44,9 +49,9 @@ function serve(): Process
     return $server;
 }
 
-function measure(array $pages, ?string $persona = null, int $width = 360): array
+function measure(array $pages, ?string $persona = null, int $width = 360, bool $javascript = true): array
 {
-    $process = new Process(['node', 'tests/Browser/overflow.mjs', 'http://127.0.0.1:8765', (string) $width, json_encode($pages), ...($persona ? [$persona] : [])], base_path());
+    $process = new Process(['node', 'tests/Browser/overflow.mjs', 'http://127.0.0.1:8765', (string) $width, json_encode($pages), ...($persona ? [$persona] : [])], base_path(), ['NOJS' => $javascript ? '0' : '1']);
     $process->setTimeout(180)->mustRun();
 
     return json_decode($process->getOutput(), true);
@@ -68,20 +73,28 @@ test('aucun débordement horizontal à 360 px, en clair et en sombre', function 
         $visitor = measure(['/articles', "/articles/{$article->slug}", '/questions', '/questions?statut=resolues', "/questions/{$question->id}", '/', '/devs', '/devs?competence=laravel', "/devs/{$moussa->id}", "/devs/{$longest->id}", '/connexion', '/inscription', '/mot-de-passe-oublie', '/devs/999999']);
         $member = measure(['/', '/devs', "/devs/{$moussa->id}", "/devs/{$moussa->id}/modifier", '/questions', '/questions/poser', "/questions/{$question->id}", '/articles/ecrire'], 'Moussa');
         $desktop = measure(['/', '/devs', "/devs/{$moussa->id}", "/questions/{$question->id}", "/articles/{$article->slug}"], width: 1280);
+        // Sans JavaScript (script pas encore arrivé en 3G) : la bande au-dessus de la barre reste couverte.
+        $noScript = measure(['/', '/questions', "/devs/{$moussa->id}"], javascript: false);
     } finally {
         $server->stop();
     }
 
-    expect($visitor)->toHaveCount(28)->and($member)->toHaveCount(16)->and($desktop)->toHaveCount(10);
+    expect($visitor)->toHaveCount(28)->and($member)->toHaveCount(16)->and($desktop)->toHaveCount(10)->and($noScript)->toHaveCount(6);
 
     // Garde-fou : les pages ont bien été servies par l'application (et non une page d'erreur).
-    expect(collect([...$visitor, ...$member, ...$desktop])->pluck('title')->filter(fn ($t) => str_contains($t, 'DevKora')))->toHaveCount(54);
+    expect(collect([...$visitor, ...$member, ...$desktop, ...$noScript])->pluck('title')->filter(fn ($t) => str_contains($t, 'DevKora')))->toHaveCount(60);
+
+    foreach ($noScript as $page) {
+        expect($page['navTopCovered'])->toBeTrue("Texte visible au-dessus de la navigation sans JavaScript : {$page['path']} ({$page['scheme']})");
+    }
 
     foreach ([...$visitor, ...$member, ...$desktop] as $page) {
         $where = "{$page['path']} ({$page['scheme']}, {$page['viewport']} px)";
-        expect($page['scrollWidth'])->toBe($page['viewport'], "La page défile horizontalement : $where")
+        expect($page['scrollWidth'])->toBe($page['viewport'], "La page défile horizontalement : $where ".json_encode($page['offenders']))
             // Navigation défilée : opaque sur mobile, 96 % au moins sur ordinateur.
             ->and($page['navAlpha'])->toBeGreaterThanOrEqual($page['viewport'] < 768 ? 1.0 : 0.96, "Texte lisible sous la navigation : $where")
+            // Sur mobile, rien de la page au-dessus de la barre une fois défilée (sur ordinateur, la barre flotte : accepté).
+            ->and($page['viewport'] >= 1024 || $page['navTopCovered'])->toBeTrue("Texte visible au-dessus de la navigation : $where")
             ->and($page['offenders'])->toBe([], "Élément hors de l'écran : $where")
             ->and($page['clip'])->toBe(['visible', 'visible'], "Débordement masqué au lieu d'être corrigé : $where")
             ->and($page['dark'])->toBe($page['scheme'] === 'dark', "Thème non appliqué : $where");

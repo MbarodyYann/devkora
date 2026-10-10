@@ -276,8 +276,9 @@
     }
 }
 
-/* Navigation posée sur un bandeau indigo (accueil, en-têtes de liste) : transparente tout en haut,
-   jetons neutres redéfinis en clair pour que tous ses composants passent en blanc. */
+/* Navigation posée sur un bandeau indigo (accueil, en-têtes de liste) : même aplat que le bandeau, donc invisible
+   tout en haut, et opaque dès qu'on défile, même sans JavaScript (08 : aucun texte lisible sous la navigation).
+   Jetons neutres redéfinis en clair pour que tous ses composants passent en blanc. */
 @utility nav-on-hero {
     --color-ink: #ffffff;
     --color-ink-soft: rgb(255 255 255 / 0.85);
@@ -285,29 +286,25 @@
     --color-line: rgb(255 255 255 / 0.14);
     --color-surface: rgb(255 255 255 / 0.12);
     --color-bg-alt: rgb(255 255 255 / 0.08);
-    background-color: transparent;
+    background-color: var(--color-primary-800);
     border: 1px solid rgb(255 255 255 / 0.14);
+
+    &:where(.dark, .dark *) {
+        background-color: var(--color-primary-950);
+    }
 
     /* « Kora » en ambre sur l'indigo (primary-600 y serait illisible), comme en sombre. */
     & .logo-end {
         color: var(--color-secondary-400);
     }
 
-    /* Dès le premier pixel de défilement : primary-800, opaque sous 768 px, à 96 % et flou au-dessus. */
-    &.is-scrolled {
-        background-color: var(--color-primary-800);
+    /* À partir de 768 px : 96 % et flou. */
+    @media (min-width: 768px) {
+        background-color: color-mix(in srgb, var(--color-primary-800) 96%, transparent);
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
 
-        @media (min-width: 768px) {
-            background-color: color-mix(in srgb, var(--color-primary-800) 96%, transparent);
-            -webkit-backdrop-filter: blur(12px);
-            backdrop-filter: blur(12px);
-        }
-    }
-
-    &.is-scrolled:where(.dark, .dark *) {
-        background-color: var(--color-primary-950);
-
-        @media (min-width: 768px) {
+        &:where(.dark, .dark *) {
             background-color: color-mix(in srgb, var(--color-primary-950) 96%, transparent);
         }
     }
