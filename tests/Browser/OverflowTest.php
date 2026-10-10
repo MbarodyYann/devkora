@@ -77,9 +77,10 @@ test('aucun débordement horizontal à 360 px, en clair et en sombre', function 
         $openMission = Listing::where('user_id', $aissatou->id)->where('type', 'mission')->where('status', 'open')->sole();
         $doneMission = Listing::where('status', 'completed')->has('review')->first();
         $team = Listing::where('type', 'team')->has('acceptedProposals')->first();
-        $visitor = measure(['/evenements', "/evenements/{$hackathon->id}", '/privileges', '/annonces', "/annonces/{$openMission->id}", "/annonces/{$doneMission->id}", "/annonces/{$team->id}", '/articles', "/articles/{$article->slug}", '/questions', '/questions?statut=resolues', "/questions/{$question->id}", '/', '/devs', '/devs?competence=laravel', "/devs/{$moussa->id}", "/devs/{$longest->id}", '/connexion', '/inscription', '/mot-de-passe-oublie', '/devs/999999']);
+        $visitor = measure(['/pouls', '/pouls?pays=SN', '/a-propos', '/villes/dakar', '/evenements', "/evenements/{$hackathon->id}", '/privileges', '/annonces', "/annonces/{$openMission->id}", "/annonces/{$doneMission->id}", "/annonces/{$team->id}", '/articles', "/articles/{$article->slug}", '/questions', '/questions?statut=resolues', "/questions/{$question->id}", '/', '/devs', '/devs?competence=laravel', "/devs/{$moussa->id}", "/devs/{$longest->id}", '/connexion', '/inscription', '/mot-de-passe-oublie', '/devs/999999']);
         $member = measure(['/', '/devs', "/devs/{$moussa->id}", "/devs/{$moussa->id}/modifier", '/questions', '/questions/poser', "/questions/{$question->id}", '/articles/ecrire', '/annonces/publier', "/annonces/{$openMission->id}", "/evenements/{$hackathon->id}", '/evenements/proposer', '/notifications', '/privileges'], 'Moussa');
         $moderator = measure(['/moderation'], 'Koffi');
+        $homeWeights = [weigh(375), weigh(1366)];
         $author = measure(["/annonces/{$openMission->id}", "/annonces/{$openMission->id}/reponses/{$openMission->proposals()->first()->id}/paiement"], 'Aïssatou');
         $desktop = measure(['/', '/devs', "/devs/{$moussa->id}", "/questions/{$question->id}", "/articles/{$article->slug}", "/annonces/{$openMission->id}"], width: 1280);
         // Sans JavaScript (script pas encore arrivé en 3G) : la bande au-dessus de la barre reste couverte.
@@ -88,10 +89,16 @@ test('aucun débordement horizontal à 360 px, en clair et en sombre', function 
         $server->stop();
     }
 
-    expect($visitor)->toHaveCount(42)->and($member)->toHaveCount(28)->and($moderator)->toHaveCount(2)->and($author)->toHaveCount(4)->and($desktop)->toHaveCount(12)->and($noScript)->toHaveCount(6);
+    expect($visitor)->toHaveCount(50)->and($member)->toHaveCount(28)->and($moderator)->toHaveCount(2)->and($author)->toHaveCount(4)->and($desktop)->toHaveCount(12)->and($noScript)->toHaveCount(6);
 
     // Garde-fou : les pages ont bien été servies par l'application (et non une page d'erreur).
-    expect(collect([...$visitor, ...$member, ...$moderator, ...$author, ...$desktop, ...$noScript])->pluck('title')->filter(fn ($t) => str_contains($t, 'DevKora')))->toHaveCount(94);
+    expect(collect([...$visitor, ...$member, ...$moderator, ...$author, ...$desktop, ...$noScript])->pluck('title')->filter(fn ($t) => str_contains($t, 'DevKora')))->toHaveCount(102);
+
+    // Accueil sous 180 Ko hors polices, photo comprise (08), sur mobile et sur ordinateur.
+    foreach ($homeWeights as $weight) {
+        expect($weight['bytes'])->toBeLessThan(180 * 1024, "Accueil trop lourd à {$weight['width']} px : ".round($weight['bytes'] / 1024).' Ko ('.implode(', ', $weight['files']).')');
+    }
+    fwrite(STDERR, '[poids] '.collect($homeWeights)->map(fn ($w) => $w['width'].' px : '.round($w['bytes'] / 1024, 1).' Ko')->join(' ; ').PHP_EOL);
 
     // F1 : la barre d'action de la fiche (Aïssatou, 360 px, défilée à 250 px) est visible et opaque.
     $bars = collect($author)->filter(fn ($p) => $p['actionBar'] !== null);
@@ -116,3 +123,28 @@ test('aucun débordement horizontal à 360 px, en clair et en sombre', function 
             ->and($page['dark'])->toBe($page['scheme'] === 'dark', "Thème non appliqué : $where");
     }
 });
+
+/**
+ * Poids de l'accueil pour un visiteur, à une largeur donnée : ressources réellement chargées (après défilement),
+ * texte compressé en gzip comme le fait Nginx, images telles quelles, polices exclues (08, « Performance »).
+ *
+ * @return array{width: int, bytes: int, files: list<string>}
+ */
+function weigh(int $width): array
+{
+    $process = new Process(['node', 'tests/Browser/weight.mjs', 'http://127.0.0.1:8765/', (string) $width], base_path());
+    $process->setTimeout(120)->mustRun();
+
+    $bytes = 0;
+    $files = [];
+    foreach (collect(json_decode($process->getOutput(), true))->unique('url') as $resource) {
+        if ($resource['type'] === 'font' || ! str_starts_with($resource['url'], 'http://127.0.0.1:8765')) {
+            continue;
+        }
+        $body = (string) file_get_contents($resource['url']);
+        $bytes += $resource['type'] === 'image' ? strlen($body) : strlen(gzencode($body, 6));
+        $files[] = parse_url($resource['url'], PHP_URL_PATH);
+    }
+
+    return ['width' => $width, 'bytes' => $bytes, 'files' => $files];
+}

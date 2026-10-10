@@ -19,7 +19,7 @@ test('le hero reprend l\'identité : titre, promesse, CTA unique et réassurance
         ->toContain('Trouve des missions. Partage tes connaissances. Construis avec les tiens.')
         ->toContain(Copy::SIGNUP_REASSURANCE)
         ->and(substr_count($html, 'data-cta="principal"'))->toBe(1)
-        ->and(substr_count($html, '>'.Copy::SIGNUP_CTA.'</a>'))->toBe(2); // hero et navigation
+        ->and(substr_count($html, '>'.Copy::SIGNUP_CTA.'</a>'))->toBe(3); // navigation, hero et CTA final
 });
 
 test('l\'image du hero : WebP en deux tailles, dimensions et texte alternatif, chargée à la demande sur mobile', function () {
