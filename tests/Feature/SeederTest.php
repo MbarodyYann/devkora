@@ -2,11 +2,14 @@
 
 use App\Models\Answer;
 use App\Models\Article;
+use App\Models\Event;
 use App\Models\Listing;
+use App\Models\ModerationAction;
 use App\Models\Payment;
 use App\Models\Profile;
 use App\Models\Proposal;
 use App\Models\Question;
+use App\Models\Report;
 use App\Models\ReputationEvent;
 use App\Models\Review;
 use App\Models\Skill;
@@ -17,6 +20,7 @@ use Database\Seeders\DatabaseSeeder;
 use Database\Seeders\DemoClock;
 use Database\Seeders\DevSeeder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 
 beforeEach(fn () => $this->seed(DatabaseSeeder::class));
@@ -211,5 +215,48 @@ test('chaque réponse à une annonce arrive après l\'annonce et après l\'inscr
         expect($proposal->created_at->gte($proposal->listing->created_at))->toBeTrue()
             ->and($proposal->created_at->gte($proposal->user->created_at))->toBeTrue()
             ->and($proposal->user_id)->not->toBe($proposal->listing->user_id);
+    }
+});
+
+test('événements : 8, dont des à venir qui restent dans le futur, et le hackathon lié à l\'équipe d\'Aïssatou', function () {
+    expect(Event::count())->toBe(8)
+        ->and(Event::where('starts_at', '>', now())->count())->toBeGreaterThanOrEqual(4)
+        ->and(Event::where('ends_at', '<', now())->count())->toBeGreaterThanOrEqual(2);
+
+    $hackathon = Event::where('type', 'hackathon')->where('starts_at', '>', now())->sole();
+    $team = Listing::where('event_id', $hackathon->id)->sole();
+    expect($team->user->email)->toBe(Demo::AISSATOU_EMAIL);
+
+    foreach (Event::with(['user', 'participants'])->get() as $event) {
+        expect($event->created_at->lte($event->starts_at))->toBeTrue()
+            ->and($event->participants->pluck('id'))->not->toBeEmpty();
+    }
+});
+
+test('les événements à venir restent dans le futur, quelle que soit la date du semis', function () {
+    $this->travelTo('2026-12-15 23:30');
+    User::query()->delete();
+    Skill::query()->delete();
+    $this->seed(DatabaseSeeder::class);
+
+    expect(Event::where('starts_at', '>', now())->count())->toBe(5);
+});
+
+test('modération : 3 contenus signalés en attente que Koffi peut traiter, une action au journal', function () {
+    $koffi = User::where('email', Demo::KOFFI_EMAIL)->sole();
+    $pending = Report::whereNull('resolved_at')->with('reportable')->get()->unique(fn ($r) => $r->reportable_type.$r->reportable_id);
+
+    expect($pending)->toHaveCount(3)
+        ->and($koffi->reputation)->toBeGreaterThanOrEqual(250)
+        ->and(ModerationAction::count())->toBe(1);
+
+    foreach ($pending as $report) {
+        expect(Gate::forUser($koffi)->allows('moderate-content', $report->reportable))->toBeTrue();
+    }
+});
+
+test('notifications de démo : les comptes de démo ont des notifications non lues', function () {
+    foreach (array_column(Demo::PERSONAS, 'email') as $email) {
+        expect(User::where('email', $email)->sole()->unreadNotifications()->count())->toBeGreaterThanOrEqual(2);
     }
 });

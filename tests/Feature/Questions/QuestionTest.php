@@ -109,7 +109,7 @@ test('publier une question : Markdown rendu, extrait, tags dans l\'ordre, redire
 
     $question = Question::sole();
     $response->assertRedirect(route('questions.show', $question))
-        ->assertSessionHas('status', 'Question publiée. Les réponses de la communauté apparaîtront juste en dessous.');
+        ->assertSessionHas('status', 'Question publiée. Tu seras prévenu dès la première réponse.');
 
     expect($question->user_id)->toBe($user->id)
         ->and($question->title)->toBe('Le webhook Wave renvoie 401 en production')
