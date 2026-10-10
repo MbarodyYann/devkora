@@ -30,11 +30,12 @@
                 @endif
                 <div class="mt-5 flex flex-wrap items-center gap-2">
                     <x-chip :tone="$profile->availability->tone()">{{ $profile->availability->label() }}</x-chip>
-                    <x-chip tone="neutral"><x-icon name="map-pin" class="size-3.5 shrink-0" /> {{ $profile->city }}, {{ $profile->countryName() }} <span aria-hidden="true">{{ $profile->flag() }}</span></x-chip>
+                    <a href="{{ route('cities.show', App\Support\Cities::slug($profile->city)) }}" class="inline-flex max-w-full items-center gap-1 rounded-[6px] bg-bg-alt px-2.5 py-1 text-sm font-medium text-ink-soft ring-1 ring-line hover:text-primary-600 dark:hover:text-primary-300"><x-icon name="map-pin" class="size-3.5 shrink-0" /> <span class="truncate">{{ $profile->city }}, {{ $profile->countryName() }}</span> <span aria-hidden="true">{{ $profile->flag() }}</span></a>
                 </div>
                 @if ($profile->languagesLabel() || $dev->activityLabel())
                     <p class="mt-3 text-sm text-ink-muted">{{ collect([$profile->languagesLabel(), $dev->activityLabel()])->filter()->join(' · ') }}</p>
                 @endif
+                <x-share :title="collect([$dev->name, $profile->headline])->filter()->join(', ')" :url="route('devs.show', $dev)" class="mt-5" />
                 @if ($isOwner && ! $showPrompt)
                     <x-button :href="route('profile.edit', $dev)" variant="secondary" size="sm" class="mt-5" data-edit-profile="true">
                         <x-icon name="pencil" class="size-4" /> Modifier mon profil

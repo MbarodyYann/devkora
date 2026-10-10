@@ -1,4 +1,4 @@
-@props(['title' => null, 'description' => null, 'pageHero' => null, 'noindex' => false])
+@props(['title' => null, 'description' => null, 'pageHero' => null, 'noindex' => false, 'ogImage' => null, 'ogType' => 'website'])
 
 @php
     use App\Support\Brand;
@@ -32,6 +32,22 @@
         <meta name="robots" content="noindex">
     @endif
     <meta name="theme-color" content="#314A82">
+    {{-- Adresse canonique (sans les filtres) et partage : Open Graph et Twitter. --}}
+    <link rel="canonical" href="{{ url()->current() }}">
+    <meta property="og:site_name" content="{{ Brand::NAME }}">
+    <meta property="og:locale" content="fr_FR">
+    <meta property="og:type" content="{{ $ogType }}">
+    <meta property="og:title" content="{{ $fullTitle }}">
+    <meta property="og:description" content="{{ $metaDescription }}">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="{{ $ogImage ?? asset('images/og-default.png') }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="{{ Brand::NAME }}, le point de rencontre des devs africains">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $fullTitle }}">
+    <meta name="twitter:description" content="{{ $metaDescription }}">
+    <meta name="twitter:image" content="{{ $ogImage ?? asset('images/og-default.png') }}">
     <link rel="icon" href="/favicon.ico" sizes="32x32">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -97,6 +113,7 @@
                     <a href="{{ route($item['route']) }}" @if ($active) aria-current="page" @endif
                        @class([
                            'relative rounded-btn px-3 py-2 font-medium transition',
+                           'hidden xl:inline-block' => $item['wide'] ?? false,
                            'text-ink' => $active,
                            'text-ink-muted hover:text-ink' => ! $active,
                        ])>
@@ -226,7 +243,7 @@
                 @endforeach
             </div>
         </div>
-        <div class="mx-auto grid max-w-page gap-8 border-t border-line px-4 py-10 sm:grid-cols-[2fr_1fr] sm:px-6">
+        <div class="mx-auto grid max-w-page gap-8 border-t border-line px-4 py-10 sm:grid-cols-[2fr_1fr_1fr] sm:px-6">
             <div class="max-w-sm">
                 <x-logo />
                 <p class="mt-4 text-sm leading-relaxed text-ink-soft">{{ Brand::TAGLINE }}</p>
@@ -236,6 +253,11 @@
                 @foreach ($mainNav as $item)
                     <a href="{{ route($item['route']) }}" class="block py-1 text-ink-muted hover:text-ink">{{ $item['label'] }}</a>
                 @endforeach
+            </nav>
+            <nav aria-label="DevKora" class="space-y-2 text-sm">
+                <p class="font-semibold text-ink">DevKora</p>
+                <a href="{{ route('about') }}" class="block py-1 text-ink-muted hover:text-ink">À propos</a>
+                <a href="{{ route('privileges') }}" class="block py-1 text-ink-muted hover:text-ink">Privilèges</a>
             </nav>
         </div>
         <div class="mx-auto flex max-w-page items-center justify-between gap-4 border-t border-line px-4 py-4 text-sm text-ink-muted sm:px-6">

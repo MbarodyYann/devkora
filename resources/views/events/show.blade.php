@@ -21,6 +21,7 @@
                     <div class="flex items-start gap-2"><dt class="sr-only">Lieu</dt><x-icon name="map-pin" class="mt-0.5 size-5 shrink-0 text-ink-muted" /><dd>{{ $event->placeLabel() }}</dd></div>
                 </dl>
                 <div class="mt-4"><x-author :user="$event->user" :date="$event->created_at" verb="Proposé" /></div>
+                <x-share :title="$event->title" :url="route('events.show', $event)" class="mt-5" />
                 <div class="prose-dk mt-6 border-t border-line pt-6">{!! $event->description_html !!}</div>
             </x-card>
 

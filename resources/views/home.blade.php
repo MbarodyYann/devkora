@@ -124,6 +124,27 @@
         </section>
     </x-slot:hero>
 
+    {{-- Les trois piliers (08, 11) : ce qu'on vient faire ici --}}
+    <section class="pt-16 sm:pt-24" aria-labelledby="piliers-titre">
+        <h2 id="piliers-titre" class="text-[32px] sm:text-[44px]">Ici, on échange.</h2>
+        <ul class="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3" data-pillars>
+            @foreach ([
+                ['Entraide', 'message', 'Pose tes questions, partage tes tutoriels : la meilleure réponse reste trouvable par tous.', 'Voir les questions →', 'questions.index'],
+                ['Communauté', 'users', 'Trouve des coéquipiers d\'autres pays ou confie une mission à un dev de confiance.', 'Voir les annonces →', 'listings.index'],
+                ['Le Pouls', 'chart', 'Combien facturer ? Quelles compétences sont recherchées ? Les chiffres réels de la communauté.', 'Voir le Pouls →', 'pulse'],
+            ] as [$pillar, $icon, $line, $link, $route])
+                <li class="min-w-0">
+                    <a href="{{ route($route) }}" class="group flex h-full flex-col rounded-2xl border border-line bg-surface p-6 shadow-card transition hover:-translate-y-0.5 hover:shadow-card-hover motion-reduce:hover:translate-y-0 sm:rounded-card sm:p-8">
+                        <span class="inline-flex size-12 items-center justify-center rounded-2xl bg-primary-50 text-primary-600 dark:bg-primary-900 dark:text-secondary-400"><x-icon :name="$icon" class="size-6" /></span>
+                        <h3 class="mt-5 text-[28px]">{{ $pillar }}</h3>
+                        <p class="mt-2 text-ink-soft">{{ $line }}</p>
+                        <span class="mt-auto pt-5 font-semibold text-primary-600 group-hover:underline dark:text-primary-300">{{ $link }}</span>
+                    </a>
+                </li>
+            @endforeach
+        </ul>
+    </section>
+
     {{-- Questions résolues récemment --}}
     @if ($resolvedQuestions->isNotEmpty())
         <section class="pt-16 sm:pt-24" aria-labelledby="resolues-titre">
@@ -190,4 +211,19 @@
             <x-contributors :contributors="$contributors" class="mt-8" />
         </section>
     @endif
+    {{-- CTA final (08, 11) : le même bouton que le hero, pour le visiteur --}}
+    @guest
+        <section class="relative mt-16 overflow-hidden rounded-2xl bg-primary-800 px-6 py-14 text-center text-white sm:mt-24 sm:rounded-card sm:px-10 sm:py-20 dark:bg-primary-950" aria-labelledby="final-titre" data-final-cta>
+            <svg class="pointer-events-none absolute bottom-0 left-0 h-[420px] w-[420px]" viewBox="0 0 760 760" fill="none" aria-hidden="true">
+                @foreach ([340, 500, 660] as $radius)
+                    <circle cx="0" cy="760" r="{{ $radius }}" stroke="white" stroke-opacity=".06" stroke-width="1" />
+                @endforeach
+            </svg>
+            <div class="relative">
+                <h2 id="final-titre" class="mx-auto max-w-2xl text-[34px] text-white sm:text-[48px]">Ne reste plus seul <em class="font-serif italic text-secondary-400">face à ton code.</em></h2>
+                <x-button :href="route('register')" size="lg" class="mt-8 w-full sm:w-auto" data-cta="final">{{ App\Support\Copy::SIGNUP_CTA }}</x-button>
+                <p class="mt-3 text-sm text-white/70">{{ App\Support\Copy::SIGNUP_REASSURANCE }}</p>
+            </div>
+        </section>
+    @endguest
 </x-layouts.app>

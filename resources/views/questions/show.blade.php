@@ -27,6 +27,7 @@
                     </div>
                     <div class="prose-dk mt-6">{!! $question->body_html !!}</div>
                     <x-tags :skills="$question->skills" class="mt-6" />
+                    <x-share :title="$question->title" :url="route('questions.show', $question)" class="mt-6" />
                     @can('retag', $question)
                         {{-- À partir de 500 cauris : corriger les tags d'une question d'un autre membre (journalisé). --}}
                         <details class="mt-4" data-retag>

@@ -59,6 +59,7 @@
                     <p class="mt-4 text-ink"><span class="font-semibold">Rôles recherchés :</span> {{ $listing->roles_wanted }}</p>
                 @endunless
                 <x-skills :skills="$listing->skills" class="mt-5" />
+                <x-share :title="$listing->title" :url="route('listings.show', $listing)" class="mt-5" />
                 <div class="prose-dk mt-6 border-t border-line pt-6">{!! $listing->description_html !!}</div>
             </x-card>
 

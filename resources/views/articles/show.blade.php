@@ -1,4 +1,4 @@
-<x-layouts.app :title="$article->title" :description="$article->excerpt">
+<x-layouts.app :title="$article->title" :description="$article->excerpt" og-type="article">
     <article class="mx-auto max-w-[44rem]">
         <a href="{{ route('articles.index') }}" class="mb-4 inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-ink-muted hover:text-ink">
             <x-icon name="arrow-left" class="size-4" /> Tous les articles
@@ -20,6 +20,7 @@
         <div class="prose-dk prose-article mt-8">{!! $article->body_html !!}</div>
 
         <x-tags :skills="$article->skills" route="articles.index" class="mt-10" />
+        <x-share :title="$article->title" :url="route('articles.show', $article)" class="mt-6" />
 
         <footer class="mt-10 flex flex-col gap-4 rounded-2xl border border-line bg-bg-alt p-5 sm:flex-row sm:items-center sm:justify-between sm:rounded-card sm:p-6">
             <p class="text-ink">Cet article t'a aidé ? Dis-le à {{ $article->user->firstName() }}.</p>

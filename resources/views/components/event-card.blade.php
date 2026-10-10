@@ -15,7 +15,11 @@
     <p class="mt-3 line-clamp-2 break-words text-ink-soft">{{ $event->excerpt }}</p>
     <div class="mt-auto pt-5">
     <p class="flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-line pt-4 text-sm text-ink-muted">
-        <span class="inline-flex items-center gap-1"><x-icon name="map-pin" class="size-4" /> {{ $event->placeLabel() }}</span>
+        @if ($event->online)
+            <span class="inline-flex items-center gap-1"><x-icon name="map-pin" class="size-4" /> En ligne</span>
+        @else
+            <a href="{{ route('cities.show', App\Support\Cities::slug($event->city)) }}" class="relative z-10 inline-flex items-center gap-1 hover:text-ink hover:underline"><x-icon name="map-pin" class="size-4" /> {{ $event->placeLabel() }}</a>
+        @endif
         <span class="ml-auto inline-flex items-center gap-2">
             @if ($event->relationLoaded('participants') && $event->participants->isNotEmpty())
                 <span class="flex -space-x-1.5" aria-hidden="true">
