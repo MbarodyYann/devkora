@@ -1,0 +1,13 @@
+# Lance devkora-scheduler.service au début de chaque minute.
+# Si une exécution dure plus d'une minute (demo:reset), systemd attend la fin avant la suivante.
+
+[Unit]
+Description=DevKora : planificateur de Laravel, chaque minute
+
+[Timer]
+OnCalendar=*-*-* *:*:00
+AccuracySec=1s
+Unit=devkora-scheduler.service
+
+[Install]
+WantedBy=timers.target

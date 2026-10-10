@@ -1,0 +1,21 @@
+# Planificateur de Laravel (schedule:run), lancé chaque minute par devkora-scheduler.timer.
+# Il déclenche notamment demo:reset chaque nuit à 3 h, heure de Dakar (routes/console.php).
+# À copier dans /etc/systemd/system/, puis : systemctl daemon-reload && systemctl enable --now devkora-scheduler.timer
+
+[Unit]
+Description=DevKora : tâches planifiées de Laravel
+After=network.target postgresql.service
+
+[Service]
+Type=oneshot
+User=devkora
+Group=devkora
+WorkingDirectory=/var/www/devkora
+ExecStart=/usr/bin/php8.2 artisan schedule:run --no-interaction
+Nice=10
+
+# Durcissement : le service n'écrit que dans le dossier de l'application.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
