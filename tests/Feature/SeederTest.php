@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ProposalStatus;
 use App\Models\Answer;
 use App\Models\Article;
 use App\Models\Event;
@@ -259,4 +260,14 @@ test('notifications de démo : les comptes de démo ont des notifications non lu
     foreach (array_column(Demo::PERSONAS, 'email') as $email) {
         expect(User::where('email', $email)->sole()->unreadNotifications()->count())->toBeGreaterThanOrEqual(2);
     }
+});
+
+test('démo : l\'équipe du hackathon d\'Aïssatou réunit trois pays dès que Kwame est accepté', function () {
+    $team = Listing::with(['user.profile', 'acceptedProposals.user.profile', 'proposals.user.profile'])
+        ->where('title', 'like', 'Hackathon fintech d%')->sole();
+    $countries = fn () => collect([$team->user->profile->country])
+        ->merge($team->acceptedProposals->map(fn ($p) => $p->user->profile->country))->unique()->values()->all();
+
+    expect($countries())->toBe(['CI', 'CM'])
+        ->and($team->proposals->where('status', ProposalStatus::Pending)->map(fn ($p) => $p->user->profile->country)->values()->all())->toBe(['GH']);
 });

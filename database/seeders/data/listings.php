@@ -21,7 +21,10 @@ Le hackathon « Inclusion financière » d'Abidjan a lieu dans trois semaines. N
 
 Il nous manque un dev back-end pour l'API (Laravel ou Node.js) et l'intégration MTN MoMo en sandbox. L'événement se fait sur place, mais la préparation se fait à distance, deux soirs par semaine.
 MD,
-            'members' => [['Adjoua N\'Guessan', 'Je fais le design, on en a parlé la semaine dernière : je suis partante !']],
+            'members' => [
+                ['Adjoua N\'Guessan', 'Je fais le design, on en a parlé la semaine dernière : je suis partante !'],
+                ['Linda Ngo Bassa', 'Je prends le parcours de paiement MTN MoMo côté mobile. Je viens de Douala pour le week-end du hackathon.'],
+            ],
             'pending' => [['Kwame Asante', 'Je connais bien l\'API MTN MoMo (je l\'utilise à Accra) et Laravel. Je peux venir à Abidjan pour le week-end du hackathon.']],
         ],
         [
