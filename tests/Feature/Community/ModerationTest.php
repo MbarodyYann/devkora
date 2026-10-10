@@ -4,12 +4,14 @@ use App\Enums\ModerationActionType;
 use App\Enums\ReportReason;
 use App\Models\Answer;
 use App\Models\Article;
+use App\Models\Event;
 use App\Models\Listing;
 use App\Models\ModerationAction;
 use App\Models\Question;
 use App\Models\Report;
 use App\Models\Skill;
 use App\Models\User;
+use App\Support\Moderation;
 
 function withCauris(int $points): User
 {
@@ -136,4 +138,44 @@ test('page des privilèges : paliers de 11 et progression du membre', function (
 
     $this->actingAs(withCauris(120))->get('/privileges')->assertSee('Encore 130 cauris pour débloquer « Modération communautaire ».');
     expect(config('privileges'))->toBe(['downvote' => 50, 'moderate' => 250, 'retag' => 500]);
+});
+
+test('journal : des phrases correctes pour chaque type de contenu et chaque action', function () {
+    $question = Question::factory()->create(['title' => 'Orange Money Web Payment : quelle devise utiliser en sandbox ?']);
+    $answer = Answer::factory()->for($question)->create()->load('question');
+    $article = Article::factory()->create(['title' => 'Intégrer Wave de bout en bout']);
+    $listing = Listing::factory()->create(['title' => 'Startup edtech à Kinshasa']);
+    $event = Event::factory()->create(['title' => 'Meetup Laravel Dakar']);
+    $sentence = fn ($action, $content) => Moderation::sentence(ModerationActionType::from($action), $content);
+
+    expect($sentence('hide', $answer))->toBe('a masqué une réponse à « Orange Money Web Payment : quelle devise utiliser en sandbox… »')
+        ->and($sentence('hide', $question))->toBe('a masqué la question « Orange Money Web Payment : quelle devise utiliser en sandbox… »')
+        ->and($sentence('restore', $article))->toBe('a rétabli l\'article « Intégrer Wave de bout en bout »')
+        ->and($sentence('dismiss', $listing))->toBe('a classé sans suite les signalements sur l\'annonce « Startup edtech à Kinshasa »')
+        ->and($sentence('hide', $event))->toBe('a masqué l\'événement « Meetup Laravel Dakar »')
+        ->and($sentence('retag', $question))->toStartWith('a modifié les tags de la question « Orange Money')
+        ->and($sentence('hide', null))->toBe('a masqué un contenu supprimé');
+});
+
+test('journal et contenus masqués : pas de doublon « Réponse à « Réponse à … » »', function () {
+    $question = Question::factory()->create(['title' => 'Orange Money Web Payment en sandbox']);
+    $answer = Answer::factory()->for($question)->create();
+    reportOf(withCauris(0), $answer);
+    $moderator = withCauris(300);
+    $this->actingAs($moderator)->post(route('moderation.hide', ['answer', $answer->id]));
+
+    $html = $this->actingAs($moderator)->get('/moderation')->getContent();
+    expect($html)->toContain($moderator->name.'</span> a masqué une réponse à « Orange Money Web Payment en sandbox »')
+        ->toContain('Une réponse à « Orange Money Web Payment en sandbox »')
+        ->toContain('Masquée le')
+        ->not->toContain('Réponse à « Réponse à');
+});
+
+test('/privileges : la limite des modérateurs est une note, sans coche', function () {
+    $html = $this->get('/privileges')->getContent();
+    $limit = substr($html, strpos($html, 'data-limit') - 200, 400);
+
+    expect($limit)->toContain('Jamais sur ton propre contenu, ni sur un contenu que tu as signalé.')->toContain('text-ink-muted')
+        ->and(substr_count($html, 'Jamais sur ton propre contenu'))->toBe(1)
+        ->and(substr($html, strpos($html, 'Jamais sur ton propre contenu') - 300, 300))->not->toContain('name="check"');
 });

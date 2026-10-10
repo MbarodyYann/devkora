@@ -16,12 +16,11 @@
                     <li>
                         <x-card padding="p-5 sm:p-6" data-pending>
                             <div class="flex flex-wrap items-center gap-2">
-                                <x-chip tone="neutral">{{ $d['type'] }}</x-chip>
                                 @foreach ($item['reports']->countBy(fn ($r) => $r->reason->label()) as $label => $count)
                                     <x-chip tone="warm">{{ $label }}{{ $count > 1 ? ' × '.$count : '' }}</x-chip>
                                 @endforeach
                             </div>
-                            <a href="{{ $d['url'] }}" class="mt-3 block break-words font-serif text-xl text-ink hover:text-primary-600 dark:hover:text-primary-300">{{ $d['title'] }}</a>
+                            <a href="{{ $d['url'] }}" class="mt-3 block break-words font-serif text-xl text-ink hover:text-primary-600 dark:hover:text-primary-300">{{ Moderation::heading($item['content']) }}</a>
                             <p class="mt-2 line-clamp-3 break-words text-ink-soft">{{ $d['excerpt'] }}</p>
                             <p class="mt-2 text-sm text-ink-muted">Signalé par {{ $item['reports']->pluck('user.name')->join(', ') }}</p>
 
@@ -55,8 +54,8 @@
                         @php($d = Moderation::describe($content))
                         <li class="flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between">
                             <div class="min-w-0">
-                                <p class="text-sm text-ink-muted">{{ $d['type'] }} · masqué le {{ $content->hidden_at->translatedFormat('j M Y') }}</p>
-                                <a href="{{ $d['url'] }}" class="block break-words font-medium text-ink hover:text-primary-600 dark:hover:text-primary-300">{{ $d['title'] }}</a>
+                                <a href="{{ $d['url'] }}" class="block break-words font-medium text-ink hover:text-primary-600 dark:hover:text-primary-300">{{ Moderation::heading($content) }}</a>
+                                <p class="text-sm text-ink-muted">{{ Moderation::noun($content)['feminine'] ? 'Masquée' : 'Masqué' }} le {{ $content->hidden_at->translatedFormat('j M Y') }}</p>
                             </div>
                             @can('moderate-content', $content)
                                 <form method="post" action="{{ route('moderation.restore', [$content->getMorphClass(), $content->id]) }}">
@@ -81,8 +80,7 @@
                     @foreach ($journal as $action)
                         <li class="p-3 text-sm">
                             <p class="text-ink">
-                                <span class="font-semibold">{{ $action->moderator->name }}</span> {{ $action->action->label() }}
-                                {{ $action->target ? Moderation::label($action->target) : 'un contenu supprimé' }}
+                                <span class="font-semibold">{{ $action->moderator->name }}</span> {{ Moderation::sentence($action->action, $action->target) }}
                             </p>
                             @if ($action->note)
                                 <p class="mt-0.5 break-words text-ink-soft">« {{ $action->note }} »</p>

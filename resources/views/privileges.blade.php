@@ -3,7 +3,7 @@
     $tiers = [
         ['points' => 0, 'title' => 'Membre', 'items' => ['Poser des questions et y répondre', 'Écrire des articles', 'Voter +1 et « Utile »', 'Publier des annonces et des événements', 'Signaler un contenu']],
         ['points' => config('privileges.downvote'), 'title' => 'Vote négatif', 'items' => ['Voter −1 sur une réponse peu utile (−2 cauris pour son auteur)']],
-        ['points' => config('privileges.moderate'), 'title' => 'Modération communautaire', 'items' => ['Accéder à la file des signalements', 'Masquer, rétablir ou classer sans suite un contenu signalé', 'Jamais sur ton propre contenu, ni sur un contenu que tu as signalé']],
+        ['points' => config('privileges.moderate'), 'title' => 'Modération communautaire', 'items' => ['Accéder à la file des signalements', 'Masquer, rétablir ou classer sans suite un contenu signalé'], 'note' => 'Jamais sur ton propre contenu, ni sur un contenu que tu as signalé.'],
         ['points' => config('privileges.retag'), 'title' => 'Modifier les tags', 'items' => ['Corriger les tags de la question d\'un autre membre, pour qu\'elle soit trouvée']],
     ];
     $next = $me ? collect($tiers)->first(fn ($tier) => $tier['points'] > $me->reputation) : null;
@@ -49,6 +49,9 @@
                                 <li class="flex items-start gap-2"><x-icon name="check" class="mt-1 size-4 shrink-0 text-primary-600 dark:text-secondary-400" /> {{ $item }}</li>
                             @endforeach
                         </ul>
+                        @isset($tier['note'])
+                            <p class="mt-3 text-sm text-ink-muted" data-limit>{{ $tier['note'] }}</p>
+                        @endisset
                     </x-card>
                 </li>
             @endforeach
