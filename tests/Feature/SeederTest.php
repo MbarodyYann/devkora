@@ -1,8 +1,10 @@
 <?php
 
 use App\Models\Answer;
+use App\Models\Article;
 use App\Models\Profile;
 use App\Models\Question;
+use App\Models\ReputationEvent;
 use App\Models\Skill;
 use App\Models\User;
 use App\Models\Vote;
@@ -11,6 +13,7 @@ use Database\Seeders\DatabaseSeeder;
 use Database\Seeders\DemoClock;
 use Database\Seeders\DevSeeder;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 beforeEach(fn () => $this->seed(DatabaseSeeder::class));
 
@@ -141,4 +144,28 @@ test('le contenu de démo est en français, sans lorem, avec du code', function 
     expect(mb_strtolower($text))->not->toContain('lorem')
         ->and(substr_count($text, '```'))->toBeGreaterThan(40)
         ->and(Question::pluck('title')->filter(fn ($t) => preg_match('/\b(the|how to|with)\b/i', $t))->all())->toBe([]);
+});
+
+test('12 articles longs, de toutes les catégories, d\'auteurs de pays différents', function () {
+    $articles = Article::with('user.profile')->get();
+
+    expect($articles)->toHaveCount(12)
+        ->and($articles->pluck('category')->unique())->toHaveCount(4)
+        ->and($articles->pluck('user.profile.country')->unique()->count())->toBeGreaterThanOrEqual(8);
+
+    foreach ($articles as $article) {
+        $words = str_word_count(Str::ascii($article->body));
+        expect($words)->toBeBetween(600, 1500)
+            ->and($article->body_html)->toContain('<h2>')
+            ->and(mb_strtolower($article->body))->not->toContain('lorem')
+            ->and($article->score)->toBeGreaterThan(0)
+            ->and($article->created_at->gte($article->user->created_at))->toBeTrue();
+    }
+});
+
+test('les votes « Utile » de la démo donnent des événements article_useful', function () {
+    $useful = Vote::where('votable_type', 'article')->count();
+
+    expect($useful)->toBe((int) Article::sum('score'))
+        ->and(ReputationEvent::where('reason', 'article_useful')->count())->toBe($useful);
 });

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\HomeController;
 use App\Models\Answer;
+use App\Models\Article;
 use App\Models\Question;
 use App\Models\User;
 use App\Support\Copy;
@@ -46,7 +47,7 @@ test('bande de garanties et bande de confiance aux chiffres réels', function ()
         ->assertSee('data-stat="countries">2<', false)
         ->assertSee('🇸🇳')
         ->assertSee('🇬🇭')
-        ->assertSee('Wave · Orange Money · MTN MoMo');
+        ->assertDontSee('Pensé pour</dt>', false);
 });
 
 test('les chiffres sont mis en cache 10 minutes', function () {
@@ -106,4 +107,18 @@ test('questions résolues : colonne de la bande de confiance et section récente
 
 test('le membre voit « Poser une question » sur l\'accueil', function () {
     $this->actingAs(User::factory()->withProfile()->create())->get('/')->assertSee('Poser une question');
+});
+
+test('bande de confiance finale : devs, pays, questions résolues, articles partagés ; derniers articles', function () {
+    Article::factory()->count(2)->create();
+    $latest = Article::factory()->create(['title' => 'Le tout dernier article publié', 'created_at' => now()->addMinute()]);
+
+    $html = $this->get('/')->getContent();
+    $band = substr($html, strpos($html, 'aria-label="DevKora en chiffres"'), 5000);
+
+    preg_match_all('/<dt[^>]*>([^<]+)<\/dt>/', $band, $labels);
+    expect(array_map('trim', $labels[1]))->toBe(['Devs inscrits', 'Pays', 'Questions résolues', 'Articles partagés'])
+        ->and($band)->toContain('data-stat="articles">3<')
+        ->and($html)->toContain('Ce que les devs du continent ont appris, pour toi.')
+        ->and(strpos($html, 'Le tout dernier article publié'))->toBeGreaterThan(strpos($html, 'articles-titre'));
 });

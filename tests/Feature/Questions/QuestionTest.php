@@ -22,8 +22,11 @@ test('la liste reprend l\'en-tête de la charte ; le membre a « Poser une quest
         ->assertSee('Pose-la en français avec les bons tags : la communauté répond et vote, la meilleure réponse reste trouvable par tous.')
         ->assertDontSee('Poser une question');
 
+    // Une fois dans l'en-tête, une fois dans le menu global « Publier » (fermé par défaut).
     $html = $this->actingAs(member())->get('/questions')->getContent();
-    expect(substr_count($html, 'Poser une question'))->toBe(1);
+    $menu = substr($html, strpos($html, 'data-publish-menu'), 2000);
+    expect(substr_count($html, 'Poser une question'))->toBe(2)
+        ->and($menu)->toContain('Poser une question');
 });
 
 test('« Questions » apparaît dans la navigation', function () {

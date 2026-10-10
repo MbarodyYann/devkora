@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Article;
 use App\Models\Question;
 use App\Models\User;
 use App\Support\Demo;
@@ -63,17 +64,18 @@ test('aucun débordement horizontal à 360 px, en clair et en sombre', function 
 
     try {
         $question = Question::orderByDesc('answers_count')->first();
-        $visitor = measure(['/questions', '/questions?statut=resolues', "/questions/{$question->id}", '/', '/devs', '/devs?competence=laravel', "/devs/{$moussa->id}", "/devs/{$longest->id}", '/connexion', '/inscription', '/mot-de-passe-oublie', '/devs/999999']);
-        $member = measure(['/', '/devs', "/devs/{$moussa->id}", "/devs/{$moussa->id}/modifier", '/questions', '/questions/poser', "/questions/{$question->id}"], 'Moussa');
-        $desktop = measure(['/', '/devs', "/devs/{$moussa->id}", "/questions/{$question->id}"], width: 1280);
+        $article = Article::orderByDesc('reading_minutes')->first();
+        $visitor = measure(['/articles', "/articles/{$article->slug}", '/questions', '/questions?statut=resolues', "/questions/{$question->id}", '/', '/devs', '/devs?competence=laravel', "/devs/{$moussa->id}", "/devs/{$longest->id}", '/connexion', '/inscription', '/mot-de-passe-oublie', '/devs/999999']);
+        $member = measure(['/', '/devs', "/devs/{$moussa->id}", "/devs/{$moussa->id}/modifier", '/questions', '/questions/poser', "/questions/{$question->id}", '/articles/ecrire'], 'Moussa');
+        $desktop = measure(['/', '/devs', "/devs/{$moussa->id}", "/questions/{$question->id}", "/articles/{$article->slug}"], width: 1280);
     } finally {
         $server->stop();
     }
 
-    expect($visitor)->toHaveCount(24)->and($member)->toHaveCount(14)->and($desktop)->toHaveCount(8);
+    expect($visitor)->toHaveCount(28)->and($member)->toHaveCount(16)->and($desktop)->toHaveCount(10);
 
     // Garde-fou : les pages ont bien été servies par l'application (et non une page d'erreur).
-    expect(collect([...$visitor, ...$member, ...$desktop])->pluck('title')->filter(fn ($t) => str_contains($t, 'DevKora')))->toHaveCount(46);
+    expect(collect([...$visitor, ...$member, ...$desktop])->pluck('title')->filter(fn ($t) => str_contains($t, 'DevKora')))->toHaveCount(54);
 
     foreach ([...$visitor, ...$member, ...$desktop] as $page) {
         $where = "{$page['path']} ({$page['scheme']}, {$page['viewport']} px)";

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Answer;
+use App\Models\Article;
 use App\Models\Question;
 use App\Models\Skill;
 use App\Models\User;
@@ -128,4 +129,13 @@ test('rien de partagé : une invitation pour le propriétaire', function () {
 
     $this->get(route('devs.show', $user))->assertSee('Awa n&#039;a encore rien partagé.', false);
     $this->actingAs($user)->get(route('devs.show', $user))->assertSee('Une réponse acceptée te rapporte +15 cauris.');
+});
+
+test('« Ce que … partage » inclut les articles, en premier', function () {
+    $user = dev(user: ['name' => 'Moussa Diop']);
+    Article::factory()->for($user)->create(['title' => 'Intégrer Wave de bout en bout', 'score' => 4]);
+    Question::factory()->for($user)->create(['title' => 'Quelle base pour un service USSD ?']);
+
+    $this->get(route('devs.show', $user))
+        ->assertSeeInOrder(['Ce que Moussa partage', 'Articles', 'Intégrer Wave de bout en bout', '4 × Utile', 'Questions', 'Quelle base pour un service USSD ?']);
 });
