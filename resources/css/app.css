@@ -1,0 +1,348 @@
+@import 'tailwindcss';
+
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+@source '../../app/**/*.php';
+
+/* Thème sombre piloté par la classe .dark sur <html> (script anti-flash du layout). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* -------------------------------------------------------------------------
+ | Polices auto-hébergées (SIL OFL 1.1), public/fonts/
+ | Newsreader : titres, gros chiffres, logo. Schibsted Grotesk : texte et interface.
+ * ---------------------------------------------------------------------- */
+@font-face {
+    font-family: 'Newsreader';
+    font-style: normal;
+    font-weight: 400 600;
+    font-display: swap;
+    src: url('/fonts/newsreader-latin-wght-normal.woff2') format('woff2-variations');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+    font-family: 'Newsreader';
+    font-style: normal;
+    font-weight: 400 600;
+    font-display: swap;
+    src: url('/fonts/newsreader-latin-ext-wght-normal.woff2') format('woff2-variations');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+    font-family: 'Newsreader';
+    font-style: italic;
+    font-weight: 400 600;
+    font-display: swap;
+    src: url('/fonts/newsreader-latin-wght-italic.woff2') format('woff2-variations');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+    font-family: 'Newsreader';
+    font-style: italic;
+    font-weight: 400 600;
+    font-display: swap;
+    src: url('/fonts/newsreader-latin-ext-wght-italic.woff2') format('woff2-variations');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+    font-family: 'Schibsted Grotesk';
+    font-style: normal;
+    font-weight: 400 700;
+    font-display: swap;
+    src: url('/fonts/schibsted-grotesk-latin-wght-normal.woff2') format('woff2-variations');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+    font-family: 'Schibsted Grotesk';
+    font-style: normal;
+    font-weight: 400 700;
+    font-display: swap;
+    src: url('/fonts/schibsted-grotesk-latin-ext-wght-normal.woff2') format('woff2-variations');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* JetBrains Mono : blocs de code seulement (téléchargée seulement si utilisée). */
+@font-face {
+    font-family: 'JetBrains Mono';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('/fonts/jetbrains-mono-latin-400-normal.woff2') format('woff2');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* -------------------------------------------------------------------------
+ | Jetons de la charte v4 (08-design.md) : deux gammes, primary (Indigo cobalt)
+ | et secondary (Ambre), plus les neutres. Palette Tailwind par défaut désactivée.
+ * ---------------------------------------------------------------------- */
+@theme {
+    --color-*: initial;
+    --color-transparent: transparent;
+    --color-current: currentColor;
+    --color-white: #ffffff;
+
+    /* Primary — Indigo cobalt (base 600) */
+    --color-primary-50: #f3f4f8;
+    --color-primary-100: #e2e6ee;
+    --color-primary-200: #c5ccdc;
+    --color-primary-300: #a2aec7;
+    --color-primary-400: #7b8baf;
+    --color-primary-500: #546997;
+    --color-primary-600: #314a82;
+    --color-primary-700: #283c6b;
+    --color-primary-800: #1f2f55;
+    --color-primary-900: #16213e;
+    --color-primary-950: #0c1328;
+
+    /* Secondary — Ambre (base 400). Jamais du texte sur fond clair : aplat, ou secondary-700 pour du texte. */
+    --color-secondary-50: #fffaf1;
+    --color-secondary-100: #fef4df;
+    --color-secondary-200: #fde9be;
+    --color-secondary-300: #fcdc97;
+    --color-secondary-400: #f9b218;
+    --color-secondary-500: #da9a14;
+    --color-secondary-600: #ba8311;
+    --color-secondary-700: #9b6b0d;
+    --color-secondary-800: #7c5309;
+    --color-secondary-900: #5c3c06;
+    --color-secondary-950: #3d2402;
+
+    /* Neutres, redéfinis en sombre plus bas */
+    --color-bg: #ffffff;
+    --color-bg-alt: #f7f8fb;
+    --color-surface: #ffffff;
+    --color-line: rgb(20 26 46 / 0.08);
+    --color-ink: #141a2e;
+    --color-ink-soft: #3f4659;
+    --color-ink-muted: #5f6679;
+
+    --font-sans: 'Schibsted Grotesk', ui-sans-serif, system-ui, 'Segoe UI', Roboto, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji';
+    --font-serif: 'Newsreader', ui-serif, Georgia, serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+    --radius-btn: 8px;
+    --radius-field: 10px;
+    --radius-nav: 12px;
+    --radius-card: 24px;
+
+    --shadow-soft: 0 2px 8px rgb(0 0 0 / 0.05);
+    --shadow-card: 0 2px 18px rgb(17 17 17 / 0.05);
+    --shadow-card-hover: 0 8px 30px rgb(17 17 17 / 0.08);
+
+    --container-page: 75rem; /* 1 200 px */
+}
+
+@layer base {
+    .dark {
+        --color-bg: #0b1022;
+        --color-bg-alt: #10172e;
+        --color-surface: #141c38;
+        --color-line: rgb(255 255 255 / 0.08);
+        --color-ink: #f3f4f8;
+        --color-ink-soft: #c5ccdc;
+        --color-ink-muted: #97a1b8;
+        --shadow-soft: 0 2px 8px rgb(0 0 0 / 0.2);
+        --shadow-card: 0 2px 18px rgb(0 0 0 / 0.25);
+        --shadow-card-hover: 0 8px 30px rgb(0 0 0 / 0.35);
+        color-scheme: dark;
+    }
+
+    html {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+        @apply bg-bg font-sans text-base text-ink-soft antialiased;
+    }
+
+    h1,
+    h2,
+    h3 {
+        @apply font-serif text-ink;
+        font-weight: 500;
+        letter-spacing: -0.02em;
+        line-height: 1.08;
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--color-primary-500);
+        outline-offset: 2px;
+    }
+
+    [x-cloak] {
+        display: none !important;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+}
+
+/* Bouton principal (08, règle 4) : aplat ambre, texte primary-950, dans les deux thèmes.
+   Au survol, ombre plus marquée et léger soulèvement ; la couleur ne change pas. */
+@utility btn-amber {
+    color: var(--color-primary-950);
+    background-color: var(--color-secondary-400);
+    box-shadow:
+        0 1px 2px rgb(20 26 46 / 0.12),
+        0 4px 12px rgb(20 26 46 / 0.12);
+    transition:
+        box-shadow 150ms,
+        transform 150ms;
+
+    &:hover {
+        box-shadow:
+            0 2px 4px rgb(20 26 46 / 0.16),
+            0 10px 22px rgb(20 26 46 / 0.2);
+        transform: translateY(-1px);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--color-primary-600);
+        outline-offset: 2px;
+    }
+
+    &:disabled,
+    &[aria-disabled='true'] {
+        opacity: 0.5;
+        box-shadow: none;
+        transform: none;
+    }
+}
+
+/* Bouton secondaire : contour ambre de 1,5 px, fond transparent, texte ink. */
+@utility btn-outline {
+    color: var(--color-ink);
+    background-color: transparent;
+    border: 1.5px solid var(--color-secondary-400);
+    transition: background-color 150ms;
+
+    &:hover {
+        background-color: rgb(249 178 24 / 0.12);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--color-primary-600);
+        outline-offset: 2px;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+    }
+}
+
+/* Trame de points discrète (sections alternées, états vides). */
+@utility dots {
+    background-image: url('/images/dots.svg');
+    background-size: 18px 18px;
+
+    &:where(.dark, .dark *) {
+        background-image: url('/images/dots-dark.svg');
+    }
+}
+
+/* Navigation flottante sur fond clair : opaque sous 1 024 px (3G, aucun texte lisible au travers),
+   verre à 90 % et flou sur ordinateur. */
+@utility nav-glass {
+    background-color: var(--color-bg-alt);
+    border: 1px solid var(--color-line);
+
+    &:where(.dark, .dark *) {
+        background-color: var(--color-primary-950);
+    }
+
+    @media (min-width: 1024px) {
+        background-color: color-mix(in srgb, var(--color-bg-alt) 90%, transparent);
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
+
+        &:where(.dark, .dark *) {
+            background-color: color-mix(in srgb, var(--color-primary-950) 90%, transparent);
+        }
+    }
+}
+
+/* Navigation posée sur un bandeau indigo (accueil, en-têtes de liste) : transparente tout en haut,
+   jetons neutres redéfinis en clair pour que tous ses composants passent en blanc. */
+@utility nav-on-hero {
+    --color-ink: #ffffff;
+    --color-ink-soft: rgb(255 255 255 / 0.85);
+    --color-ink-muted: rgb(255 255 255 / 0.78);
+    --color-line: rgb(255 255 255 / 0.14);
+    --color-surface: rgb(255 255 255 / 0.12);
+    --color-bg-alt: rgb(255 255 255 / 0.08);
+    background-color: transparent;
+    border: 1px solid rgb(255 255 255 / 0.14);
+
+    /* « Kora » en ambre sur l'indigo (primary-600 y serait illisible), comme en sombre. */
+    & .logo-end {
+        color: var(--color-secondary-400);
+    }
+
+    /* Dès le premier pixel de défilement : primary-800 à 96 % (opaque sous 1 024 px, flou au-dessus). */
+    &.is-scrolled {
+        background-color: var(--color-primary-800);
+
+        @media (min-width: 1024px) {
+            background-color: color-mix(in srgb, var(--color-primary-800) 96%, transparent);
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
+        }
+    }
+
+    &.is-scrolled:where(.dark, .dark *) {
+        background-color: var(--color-primary-950);
+
+        @media (min-width: 1024px) {
+            background-color: color-mix(in srgb, var(--color-primary-950) 96%, transparent);
+        }
+    }
+}
+
+/* Menus déroulants : jetons normaux, même ouverts depuis une navigation posée sur l'indigo. */
+@utility nav-menu {
+    --color-ink: #141a2e;
+    --color-ink-soft: #3f4659;
+    --color-ink-muted: #5f6679;
+    --color-line: rgb(20 26 46 / 0.08);
+    --color-surface: #ffffff;
+    --color-bg-alt: #f7f8fb;
+
+    &:where(.dark, .dark *) {
+        --color-ink: #f3f4f8;
+        --color-ink-soft: #c5ccdc;
+        --color-ink-muted: #97a1b8;
+        --color-line: rgb(255 255 255 / 0.08);
+        --color-surface: #141c38;
+        --color-bg-alt: #10172e;
+    }
+}
+
+/* Texte défilant du pied de page : deux copies, la piste glisse de la moitié de sa largeur. */
+@keyframes defile {
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+@utility defile {
+    animation: defile 40s linear infinite;
+
+    @media (prefers-reduced-motion: reduce) {
+        animation: none;
+    }
+}
+
+/* Place réservée sous le contenu pour la barre du bas mobile. */
+@utility pb-safe {
+    padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));
+}
