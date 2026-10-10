@@ -22,6 +22,7 @@ use Database\Seeders\DemoClock;
 use Database\Seeders\DevSeeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 beforeEach(fn () => $this->seed(DatabaseSeeder::class));
@@ -270,4 +271,13 @@ test('démo : l\'équipe du hackathon d\'Aïssatou réunit trois pays dès que K
 
     expect($countries())->toBe(['CI', 'CM'])
         ->and($team->proposals->where('status', ProposalStatus::Pending)->map(fn ($p) => $p->user->profile->country)->values()->all())->toBe(['GH']);
+});
+
+test('en production, aucun membre de démo n\'a le mot de passe « password »', function () {
+    $this->app['env'] = 'production';
+    User::query()->delete();
+    app(DevSeeder::class)->run();
+
+    expect(User::count())->toBeGreaterThan(30)
+        ->and(User::all()->contains(fn (User $user) => Hash::check('password', $user->password)))->toBeFalse();
 });

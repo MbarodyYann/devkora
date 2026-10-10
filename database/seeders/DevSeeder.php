@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 /**
  * Membres de démonstration (data/devs.php), dont les trois comptes de démo, avec leurs compétences.
@@ -24,7 +25,9 @@ class DevSeeder extends Seeder
         $clock = DemoClock::make();
         $now = $clock->now;
         $oldest = max(array_column($devs, 'joined'));
-        $password = Hash::make('password');
+        // En local : « password » pour tous. En production (démo en ligne), un mot de passe aléatoire que personne
+        // ne connaît : on n'entre que par la connexion en un clic, jamais avec l'adresse d'un membre de démo.
+        $password = Hash::make(app()->isProduction() ? Str::random(40) : 'password');
 
         $skills = collect($devs)->pluck('skills')->flatten()->merge(self::LOCAL_SKILLS)->unique()
             ->mapWithKeys(fn (string $name) => [$name => Skill::firstOrCreate(
