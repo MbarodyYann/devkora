@@ -46,10 +46,48 @@ class Skill extends Model
     }
 
     /**
+     * Retrouve les compétences par slug ou les crée, avec leur position (pivot) dans l'ordre donné.
+     *
+     * @param  list<string>  $names
+     * @return array<int, array{position: int}>
+     */
+    public static function idsFor(array $names): array
+    {
+        return collect($names)
+            ->mapWithKeys(fn (string $name, int $position) => [
+                self::firstOrCreate(['slug' => self::slugFor($name)], ['name' => $name])->id => ['position' => $position],
+            ])
+            ->all();
+    }
+
+    /**
+     * Tags saisis sous la forme « Laravel, Wave, USSD » : nettoyés et dédoublonnés.
+     *
+     * @return list<string>
+     */
+    public static function parseList(?string $input): array
+    {
+        return collect(explode(',', (string) $input))
+            ->map(fn (string $name) => Str::squish($name))
+            ->filter()
+            ->unique(fn (string $name) => self::slugFor($name))
+            ->values()
+            ->all();
+    }
+
+    /**
      * @return BelongsToMany<User, $this>
      */
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class);
+    }
+
+    /**
+     * @return BelongsToMany<Question, $this>
+     */
+    public function questions(): BelongsToMany
+    {
+        return $this->belongsToMany(Question::class);
     }
 }

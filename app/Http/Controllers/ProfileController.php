@@ -20,8 +20,18 @@ class ProfileController extends Controller
     {
         abort_unless($user->profile()->exists(), 404);
 
+        // « Ce qu'il partage » (02) : ses réponses acceptées, puis ses questions.
+        $acceptedAnswers = $user->answers()->visible()
+            ->whereHas('question', fn ($q) => $q->visible()->whereColumn('questions.accepted_answer_id', 'answers.id'))
+            ->with('question:id,title,answers_count')
+            ->latest()->limit(5)->get();
+
         return view('devs.show', [
             'dev' => $user->load(['profile', 'skills']),
+            'acceptedAnswers' => $acceptedAnswers,
+            'acceptedCount' => $user->answers()->visible()->whereHas('question', fn ($q) => $q->visible()->whereColumn('questions.accepted_answer_id', 'answers.id'))->count(),
+            'questions' => $user->questions()->visible()->latest()->limit(5)->get(['id', 'title', 'answers_count', 'accepted_answer_id', 'created_at']),
+            'questionsCount' => $user->questions()->visible()->count(),
         ]);
     }
 
@@ -54,7 +64,7 @@ class ProfileController extends Controller
         DB::transaction(function () use ($request, $user, $profile, $data) {
             $user->update(['name' => Str::squish($request->validated('name'))]);
             $profile->update($data);
-            $user->skills()->sync($this->skillIds($request->skillNames()));
+            $user->skills()->sync(Skill::idsFor($request->skillNames()));
         });
 
         if (isset($oldAvatar)) {
@@ -64,20 +74,5 @@ class ProfileController extends Controller
         return redirect()
             ->route('devs.show', $user)
             ->with('status', 'Profil mis à jour. Les autres devs te trouvent maintenant avec ces informations.');
-    }
-
-    /**
-     * Retrouve les compétences existantes (par slug) ou les crée, dans l'ordre saisi.
-     *
-     * @param  list<string>  $names
-     * @return array<int, array{position: int}>
-     */
-    private function skillIds(array $names): array
-    {
-        return collect($names)
-            ->mapWithKeys(fn (string $name, int $position) => [
-                Skill::firstOrCreate(['slug' => Skill::slugFor($name)], ['name' => $name])->id => ['position' => $position],
-            ])
-            ->all();
     }
 }

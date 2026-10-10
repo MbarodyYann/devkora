@@ -6,7 +6,6 @@ use App\Enums\Availability;
 use App\Models\Skill;
 use App\Support\Countries;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
@@ -66,12 +65,7 @@ class UpdateProfileRequest extends FormRequest
      */
     public function skillNames(): array
     {
-        return collect(explode(',', (string) $this->input('skills')))
-            ->map(fn (string $skill) => Str::squish($skill))
-            ->filter()
-            ->unique(fn (string $skill) => Skill::slugFor($skill))
-            ->values()
-            ->all();
+        return Skill::parseList($this->input('skills'));
     }
 
     /**

@@ -26,7 +26,7 @@
 
         @auth
             @if ($action)
-                <x-button :href="$action['url']" class="shrink-0 self-start lg:self-center"><x-icon name="plus" class="size-4" /> {{ $action['label'] }}</x-button>
+                <x-button :href="route($action['route'])" class="shrink-0 self-start lg:self-center"><x-icon name="plus" class="size-4" /> {{ $action['label'] }}</x-button>
             @endif
         @endauth
     </div>

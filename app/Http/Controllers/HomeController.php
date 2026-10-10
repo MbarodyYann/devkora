@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Profile;
+use App\Models\Question;
 use App\Models\User;
 use App\Support\Countries;
 use Illuminate\Support\Facades\Cache;
@@ -21,6 +22,7 @@ class HomeController extends Controller
 
             return [
                 'devs' => Profile::query()->count(),
+                'resolved' => Question::query()->visible()->whereNotNull('accepted_answer_id')->count(),
                 'countries' => count($countries),
                 // Drapeaux dans l'ordre de config/countries.php (pays francophones d'abord).
                 'flags' => array_values(array_map(
@@ -41,6 +43,9 @@ class HomeController extends Controller
         return view('home', [
             'stats' => $stats,
             'avatars' => $avatars,
+            // Questions résolues récemment (08, « Sections suivantes de l'accueil »).
+            'resolvedQuestions' => Question::query()->visible()->whereNotNull('accepted_answer_id')
+                ->with(['user.profile', 'skills'])->latest()->limit(3)->get(),
         ]);
     }
 }

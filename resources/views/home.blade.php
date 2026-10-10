@@ -85,7 +85,7 @@
 
         {{-- Bande de confiance : chiffres réels, sans arrondi, cache de 10 minutes --}}
         <section aria-label="DevKora en chiffres" class="border-b border-line bg-bg-alt">
-            <dl class="mx-auto grid max-w-page grid-cols-2 gap-x-6 gap-y-8 px-4 py-10 text-center sm:grid-cols-3 sm:px-6">
+            <dl class="mx-auto grid max-w-page grid-cols-2 gap-x-6 gap-y-8 px-4 py-10 text-center sm:px-6 lg:grid-cols-4">
                 <div class="flex min-w-0 flex-col items-center">
                     <dt class="text-[11px] font-semibold uppercase tracking-[.14em] text-ink-muted">Devs inscrits</dt>
                     <dd class="mt-2 font-serif text-xl font-medium text-ink" data-stat="devs">{{ $stats['devs'] }}</dd>
@@ -98,22 +98,44 @@
                 <div class="flex min-w-0 flex-col items-center">
                     <dt class="text-[11px] font-semibold uppercase tracking-[.14em] text-ink-muted">Pays</dt>
                     <dd class="mt-2 font-serif text-xl font-medium text-ink" data-stat="countries">{{ $stats['countries'] }}</dd>
-                    {{-- 8 drapeaux au plus, puis le reste en texte : une bande lisible. --}}
+                    {{-- Drapeaux sur une seule ligne : 6 sous 640 px, 8 au-dessus, puis le reste en texte. --}}
                     @php($flags = collect($stats['flags']))
-                    <dd class="mt-2 flex max-w-full flex-wrap items-center justify-center gap-1 text-base leading-7" aria-hidden="true" data-flags>
+                    <dd class="mt-2 flex flex-nowrap items-center gap-1 text-base leading-7" aria-hidden="true" data-flags>
                         @foreach ($flags->take(8) as $flag)
-                            <span>{{ $flag }}</span>
+                            <span @class(['max-sm:hidden' => $loop->index >= 6])>{{ $flag }}</span>
                         @endforeach
+                        @if ($flags->count() > 6)
+                            <span class="ml-1 text-sm font-semibold text-ink-muted sm:hidden">+{{ $flags->count() - 6 }}</span>
+                        @endif
                         @if ($flags->count() > 8)
-                            <span class="ml-1 text-sm font-semibold text-ink-muted">+{{ $flags->count() - 8 }}</span>
+                            <span class="ml-1 hidden text-sm font-semibold text-ink-muted sm:inline">+{{ $flags->count() - 8 }}</span>
                         @endif
                     </dd>
                 </div>
-                <div class="col-span-2 flex min-w-0 flex-col items-center sm:col-span-1">
+                <div class="flex min-w-0 flex-col items-center">
+                    <dt class="text-[11px] font-semibold uppercase tracking-[.14em] text-ink-muted">Questions résolues</dt>
+                    <dd class="mt-2 font-serif text-xl font-medium text-ink" data-stat="resolved">{{ $stats['resolved'] }}</dd>
+                </div>
+                <div class="flex min-w-0 flex-col items-center">
                     <dt class="text-[11px] font-semibold uppercase tracking-[.14em] text-ink-muted">Pensé pour</dt>
                     <dd class="mt-2 font-serif text-xl font-medium text-ink">Wave · Orange Money · MTN MoMo</dd>
                 </div>
             </dl>
         </section>
     </x-slot:hero>
+
+    {{-- Questions résolues récemment --}}
+    @if ($resolvedQuestions->isNotEmpty())
+        <section class="pt-16 sm:pt-24" aria-labelledby="resolues-titre">
+            <div class="flex flex-wrap items-end justify-between gap-4">
+                <h2 id="resolues-titre" class="max-w-2xl text-[32px] sm:text-[44px]">Ces blocages ont déjà trouvé leur solution.</h2>
+                <a href="{{ route('questions.index', ['statut' => 'resolues']) }}" class="font-semibold text-primary-600 underline-offset-4 hover:underline dark:text-primary-300">Voir les questions →</a>
+            </div>
+            <ul class="mt-8 space-y-4">
+                @foreach ($resolvedQuestions as $question)
+                    <li><x-question-card :question="$question" /></li>
+                @endforeach
+            </ul>
+        </section>
+    @endif
 </x-layouts.app>

@@ -70,6 +70,39 @@
     </section>
 
     <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <div class="min-w-0 space-y-6">
+        {{-- Ce qu'il partage (02) : réponses acceptées et questions, avant le reste --}}
+        <x-card data-shares>
+            <h2 class="text-[28px] sm:text-[32px]">{{ $isOwner ? 'Ce que tu partages' : 'Ce que '.$dev->firstName().' partage' }}</h2>
+            @if ($acceptedAnswers->isEmpty() && $questions->isEmpty())
+                <p class="mt-4 text-ink-muted">
+                    {{ $isOwner ? 'Tes réponses acceptées et tes questions apparaîtront ici. Une réponse acceptée te rapporte +15 cauris.' : $dev->firstName().' n\'a encore rien partagé.' }}
+                </p>
+            @endif
+            @if ($acceptedAnswers->isNotEmpty())
+                <h3 class="mt-6 font-sans text-base font-semibold tracking-normal text-ink">Réponses acceptées <span class="font-normal text-ink-muted">({{ $acceptedCount }})</span></h3>
+                <ul class="mt-2 divide-y divide-line">
+                    @foreach ($acceptedAnswers as $answer)
+                        <li class="flex items-start gap-3 py-3">
+                            <x-chip tone="done" class="shrink-0 py-0.5! text-xs!">Acceptée</x-chip>
+                            <a href="{{ route('questions.show', $answer->question).'#reponse-'.$answer->id }}" class="min-w-0 flex-1 break-words font-medium text-ink hover:text-primary-600 dark:hover:text-primary-300">{{ $answer->question->title }}</a>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+            @if ($questions->isNotEmpty())
+                <h3 class="mt-6 font-sans text-base font-semibold tracking-normal text-ink">Questions <span class="font-normal text-ink-muted">({{ $questionsCount }})</span></h3>
+                <ul class="mt-2 divide-y divide-line">
+                    @foreach ($questions as $question)
+                        <li class="flex items-start gap-3 py-3">
+                            <a href="{{ route('questions.show', $question) }}" class="min-w-0 flex-1 break-words font-medium text-ink hover:text-primary-600 dark:hover:text-primary-300">{{ $question->title }}</a>
+                            <span class="shrink-0 text-sm text-ink-muted">{{ $question->answers_count }} {{ $question->answers_count > 1 ? 'réponses' : 'réponse' }}</span>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+        </x-card>
+
         <x-card>
             <h2 class="text-[28px] sm:text-[32px]">À propos</h2>
             @if ($profile->bio)
@@ -80,6 +113,7 @@
                 <p class="mt-4 text-ink-muted">{{ $dev->firstName() }} n'a pas encore écrit de présentation.</p>
             @endif
         </x-card>
+        </div>
 
         <aside class="min-w-0 space-y-6" aria-label="Compétences et liens">
             <x-card padding="p-6">
