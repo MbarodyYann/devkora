@@ -58,11 +58,23 @@ test('recherche plein texte en français : pluriels et conjugaisons', function (
         ->and($search('kubernetes'))->toBe([]);
 });
 
+test('recherche sans accents : « cafe » trouve « café », « deploiement » trouve « déploiement »', function () {
+    Question::factory()->create(['title' => 'Mon café en ligne refuse les paiements', 'body' => 'Une boutique de café à Abidjan.']);
+    Question::factory()->create(['title' => 'Déploiement Laravel sur un VPS', 'body' => 'Nginx et PHP-FPM.']);
+
+    $search = fn (string $q) => Livewire::test(Index::class)->set('q', $q)->instance()->questions()->pluck('title')->all();
+
+    expect($search('cafe'))->toBe(['Mon café en ligne refuse les paiements'])
+        ->and($search('deploiement'))->toBe(['Déploiement Laravel sur un VPS'])
+        ->and($search('Déploiements'))->toBe(['Déploiement Laravel sur un VPS']);
+});
+
 test('la recherche passe par l\'index GIN', function () {
     Question::factory()->count(3)->create();
     DB::statement('set enable_seqscan = off');
 
-    $plan = collect(DB::select("explain select id from questions where (setweight(to_tsvector('french', questions.title), 'A') || setweight(to_tsvector('french', questions.body), 'B')) @@ websearch_to_tsquery('french', 'wave')"))->pluck('QUERY PLAN')->join(' ');
+    $vector = (new Question)->searchVector();
+    $plan = collect(DB::select("explain select id from questions where $vector @@ websearch_to_tsquery('french', f_unaccent('wave'))"))->pluck('QUERY PLAN')->join(' ');
 
     expect($plan)->toContain('questions_search_index');
 });

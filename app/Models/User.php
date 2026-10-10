@@ -112,10 +112,10 @@ class User extends Authenticatable
         };
     }
 
-    /** Étiquette « Nouveau » (02, « Bienveillance ») : inscrit depuis moins de 14 jours. */
+    /** Étiquette « Nouveau » (02, « Bienveillance ») : inscrit depuis moins de config(devkora.new_member_days) jours. */
     public function isNewMember(): bool
     {
-        return $this->created_at !== null && $this->created_at->gt(now()->subDays(14));
+        return $this->created_at !== null && $this->created_at->gt(now()->subDays(config('devkora.new_member_days')));
     }
 
     public function initials(): string

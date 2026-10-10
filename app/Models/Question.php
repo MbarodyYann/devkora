@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasVotes;
+use App\Models\Concerns\Searchable;
 use Database\Factories\QuestionFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Question extends Model
 {
     /** @use HasFactory<QuestionFactory> */
-    use HasFactory, HasVotes;
+    use HasFactory, HasVotes, Searchable;
 
     /**
      * Jamais fillables : user_id, score, answers_count, accepted_answer_id, hidden_at, body_html, excerpt.
@@ -78,15 +79,12 @@ class Question extends Model
     }
 
     /**
-     * Recherche plein texte en français (index GIN), les plus pertinentes d'abord.
+     * Recherche plein texte en français, sans accents (index GIN), les plus pertinentes d'abord.
      *
      * @param  Builder<Question>  $query
      */
     public function scopeSearch(Builder $query, string $terms): void
     {
-        $vector = "(setweight(to_tsvector('french', questions.title), 'A') || setweight(to_tsvector('french', questions.body), 'B'))";
-
-        $query->whereRaw("$vector @@ websearch_to_tsquery('french', ?)", [$terms])
-            ->orderByRaw("ts_rank($vector, websearch_to_tsquery('french', ?)) desc", [$terms]);
+        $query->fullTextSearch($terms);
     }
 }

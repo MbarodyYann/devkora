@@ -41,7 +41,11 @@ test('le niveau suit les vrais cauris', function () {
     expect($answer->user->fresh()->level())->toBe(Level::Contributor);
 });
 
-test('étiquette « Nouveau » : moins de 14 jours', function () {
-    expect(User::factory()->create(['created_at' => now()->subDays(13)])->isNewMember())->toBeTrue()
-        ->and(User::factory()->create(['created_at' => now()->subDays(15)])->isNewMember())->toBeFalse();
+test('étiquette « Nouveau » : moins de 7 jours, seuil dans la configuration', function () {
+    expect(config('devkora.new_member_days'))->toBe(7)
+        ->and(User::factory()->create(['created_at' => now()->subDays(6)])->isNewMember())->toBeTrue()
+        ->and(User::factory()->create(['created_at' => now()->subDays(8)])->isNewMember())->toBeFalse();
+
+    config(['devkora.new_member_days' => 14]);
+    expect(User::factory()->create(['created_at' => now()->subDays(13)])->isNewMember())->toBeTrue();
 });
