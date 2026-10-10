@@ -32,7 +32,7 @@
                         <em class="block font-serif italic text-secondary-400">des devs africains.</em>
                     </h1>
 
-                    <p class="mt-6 max-w-xl text-[17px] leading-relaxed text-white/80">
+                    <p class="mt-6 max-w-xl text-balance text-[17px] leading-relaxed text-white/80">
                         Trouve des missions. Partage tes connaissances. Construis avec les tiens.
                     </p>
 
@@ -98,10 +98,15 @@
                 <div class="flex min-w-0 flex-col items-center">
                     <dt class="text-[11px] font-semibold uppercase tracking-[.14em] text-ink-muted">Pays</dt>
                     <dd class="mt-2 font-serif text-xl font-medium text-ink" data-stat="countries">{{ $stats['countries'] }}</dd>
-                    <dd class="mt-2 flex max-w-full flex-wrap justify-center gap-0.5 text-base leading-7" aria-hidden="true">
-                        @foreach ($stats['flags'] as $flag)
+                    {{-- 8 drapeaux au plus, puis le reste en texte : une bande lisible. --}}
+                    @php($flags = collect($stats['flags']))
+                    <dd class="mt-2 flex max-w-full flex-wrap items-center justify-center gap-1 text-base leading-7" aria-hidden="true" data-flags>
+                        @foreach ($flags->take(8) as $flag)
                             <span>{{ $flag }}</span>
                         @endforeach
+                        @if ($flags->count() > 8)
+                            <span class="ml-1 text-sm font-semibold text-ink-muted">+{{ $flags->count() - 8 }}</span>
+                        @endif
                     </dd>
                 </div>
                 <div class="col-span-2 flex min-w-0 flex-col items-center sm:col-span-1">

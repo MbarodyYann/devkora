@@ -5,7 +5,7 @@
         <a href="{{ route('devs.show', $dev) }}" class="mb-4 inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-ink-muted hover:text-ink">
             <x-icon name="arrow-left" class="size-4" /> Retour à mon profil
         </a>
-        <h1 class="text-balance text-[38px] sm:text-5xl">Fais-toi trouver par les bons devs.</h1>
+        <h1 class="text-balance text-[38px] sm:text-5xl">Fais‑toi trouver par les bons devs.</h1>
         <p class="mt-3 text-ink-soft">L'annuaire filtre par compétence, pays et langue : plus ton profil est précis, plus tu apparais dans les bonnes recherches.</p>
 
         <x-card class="mt-8">

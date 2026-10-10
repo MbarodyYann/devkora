@@ -42,9 +42,9 @@ function serve(): Process
     return $server;
 }
 
-function measure(array $pages, ?string $persona = null): array
+function measure(array $pages, ?string $persona = null, int $width = 360): array
 {
-    $process = new Process(['node', 'tests/Browser/overflow.mjs', 'http://127.0.0.1:8765', '360', json_encode($pages), ...($persona ? [$persona] : [])], base_path());
+    $process = new Process(['node', 'tests/Browser/overflow.mjs', 'http://127.0.0.1:8765', (string) $width, json_encode($pages), ...($persona ? [$persona] : [])], base_path());
     $process->setTimeout(180)->mustRun();
 
     return json_decode($process->getOutput(), true);
@@ -63,18 +63,21 @@ test('aucun débordement horizontal à 360 px, en clair et en sombre', function 
     try {
         $visitor = measure(['/', '/devs', '/devs?competence=laravel', "/devs/{$moussa->id}", "/devs/{$longest->id}", '/connexion', '/inscription', '/mot-de-passe-oublie', '/devs/999999']);
         $member = measure(['/', '/devs', "/devs/{$moussa->id}", "/devs/{$moussa->id}/modifier"], 'Moussa');
+        $desktop = measure(['/', '/devs', "/devs/{$moussa->id}"], width: 1280);
     } finally {
         $server->stop();
     }
 
-    expect($visitor)->toHaveCount(18)->and($member)->toHaveCount(8);
+    expect($visitor)->toHaveCount(18)->and($member)->toHaveCount(8)->and($desktop)->toHaveCount(6);
 
     // Garde-fou : les pages ont bien été servies par l'application (et non une page d'erreur).
-    expect(collect([...$visitor, ...$member])->pluck('title')->filter(fn ($t) => str_contains($t, 'DevKora')))->toHaveCount(26);
+    expect(collect([...$visitor, ...$member, ...$desktop])->pluck('title')->filter(fn ($t) => str_contains($t, 'DevKora')))->toHaveCount(32);
 
-    foreach ([...$visitor, ...$member] as $page) {
-        $where = "{$page['path']} ({$page['scheme']})";
-        expect($page['scrollWidth'])->toBe(360, "La page défile horizontalement : $where")
+    foreach ([...$visitor, ...$member, ...$desktop] as $page) {
+        $where = "{$page['path']} ({$page['scheme']}, {$page['viewport']} px)";
+        expect($page['scrollWidth'])->toBe($page['viewport'], "La page défile horizontalement : $where")
+            // Navigation défilée : opaque sur mobile, 96 % au moins sur ordinateur.
+            ->and($page['navAlpha'])->toBeGreaterThanOrEqual($page['viewport'] < 768 ? 1.0 : 0.96, "Texte lisible sous la navigation : $where")
             ->and($page['offenders'])->toBe([], "Élément hors de l'écran : $where")
             ->and($page['clip'])->toBe(['visible', 'visible'], "Débordement masqué au lieu d'être corrigé : $where")
             ->and($page['dark'])->toBe($page['scheme'] === 'dark', "Thème non appliqué : $where");

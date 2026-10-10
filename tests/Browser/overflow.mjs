@@ -58,7 +58,16 @@ for (const scheme of ['light', 'dark']) {
             };
         });
 
-        report.push({ path, scheme, ...result });
+        // Navigation une fois la page défilée : opacité de son fond (08 : aucun texte lisible au travers).
+        await page.evaluate(() => window.scrollTo(0, 600));
+        await page.waitForTimeout(150);
+        const navAlpha = await page.evaluate(() => {
+            const color = getComputedStyle(document.querySelector('header')).backgroundColor;
+            const alpha = color.match(/\/\s*([\d.]+)\s*\)$/) || color.match(/^rgba\(.*,\s*([\d.]+)\)$/);
+            return color === 'rgba(0, 0, 0, 0)' || color === 'transparent' ? 0 : (alpha ? Number(alpha[1]) : 1);
+        });
+
+        report.push({ path, scheme, navAlpha, ...result });
     }
 
     await context.close();

@@ -2,7 +2,7 @@
 
 /*
 | Membres de démonstration (02, P2 « Données de démo réalistes ») : devs de 18 pays du continent.
-| joined : inscrit il y a N jours ; seen : dernière visite il y a N jours (null : jamais revenu).
+| joined : ancienneté relative (le plus grand = premier inscrit, voir DemoClock) ; seen : dernière visite il y a N jours (null : jamais revenu).
 | Les trois premiers sont les comptes de démo (App\Support\Demo).
 */
 

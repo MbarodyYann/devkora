@@ -155,6 +155,11 @@
     }
 
     h1,
+    h2 {
+        text-wrap: balance;
+    }
+
+    h1,
     h2,
     h3 {
         @apply font-serif text-ink;
@@ -250,8 +255,8 @@
     }
 }
 
-/* Navigation flottante sur fond clair : opaque sous 1 024 px (3G, aucun texte lisible au travers),
-   verre à 90 % et flou sur ordinateur. */
+/* Navigation flottante sur fond clair (08) : aucun texte de la page ne doit se lire au travers.
+   Opaque sous 768 px (3G, pas de flou) ; à partir de 768 px, 96 % et flou. */
 @utility nav-glass {
     background-color: var(--color-bg-alt);
     border: 1px solid var(--color-line);
@@ -260,13 +265,13 @@
         background-color: var(--color-primary-950);
     }
 
-    @media (min-width: 1024px) {
-        background-color: color-mix(in srgb, var(--color-bg-alt) 90%, transparent);
+    @media (min-width: 768px) {
+        background-color: color-mix(in srgb, var(--color-bg-alt) 96%, transparent);
         -webkit-backdrop-filter: blur(12px);
         backdrop-filter: blur(12px);
 
         &:where(.dark, .dark *) {
-            background-color: color-mix(in srgb, var(--color-primary-950) 90%, transparent);
+            background-color: color-mix(in srgb, var(--color-primary-950) 96%, transparent);
         }
     }
 }
@@ -288,11 +293,11 @@
         color: var(--color-secondary-400);
     }
 
-    /* Dès le premier pixel de défilement : primary-800 à 96 % (opaque sous 1 024 px, flou au-dessus). */
+    /* Dès le premier pixel de défilement : primary-800, opaque sous 768 px, à 96 % et flou au-dessus. */
     &.is-scrolled {
         background-color: var(--color-primary-800);
 
-        @media (min-width: 1024px) {
+        @media (min-width: 768px) {
             background-color: color-mix(in srgb, var(--color-primary-800) 96%, transparent);
             -webkit-backdrop-filter: blur(12px);
             backdrop-filter: blur(12px);
@@ -302,7 +307,7 @@
     &.is-scrolled:where(.dark, .dark *) {
         background-color: var(--color-primary-950);
 
-        @media (min-width: 1024px) {
+        @media (min-width: 768px) {
             background-color: color-mix(in srgb, var(--color-primary-950) 96%, transparent);
         }
     }

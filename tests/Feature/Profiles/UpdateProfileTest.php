@@ -45,7 +45,7 @@ test('le formulaire tutoie et propose les compétences existantes, locales d\'ab
 
     $this->actingAs($user)->get(route('profile.edit', $user))
         ->assertOk()
-        ->assertSee('Fais-toi trouver par les bons devs.')
+        ->assertSee('Fais‑toi trouver par les bons devs.')
         ->assertSee('Enregistrer mon profil')
         ->assertSee('Choisir une photo')
         ->assertSeeInOrder(['<option value="Wave">', '<option value="Angular">'], false);

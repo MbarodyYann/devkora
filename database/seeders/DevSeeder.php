@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Hash;
 
 /**
  * Membres de démonstration (data/devs.php), dont les trois comptes de démo, avec leurs compétences.
- * Dates relatives au moment du semis : la démo ne paraît jamais figée.
+ * Dates dans la fenêtre de DemoClock, relatives au moment du semis : la démo ne paraît jamais figée.
+ * « joined » (data/devs.php) donne l'ancienneté relative : le plus grand est le premier inscrit.
  */
 class DevSeeder extends Seeder
 {
@@ -20,7 +21,9 @@ class DevSeeder extends Seeder
     public function run(): void
     {
         $devs = require __DIR__.'/data/devs.php';
-        $now = Carbon::now();
+        $clock = DemoClock::make();
+        $now = $clock->now;
+        $oldest = max(array_column($devs, 'joined'));
         $password = Hash::make('password');
 
         $skills = collect($devs)->pluck('skills')->flatten()->merge(self::LOCAL_SKILLS)->unique()
@@ -30,15 +33,14 @@ class DevSeeder extends Seeder
             )->id]);
 
         foreach ($devs as $index => $dev) {
-            // Inscription en journée, entre 8 h et 20 h.
-            $joinedAt = $now->copy()->subDays($dev['joined'])->setTime(8 + ($index * 5) % 12, ($index * 17) % 60);
+            $joinedAt = $clock->ago($dev['joined'] / $oldest, $index * 5);
 
             $user = new User(['name' => $dev['name'], 'email' => $dev['email']]);
             $user->password = $password;
             $user->email_verified_at = $joinedAt;
             $user->created_at = $joinedAt;
             $user->updated_at = $joinedAt;
-            $user->last_seen_at = $this->lastSeen($dev['seen'], $index, $now);
+            $user->last_seen_at = $this->lastSeen($dev['seen'], $index, $now, $joinedAt);
             $user->save();
 
             $user->profile()->create([
@@ -59,12 +61,15 @@ class DevSeeder extends Seeder
     /**
      * Dernière visite : aujourd'hui (sans déborder sur la veille juste après minuit), ou il y a N jours en journée.
      */
-    private function lastSeen(?int $days, int $index, Carbon $now): ?Carbon
+    private function lastSeen(?int $days, int $index, Carbon $now, Carbon $joinedAt): ?Carbon
     {
-        return match (true) {
+        $seen = match (true) {
             $days === null => null,
             $days === 0 => $now->copy()->subMinutes(5 + ($index * 37) % 240)->max($now->copy()->startOfDay()),
             default => $now->copy()->subDays($days)->setTime(8 + ($index * 7) % 13, ($index * 11) % 60),
         };
+
+        // Jamais avant l'inscription (au moins 40 minutes après), jamais dans le futur.
+        return $seen?->max($joinedAt->copy()->addMinutes(40))->min($now);
     }
 }

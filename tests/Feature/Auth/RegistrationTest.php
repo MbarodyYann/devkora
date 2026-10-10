@@ -10,7 +10,7 @@ test('la page d\'inscription tutoie et reprend les textes de la charte', functio
         ->assertSee('Nom, e-mail, pays, ville et mot de passe. Tes compétences viendront ensuite.')
         ->assertSee(Copy::SIGNUP_CTA)
         ->assertSee(Copy::SIGNUP_REASSURANCE)
-        ->assertSee('Déjà membre ? Connecte-toi');
+        ->assertDontSee('Déjà membre ?'); // la navigation propose déjà « Connexion »
 });
 
 test('le CTA d\'inscription n\'apparaît qu\'une fois sur la page d\'inscription', function () {

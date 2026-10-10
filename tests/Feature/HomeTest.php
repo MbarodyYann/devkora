@@ -65,3 +65,22 @@ test('un membre voit son action, pas le CTA d\'inscription', function () {
         ->assertSee('Trouver des devs')
         ->assertDontSee(Copy::SIGNUP_CTA);
 });
+
+test('bande de confiance : 8 drapeaux au plus, puis le reste en texte', function () {
+    foreach (['SN', 'CI', 'TG', 'BJ', 'ML', 'BF', 'CM', 'GN', 'NE', 'GH'] as $country) {
+        User::factory()->withProfile(['country' => $country])->create();
+    }
+
+    $html = $this->get('/')->getContent();
+    $flags = substr($html, strpos($html, 'data-flags'), 1500);
+
+    expect(substr_count($flags, '<span>'))->toBe(8)
+        ->and($flags)->toContain('>+2</span>');
+});
+
+test('le sous-titre du hero et tous les H1 et H2 sont équilibrés (pas de mot orphelin)', function () {
+    $css = file_get_contents(resource_path('css/app.css'));
+
+    expect($css)->toMatch('/h1,\s+h2 \{\s+text-wrap: balance;/')
+        ->and($this->get('/')->getContent())->toContain('<p class="mt-6 max-w-xl text-balance');
+});

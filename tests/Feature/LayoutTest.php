@@ -121,3 +121,24 @@ test('tous les boutons sont ambre : aplat ou contour', function () {
     $views = collect(File::allFiles(resource_path('views')))->map(fn ($f) => $f->getContents())->join("\n");
     expect($views)->not->toMatch('/<button[^>]*class="[^"]*\bbg-primary-\d/');
 });
+
+test('aucun texte lisible sous la navigation : opaque sous 768 px, 96 % et flou au-dessus', function () {
+    $css = file_get_contents(resource_path('css/app.css'));
+    $nav = substr($css, strpos($css, '@utility nav-glass'), strpos($css, '@utility nav-menu') - strpos($css, '@utility nav-glass'));
+
+    expect($nav)->toContain('color-mix(in srgb, var(--color-bg-alt) 96%, transparent)')
+        ->toContain('color-mix(in srgb, var(--color-primary-800) 96%, transparent)')
+        ->toContain('color-mix(in srgb, var(--color-primary-950) 96%, transparent)')
+        ->not->toMatch('/\b([0-8]\d|9[0-5])%/')
+        // Flou seulement à partir de 768 px : chaque backdrop-filter est dans un bloc @media (min-width: 768px).
+        ->toContain('min-width: 768px')
+        ->not->toContain('min-width: 1024px')
+        ->and(preg_match_all('/^\s{4}(-webkit-)?backdrop-filter/m', $nav))->toBe(0);
+});
+
+test('aucun doublon de lien d\'inscription ou de connexion sur les pages d\'authentification', function () {
+    expect(substr_count($this->get('/connexion')->getContent(), Copy::SIGNUP_CTA))->toBe(1);
+    expect(substr_count($this->get('/mot-de-passe-oublie')->getContent(), 'Retour à la connexion'))->toBe(0);
+    $register = $this->get('/inscription')->getContent();
+    expect(substr_count($register, '>Connexion</a>'))->toBe(1)->and($register)->not->toContain('Connecte-toi');
+});

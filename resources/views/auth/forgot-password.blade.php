@@ -7,8 +7,5 @@
             </x-field>
             <x-button type="submit" size="lg" class="w-full">Recevoir le lien</x-button>
         </form>
-        <x-slot:footer>
-            <a href="{{ route('login') }}" class="text-sm text-ink-muted underline-offset-4 hover:text-ink hover:underline">Retour à la connexion</a>
-        </x-slot:footer>
     </x-auth-card>
 </x-layouts.app>

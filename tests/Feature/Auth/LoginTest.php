@@ -9,7 +9,7 @@ test('la page de connexion tutoie', function () {
         ->assertOk()
         ->assertSee('Content de te revoir.')
         ->assertSee('Me connecter')
-        ->assertSee('Pas encore membre ? Crée ton profil gratuit')
+        ->assertDontSee('Pas encore membre ?') // le CTA de la navigation suffit
         ->assertDontSee('data-demo-panel', false);
 });
 

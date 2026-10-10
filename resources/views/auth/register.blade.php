@@ -27,8 +27,5 @@
                 <p class="text-center text-sm text-ink-muted">{{ App\Support\Copy::SIGNUP_REASSURANCE }}</p>
             </div>
         </form>
-        <x-slot:footer>
-            <a href="{{ route('login') }}" class="text-sm text-ink-muted underline-offset-4 hover:text-ink hover:underline">Déjà membre ? Connecte-toi</a>
-        </x-slot:footer>
     </x-auth-card>
 </x-layouts.app>

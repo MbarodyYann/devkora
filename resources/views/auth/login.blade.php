@@ -17,8 +17,5 @@
             </div>
             <x-button type="submit" size="lg" class="w-full">Me connecter</x-button>
         </form>
-        <x-slot:footer>
-            <a href="{{ route('register') }}" class="text-sm text-ink-muted underline-offset-4 hover:text-ink hover:underline">Pas encore membre ? {{ App\Support\Copy::SIGNUP_CTA }}</a>
-        </x-slot:footer>
     </x-auth-card>
 </x-layouts.app>

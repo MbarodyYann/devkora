@@ -22,7 +22,7 @@ beforeEach(function () {
 test('l\'annuaire affiche l\'en-tête de la charte et des cartes de devs', function () {
     $this->get('/devs')
         ->assertOk()
-        ->assertSee('Le bon dev est peut-être')
+        ->assertSee("Le bon dev est peut\u{2011}être")
         ->assertSee('<em class="font-serif italic text-secondary-400">dans ta ville.</em>', false)
         ->assertSee('Filtre par compétence, pays et langue : les cauris montrent qui aide la communauté et qui a déjà livré.')
         ->assertSee('3 devs')
@@ -91,4 +91,8 @@ test('pagination par 12, sans requête N+1', function () {
         ->assertSee('1 à 12 sur 15')
         ->call('nextPage')
         ->assertSee('13 à 15 sur 15');
+});
+
+test('« peut‑être » ne se coupe pas au trait d\'union (U+2011)', function () {
+    $this->get('/devs')->assertSee("Le bon dev est peut\u{2011}être")->assertDontSee('peut-être ancien');
 });
