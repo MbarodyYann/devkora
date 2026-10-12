@@ -63,7 +63,7 @@ test('le slug d\'une compétence garde ses symboles', function () {
 
 test('textes uniques : CTA et réassurance', function () {
     expect(Copy::SIGNUP_CTA)->toBe('Crée ton profil gratuit')
-        ->and(Copy::SIGNUP_REASSURANCE)->toBe('Gratuit, sans carte bancaire · Ton profil en ligne en 2 minutes');
+        ->and(Copy::SIGNUP_REASSURANCE)->toBe('Gratuit, sans abonnement · Ton profil en ligne en 2 minutes');
 });
 
 test('favicon provisoire : « DK » sur un aplat primary-600, sans dégradé', function () {

@@ -12,5 +12,5 @@ class Copy
     public const SIGNUP_CTA = 'Crée ton profil gratuit';
 
     /** Réassurance sous le CTA du hero, du CTA final et de l'inscription. */
-    public const SIGNUP_REASSURANCE = 'Gratuit, sans carte bancaire · Ton profil en ligne en 2 minutes';
+    public const SIGNUP_REASSURANCE = 'Gratuit, sans abonnement · Ton profil en ligne en 2 minutes';
 }

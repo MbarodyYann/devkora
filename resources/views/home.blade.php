@@ -71,8 +71,8 @@
         <section aria-label="Nos garanties" class="bg-primary-900 text-white">
             <dl class="mx-auto grid max-w-page gap-6 px-4 py-8 sm:grid-cols-3 sm:px-6">
                 @foreach ([
-                    ['Gratuit, sans carte bancaire', 'ton profil est en ligne en 2 minutes'],
-                    ['Pensé pour ton contexte', 'en français, léger en 3G, payé en Mobile Money'],
+                    ['Gratuit, sans abonnement', 'ton profil est en ligne en 2 minutes'],
+                    ['Pensé pour ton contexte', 'en français, léger en 3G, missions payées en Mobile Money'],
                     ['Une réputation qui te suit', 'chaque réponse, article ou mission te rapporte des cauris'],
                 ] as [$guarantee, $line])
                     <div class="min-w-0">

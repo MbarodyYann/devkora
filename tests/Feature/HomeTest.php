@@ -43,7 +43,9 @@ test('bande de garanties et bande de confiance aux chiffres réels', function ()
     User::factory()->create(); // sans profil : pas compté
 
     $this->get('/')
-        ->assertSeeInOrder(['Gratuit, sans carte bancaire', 'Pensé pour ton contexte', 'Une réputation qui te suit'])
+        ->assertSeeInOrder(['Gratuit, sans abonnement', 'Pensé pour ton contexte', 'Une réputation qui te suit'])
+        ->assertSee('missions payées en Mobile Money')
+        ->assertDontSee('carte bancaire')
         ->assertSee('data-stat="devs">4<', false)
         ->assertSee('data-stat="countries">2<', false)
         ->assertSee('🇸🇳')

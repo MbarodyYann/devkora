@@ -22,7 +22,7 @@ test('accueil complet, dans l\'ordre de 08', function () {
 
     $this->get('/')->assertSeeInOrder([
         'Le point de rencontre',
-        'Gratuit, sans carte bancaire',
+        'Gratuit, sans abonnement',
         'Devs inscrits',
         'Ici, on échange.',
         'Ces blocages ont déjà trouvé leur solution.',
