@@ -72,7 +72,7 @@ test('un membre voit son action, pas le CTA d\'inscription', function () {
         ->assertDontSee(Copy::SIGNUP_CTA);
 });
 
-test('bande de confiance : sur une ligne, 6 drapeaux sous 640 px et 8 au-dessus, puis le reste en texte', function () {
+test('bande de confiance : sur une ligne, 5 drapeaux sous 360 px, 6 sous 640 px et 8 au-dessus, puis le reste en texte', function () {
     foreach (['SN', 'CI', 'TG', 'BJ', 'ML', 'BF', 'CM', 'GN', 'NE', 'GH'] as $country) {
         User::factory()->withProfile(['country' => $country])->create();
     }
@@ -80,9 +80,11 @@ test('bande de confiance : sur une ligne, 6 drapeaux sous 640 px et 8 au-dessus,
     $html = $this->get('/')->getContent();
     $flags = substr($html, strpos($html, 'data-flags'), 1500);
 
-    expect(substr_count($flags, '<span class="">') + substr_count($flags, '<span>'))->toBe(6)
+    expect(substr_count($flags, '<span class="">') + substr_count($flags, '<span>'))->toBe(5)
+        ->and(substr_count($flags, '<span class="max-[360px]:hidden">'))->toBe(1)
         ->and(substr_count($flags, '<span class="max-sm:hidden">'))->toBe(2)
-        ->and($flags)->toContain('sm:hidden">+4</span>')
+        ->and($flags)->toContain('max-[360px]:inline">+5</span>')
+        ->toContain('max-[360px]:hidden sm:hidden">+4</span>')
         ->toContain('sm:inline">+2</span>')
         ->and($html)->toContain('flex-nowrap items-center gap-1 text-base leading-7" aria-hidden="true" data-flags');
 });

@@ -98,14 +98,17 @@
                 <div class="flex min-w-0 flex-col items-center">
                     <dt class="text-[11px] font-semibold uppercase tracking-[.14em] text-ink-muted">Pays</dt>
                     <dd class="mt-2 font-serif text-xl font-medium text-ink" data-stat="countries">{{ $stats['countries'] }}</dd>
-                    {{-- Drapeaux sur une seule ligne : 6 sous 640 px, 8 au-dessus, puis le reste en texte. --}}
+                    {{-- Drapeaux sur une seule ligne : 5 sous 360 px, 6 sous 640 px, 8 au-dessus, puis le reste en texte. --}}
                     @php($flags = collect($stats['flags']))
                     <dd class="mt-2 flex flex-nowrap items-center gap-1 text-base leading-7" aria-hidden="true" data-flags>
                         @foreach ($flags->take(8) as $flag)
-                            <span @class(['max-sm:hidden' => $loop->index >= 6])>{{ $flag }}</span>
+                            <span @class(['max-[360px]:hidden' => $loop->index === 5, 'max-sm:hidden' => $loop->index >= 6])>{{ $flag }}</span>
                         @endforeach
+                        @if ($flags->count() > 5)
+                            <span class="ml-1 hidden text-sm font-semibold text-ink-muted max-[360px]:inline">+{{ $flags->count() - 5 }}</span>
+                        @endif
                         @if ($flags->count() > 6)
-                            <span class="ml-1 text-sm font-semibold text-ink-muted sm:hidden">+{{ $flags->count() - 6 }}</span>
+                            <span class="ml-1 text-sm font-semibold text-ink-muted max-[360px]:hidden sm:hidden">+{{ $flags->count() - 6 }}</span>
                         @endif
                         @if ($flags->count() > 8)
                             <span class="ml-1 hidden text-sm font-semibold text-ink-muted sm:inline">+{{ $flags->count() - 8 }}</span>
