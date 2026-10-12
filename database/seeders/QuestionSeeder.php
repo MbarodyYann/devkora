@@ -36,7 +36,11 @@ class QuestionSeeder extends Seeder
      */
     public static function data(): array
     {
-        $questions = array_merge(require __DIR__.'/data/questions-1.php', require __DIR__.'/data/questions-2.php');
+        $questions = array_merge(
+            require __DIR__.'/data/questions-1.php',
+            require __DIR__.'/data/questions-2.php',
+            require __DIR__.'/data/questions-3.php',
+        );
         $extra = require __DIR__.'/data/answers-extra.php';
 
         foreach ($questions as &$question) {
@@ -73,7 +77,10 @@ class QuestionSeeder extends Seeder
     private function seedQuestion(array $data, int $index): void
     {
         $author = $this->member($data['author']);
-        $askedAt = $this->within($this->clock->ago($data['age'], $index), $author, minutesAfterJoin: 120);
+        // Questions du jour : à l'heure près (« il y a 40 min »), sans être ramenées en journée.
+        $askedAt = isset($data['hours'])
+            ? $this->within($this->clock->now->copy()->subMinutes((int) round($data['hours'] * 60)), $author, minutesAfterJoin: 120)
+            : $this->within($this->clock->ago($data['age'], $index), $author, minutesAfterJoin: 120);
 
         Carbon::setTestNow($askedAt);
         $question = $this->questions->publish($author, $data['title'], $data['body'], $data['tags']);

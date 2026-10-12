@@ -17,6 +17,7 @@ use App\Models\Skill;
 use App\Models\User;
 use App\Models\Vote;
 use App\Support\Demo;
+use App\Support\French;
 use Database\Seeders\DatabaseSeeder;
 use Database\Seeders\DemoClock;
 use Database\Seeders\DevSeeder;
@@ -104,11 +105,26 @@ test('les inscriptions tiennent dans la fenêtre du concours, relative à la dat
 ]);
 
 test('entraide : environ 35 questions et 90 réponses, des résolues et des sans réponse', function () {
-    expect(Question::count())->toBeBetween(35, 40)
-        ->and(Answer::count())->toBeBetween(85, 100)
+    expect(Question::count())->toBeBetween(35, 45)
+        ->and(Answer::count())->toBeBetween(85, 105)
         ->and(Question::whereNotNull('accepted_answer_id')->count())->toBeGreaterThan(20)
         ->and(Question::where('answers_count', 0)->count())->toBeGreaterThanOrEqual(2)
         ->and(Question::sum('answers_count'))->toEqual(Answer::count());
+});
+
+test('questions du jour : 4 questions des dernières 24 h, d\'auteurs de pays différents, en tête des questions du moment', function () {
+    $titles = array_map(French::typography(...), array_column(require database_path('seeders/data/questions-3.php'), 'title'));
+    $today = Question::with('user.profile')->whereIn('title', $titles)->orderByDesc('created_at')->get();
+
+    expect($today)->toHaveCount(4)
+        ->and($today->every(fn (Question $q) => $q->created_at->gte(now()->subDay())))->toBeTrue()
+        ->and($today->map(fn (Question $q) => $q->user->profile->country)->unique())->toHaveCount(4)
+        ->and($today->pluck('answers_count')->all())->toBe([0, 1, 2, 1])
+        ->and($today->last()->isResolved())->toBeTrue()
+        ->and(now()->diffInMinutes($today->first()->created_at, absolute: true))->toBeBetween(35.0, 45.0);
+
+    $trending = Question::query()->trending()->limit(5)->pluck('id');
+    expect($trending->intersect($today->pluck('id'))->count())->toBeGreaterThanOrEqual(2);
 });
 
 test('les cauris viennent des événements, et Koffi dépasse 250', function () {
