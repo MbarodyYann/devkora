@@ -158,7 +158,10 @@
                     <li><x-question-card :question="$question" live /></li>
                 @endforeach
             </ul>
-            <x-button :href="route('questions.create')" size="lg" class="mt-8 w-full sm:w-auto" data-cta="question">Pose ta question</x-button>
+            {{-- Pour le nouveau venu : le membre a déjà « Poser une question » dans le hero. --}}
+            @guest
+                <x-button :href="route('questions.create')" size="lg" class="mt-8 w-full sm:w-auto" data-cta="question">Pose ta question</x-button>
+            @endguest
         </section>
     @endif
 

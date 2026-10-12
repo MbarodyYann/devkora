@@ -169,7 +169,7 @@ test('questions du moment : carte vivante (depuis quand, réponses, score, Réso
         ->toContain('>2</dd>');
 });
 
-test('questions du moment : un seul bouton « Pose ta question », les visiteurs passent par la connexion', function () {
+test('questions du moment : un seul bouton « Pose ta question » pour le visiteur, qui passe par la connexion ; aucun pour le membre', function () {
     Question::factory()->create();
 
     $html = $this->get('/')->getContent();
@@ -178,6 +178,12 @@ test('questions du moment : un seul bouton « Pose ta question », les visiteurs
 
     $this->get(route('questions.create'))->assertRedirect(route('login'));
     expect(session('url.intended'))->toBe(route('questions.create'));
+
+    // Le membre a déjà « Poser une question » dans le hero : pas de doublon.
+    $member = $this->actingAs(User::factory()->withProfile()->create())->get('/')->getContent();
+    expect($member)->not->toContain('Pose ta question')
+        ->not->toContain('data-cta="question"')
+        ->toContain('data-cta="principal">Poser une question</a>');
 });
 
 test('le membre voit « Poser une question » sur l\'accueil', function () {
