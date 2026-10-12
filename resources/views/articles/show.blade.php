@@ -29,8 +29,8 @@
 
         @guest
             <x-card padding="p-6" class="mt-6 text-center" data-action-box>
-                <h2 class="text-2xl">Toi aussi, tu as appris quelque chose qui peut servir.</h2>
-                <p class="mt-2 text-ink-soft">Rejoins la communauté pour écrire tes articles et gagner des cauris.</p>
+                <h2 class="text-2xl">Ce que tu sais peut débloquer un autre dev.</h2>
+                <p class="mt-2 text-ink-soft">Rejoins la communauté pour partager tes tutoriels et tes retours d'expérience, et gagne des cauris quand ils aident.</p>
                 <x-button :href="route('register')" class="mt-5">{{ App\Support\Copy::SIGNUP_CTA }}</x-button>
                 <p class="mt-3 text-sm text-ink-muted">{{ App\Support\Copy::SIGNUP_REASSURANCE }}</p>
             </x-card>

@@ -58,16 +58,16 @@ test('aucun débordement horizontal à 360 px, en clair et en sombre', function 
         $desktop = measure(['/', '/devs', "/devs/{$moussa->id}", "/questions/{$question->id}", "/articles/{$article->slug}", "/annonces/{$openMission->id}"], width: 1280);
         // Sans JavaScript (script pas encore arrivé en 3G) : la bande au-dessus de la barre reste couverte.
         $noScript = measure(['/', '/questions', "/devs/{$moussa->id}"], javascript: false);
-        // I2 : l'accueil tient aussi à 320 px (petits Android), bande de drapeaux comprise.
-        $narrow = measure(['/'], width: 320);
+        // I2 : l'accueil et une fiche d'article tiennent aussi à 320 px (petits Android).
+        $narrow = measure(['/', "/articles/{$article->slug}"], width: 320);
     } finally {
         $server->stop();
     }
 
-    expect($visitor)->toHaveCount(50)->and($member)->toHaveCount(28)->and($moderator)->toHaveCount(2)->and($author)->toHaveCount(4)->and($desktop)->toHaveCount(12)->and($noScript)->toHaveCount(6)->and($narrow)->toHaveCount(2);
+    expect($visitor)->toHaveCount(50)->and($member)->toHaveCount(28)->and($moderator)->toHaveCount(2)->and($author)->toHaveCount(4)->and($desktop)->toHaveCount(12)->and($noScript)->toHaveCount(6)->and($narrow)->toHaveCount(4);
 
     // Garde-fou : les pages ont bien été servies par l'application (et non une page d'erreur).
-    expect(collect([...$visitor, ...$member, ...$moderator, ...$author, ...$desktop, ...$noScript, ...$narrow])->pluck('title')->filter(fn ($t) => str_contains($t, 'DevKora')))->toHaveCount(104);
+    expect(collect([...$visitor, ...$member, ...$moderator, ...$author, ...$desktop, ...$noScript, ...$narrow])->pluck('title')->filter(fn ($t) => str_contains($t, 'DevKora')))->toHaveCount(106);
 
     // Accueil sous 180 Ko hors polices, photo comprise (08), sur mobile et sur ordinateur.
     foreach ($homeWeights as $weight) {

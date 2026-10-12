@@ -92,7 +92,8 @@ test('la fiche : catégorie, temps de lecture, auteur, colonne de lecture, « Ut
         ->assertSee($article->reading_minutes.' min de lecture')
         ->assertSee('prose-dk prose-article', false)
         ->assertSee('Utile')
-        ->assertSee('Toi aussi, tu as appris quelque chose qui peut servir.');
+        ->assertSee('Ce que tu sais peut débloquer un autre dev.')
+        ->assertSee('Rejoins la communauté pour partager tes tutoriels et tes retours d\'expérience, et gagne des cauris quand ils aident.', false);
 });
 
 test('article masqué : 404 pour les autres, visible de son auteur, absent de la liste', function () {
