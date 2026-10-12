@@ -89,11 +89,6 @@
                 <div class="flex min-w-0 flex-col items-center">
                     <dt class="text-[11px] font-semibold uppercase tracking-[.14em] text-ink-muted">Devs inscrits</dt>
                     <dd class="mt-2 font-serif text-xl font-medium text-ink" data-stat="devs">{{ $stats['devs'] }}</dd>
-                    <dd class="mt-2 flex -space-x-1.5" aria-hidden="true">
-                        @foreach ($avatars as $avatar)
-                            <x-avatar :user="$avatar" size="stack" class="ring-bg-alt!" />
-                        @endforeach
-                    </dd>
                 </div>
                 <div class="flex min-w-0 flex-col items-center">
                     <dt class="text-[11px] font-semibold uppercase tracking-[.14em] text-ink-muted">Pays</dt>

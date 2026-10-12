@@ -51,6 +51,11 @@ test('bande de garanties et bande de confiance aux chiffres réels', function ()
         ->assertSee('🇸🇳')
         ->assertSee('🇬🇭')
         ->assertDontSee('Pensé pour</dt>', false);
+
+    // J1 : « Devs inscrits » affiche le chiffre seul, sans pile d'avatars.
+    $html = $this->get('/')->getContent();
+    $devs = substr($html, strpos($html, 'Devs inscrits'), strpos($html, '>Pays<') - strpos($html, 'Devs inscrits'));
+    expect(substr_count($devs, '<dd'))->toBe(1);
 });
 
 test('les chiffres sont mis en cache 10 minutes', function () {

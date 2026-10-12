@@ -8,7 +8,6 @@ use App\Models\Event;
 use App\Models\Listing;
 use App\Models\Profile;
 use App\Models\Question;
-use App\Models\User;
 use App\Services\Contributors;
 use App\Support\Countries;
 use Illuminate\Support\Facades\Cache;
@@ -35,20 +34,11 @@ class HomeController extends Controller
                     Countries::flag(...),
                     array_keys(array_intersect_key(Countries::all(), array_flip($countries))),
                 )),
-                // Pile de 4 avatars : les membres les plus actifs récemment.
-                'avatarIds' => User::query()->whereHas('profile')
-                    ->orderByDesc('reputation')->orderByRaw('last_seen_at desc nulls last')->orderBy('id')
-                    ->limit(4)->pluck('id')->all(),
             ];
         });
 
-        $avatars = User::query()->with('profile')->findMany($stats['avatarIds'])
-            ->sortBy(fn (User $user) => array_search($user->id, $stats['avatarIds'], true))
-            ->values();
-
         return view('home', [
             'stats' => $stats,
-            'avatars' => $avatars,
             // Questions résolues récemment (08, « Sections suivantes de l'accueil »).
             'resolvedQuestions' => Question::query()->visible()->whereNotNull('accepted_answer_id')
                 ->with(['user.profile', 'skills'])->latest()->limit(3)->get(),
