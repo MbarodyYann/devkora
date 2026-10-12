@@ -143,18 +143,22 @@
         </ul>
     </section>
 
-    {{-- Questions résolues récemment --}}
-    @if ($resolvedQuestions->isNotEmpty())
-        <section class="pt-16 sm:pt-24" aria-labelledby="resolues-titre">
+    {{-- Questions du moment : le site est actif, et on peut y poser la sienne --}}
+    @if ($trendingQuestions->isNotEmpty())
+        <section class="pt-16 sm:pt-24" aria-labelledby="questions-titre" data-trending>
             <div class="flex flex-wrap items-end justify-between gap-4">
-                <h2 id="resolues-titre" class="max-w-2xl text-[32px] sm:text-[44px]">Ces blocages ont déjà trouvé leur solution.</h2>
-                <a href="{{ route('questions.index', ['statut' => 'resolues']) }}" class="font-semibold text-primary-600 underline-offset-4 hover:underline dark:text-primary-300">Voir les questions →</a>
+                <div class="max-w-2xl">
+                    <h2 id="questions-titre" class="text-[32px] sm:text-[44px]">Ce que les devs se demandent en ce moment.</h2>
+                    <p class="mt-3 text-ink-soft">Réponds si tu sais, ou pose ta propre question.</p>
+                </div>
+                <a href="{{ route('questions.index') }}" class="font-semibold text-primary-600 underline-offset-4 hover:underline dark:text-primary-300">Voir toutes les questions →</a>
             </div>
             <ul class="mt-8 space-y-4">
-                @foreach ($resolvedQuestions as $question)
-                    <li><x-question-card :question="$question" /></li>
+                @foreach ($trendingQuestions as $question)
+                    <li><x-question-card :question="$question" live /></li>
                 @endforeach
             </ul>
+            <x-button :href="route('questions.create')" size="lg" class="mt-8 w-full sm:w-auto" data-cta="question">Pose ta question</x-button>
         </section>
     @endif
 

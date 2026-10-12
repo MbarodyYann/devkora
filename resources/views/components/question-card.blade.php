@@ -1,7 +1,8 @@
-@props(['question'])
+@props(['question', 'live' => false])
 
 {{-- Carte question (08) : score, réponses (coche si acceptée), titre en Newsreader 20 px, extrait de 2 lignes,
-     tags, auteur et date. --}}
+     tags, auteur et date. live (accueil, questions du moment) : étiquette « Résolue » aussi sur ordinateur,
+     date relative (« il y a 3 h ») et pays de l'auteur, pour montrer que le site est actif. --}}
 <article {{ $attributes->merge(['class' => 'relative flex min-w-0 gap-4 rounded-2xl border border-line bg-surface p-5 shadow-card transition hover:-translate-y-0.5 hover:shadow-card-hover motion-reduce:hover:translate-y-0 sm:rounded-card sm:p-6']) }}>
     <dl class="hidden w-20 shrink-0 flex-col items-end gap-2 pt-1 text-sm sm:flex">
         <div class="flex items-baseline gap-1 text-ink-muted"><dd class="font-semibold tabular-nums text-ink">{{ $question->score }}</dd><dt>{{ abs($question->score) > 1 ? 'votes' : 'vote' }}</dt></div>
@@ -15,6 +16,9 @@
             @endif
             <dd class="font-semibold tabular-nums">{{ $question->answers_count }}</dd><dt>{{ $question->answers_count > 1 ? 'réponses' : 'réponse' }}</dt>
         </div>
+        @if ($live && $question->isResolved())
+            <div><dt class="sr-only">Statut</dt><dd><x-chip tone="done" class="py-0.5! text-xs!">Résolue</x-chip></dd></div>
+        @endif
     </dl>
     <div class="min-w-0 flex-1">
         <h3 class="font-serif text-xl leading-snug">
@@ -31,7 +35,7 @@
         </p>
         <div class="relative z-10 mt-4 flex flex-wrap items-center justify-between gap-3">
             <x-tags :skills="$question->skills" />
-            <x-author :user="$question->user" :date="$question->created_at" class="ml-auto" />
+            <x-author :user="$question->user" :date="$question->created_at" :relative="$live" :country="$live" class="ml-auto" />
         </div>
     </div>
 </article>

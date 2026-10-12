@@ -25,7 +25,7 @@ test('accueil complet, dans l\'ordre de 08', function () {
         'Gratuit, sans abonnement',
         'Devs inscrits',
         'Ici, on échange.',
-        'Ces blocages ont déjà trouvé leur solution.',
+        'Ce que les devs se demandent en ce moment.',
         'Ce que les devs du continent ont appris, pour toi.',
         'Des devs cherchent du renfort, peut-être le tien.',
         'Les prochaines occasions de se rencontrer.',

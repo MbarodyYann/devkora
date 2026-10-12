@@ -101,7 +101,7 @@ test('le sous-titre du hero et tous les H1 et H2 sont équilibrés (pas de mot o
         ->and($this->get('/')->getContent())->toContain('<p class="mt-6 max-w-xl text-balance');
 });
 
-test('questions résolues : colonne de la bande de confiance et section récente', function () {
+test('questions résolues : colonne de la bande de confiance', function () {
     $resolved = Question::factory()->create(['title' => 'Question résolue sur le webhook Wave']);
     $answer = Answer::factory()->for($resolved)->create();
     $resolved->forceFill(['accepted_answer_id' => $answer->id])->save();
@@ -109,10 +109,75 @@ test('questions résolues : colonne de la bande de confiance et section récente
 
     $this->get('/')
         ->assertSee('Questions résolues')
-        ->assertSee('data-stat="resolved">1<', false)
-        ->assertSee('Ces blocages ont déjà trouvé leur solution.')
-        ->assertSee('Question résolue sur le webhook Wave')
-        ->assertDontSee('Question encore ouverte sur USSD');
+        ->assertSee('data-stat="resolved">1<', false);
+});
+
+test('questions du moment : classement façon Hacker News, en SQL', function () {
+    $this->freezeTime();
+    $old = Question::factory()->create(['title' => 'Vieille question très votée', 'score' => 8, 'created_at' => now()->subDays(10)]);
+    $fresh = Question::factory()->create(['title' => 'Question récente avec réponses', 'answers_count' => 3, 'created_at' => now()->subHours(2)]);
+    $unanswered = Question::factory()->create(['title' => 'Question sans réponse de ce matin', 'created_at' => now()->subHours(5)]);
+    Question::factory()->create(['title' => 'Question masquée', 'score' => 50, 'answers_count' => 9, 'created_at' => now()->subHour(), 'hidden_at' => now()]);
+    Question::factory()->create(['title' => 'Question d\'il y a 20 jours', 'created_at' => now()->subDays(20)]);
+
+    // 2 h et 3 réponses : (0 + 6 + 1) / 4^1,5 ≈ 0,88 ; 10 jours et 8 votes : 9 / 242^1,5 ≈ 0,002.
+    expect(Question::query()->trending()->pluck('id')->all())->toBe([$fresh->id, $unanswered->id, $old->id])
+        // Moins de 5 questions sur 14 jours : l'accueil élargit à 30 jours.
+        ->and(Question::query()->trending(30)->count())->toBe(4);
+
+    $html = $this->get('/')->getContent();
+    $section = trendingSection($html);
+
+    expect($section)->toContain('Ce que les devs se demandent en ce moment.')
+        ->toContain('Réponds si tu sais, ou pose ta propre question.')
+        ->toContain('Voir toutes les questions →')
+        ->not->toContain('Question masquée')
+        ->and(strpos($section, 'Question récente avec réponses'))->toBeLessThan(strpos($section, 'Question sans réponse de ce matin'))
+        ->and(strpos($section, 'Question sans réponse de ce matin'))->toBeLessThan(strpos($section, 'Vieille question très votée'))
+        ->and(strpos($section, 'Vieille question très votée'))->toBeLessThan(strpos($section, 'Question d&#039;il y a 20 jours'))
+        ->and($html)->not->toContain('Ces blocages ont déjà trouvé leur solution.');
+});
+
+test('questions du moment : 14 jours suffisent dès qu\'il y a 5 questions ; cache de 10 minutes', function () {
+    Question::factory()->count(5)->create(['created_at' => now()->subDays(3)]);
+    Question::factory()->create(['title' => 'Question d\'il y a 20 jours', 'score' => 30, 'created_at' => now()->subDays(20)]);
+
+    $this->get('/')->assertDontSee('Question d&#039;il y a 20 jours', false);
+
+    Question::factory()->create(['title' => 'Question toute neuve', 'answers_count' => 5]);
+    $this->get('/')->assertDontSee('Question toute neuve');
+
+    Cache::forget('home.trending');
+    $this->get('/')->assertSee('Question toute neuve');
+});
+
+test('questions du moment : carte vivante (depuis quand, réponses, score, Résolue, auteur et pays)', function () {
+    $this->freezeTime();
+    $author = User::factory()->withProfile(['country' => 'CI'])->create(['name' => 'Awa Koné']);
+    $question = Question::factory()->for($author)->create(['title' => 'Question résolue il y a 3 h', 'score' => 4, 'answers_count' => 2, 'created_at' => now()->subHours(3)]);
+    $question->forceFill(['accepted_answer_id' => Answer::factory()->for($question)->create()->id])->save();
+
+    $html = $this->get('/')->getContent();
+    $card = trendingSection($html);
+
+    expect($card)->toContain('il y a 3 h')
+        ->toContain('Awa Koné')
+        ->toContain('🇨🇮')
+        ->toContain('<span class="sr-only">Côte d&#039;Ivoire</span>')
+        ->toContain('Résolue')
+        ->toContain('>4</dd>')
+        ->toContain('>2</dd>');
+});
+
+test('questions du moment : un seul bouton « Pose ta question », les visiteurs passent par la connexion', function () {
+    Question::factory()->create();
+
+    $html = $this->get('/')->getContent();
+    expect(substr_count($html, '>Pose ta question</a>'))->toBe(1)
+        ->and($html)->toContain('href="'.route('questions.create').'"');
+
+    $this->get(route('questions.create'))->assertRedirect(route('login'));
+    expect(session('url.intended'))->toBe(route('questions.create'));
 });
 
 test('le membre voit « Poser une question » sur l\'accueil', function () {
@@ -144,3 +209,11 @@ test('accueil : section des annonces ouvertes, équipes et missions mélangées'
         ->assertSee('Équipe ouverte de démonstration')
         ->assertDontSee('Mission annulée de démonstration');
 });
+
+/** La section « Questions du moment » de l'accueil, de son ouverture à sa fermeture. */
+function trendingSection(string $html): string
+{
+    $start = strpos($html, 'data-trending');
+
+    return substr($html, $start, strpos($html, '</section>', $start) - $start);
+}

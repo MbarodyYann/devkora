@@ -37,11 +37,23 @@ class HomeController extends Controller
             ];
         });
 
+        // Questions du moment (08, « Sections suivantes de l'accueil ») : 14 derniers jours, 30 s'il y en a moins de 5.
+        $trendingIds = Cache::remember('home.trending', self::STATS_TTL, function () {
+            foreach ([14, 30] as $days) {
+                $ids = Question::query()->trending($days)->limit(5)->pluck('id')->all();
+
+                if (count($ids) >= 5) {
+                    break;
+                }
+            }
+
+            return $ids;
+        });
+
         return view('home', [
             'stats' => $stats,
-            // Questions résolues récemment (08, « Sections suivantes de l'accueil »).
-            'resolvedQuestions' => Question::query()->visible()->whereNotNull('accepted_answer_id')
-                ->with(['user.profile', 'skills'])->latest()->limit(3)->get(),
+            'trendingQuestions' => Question::query()->visible()->with(['user.profile', 'skills'])->findMany($trendingIds)
+                ->sortBy(fn (Question $question) => array_search($question->id, $trendingIds, true))->values(),
             // Annonces ouvertes (08) : équipes et missions mélangées, les plus récentes.
             'openListings' => Listing::query()->visible()->where('status', ListingStatus::Open)
                 ->with(['user.profile', 'skills', 'acceptedProposals.user.profile'])->withCount('proposals')

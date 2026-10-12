@@ -87,4 +87,22 @@ class Question extends Model
     {
         $query->fullTextSearch($terms);
     }
+
+    /**
+     * Questions du moment (accueil), classées comme Hacker News : (score + 2 × réponses + 1) / (heures + 2)^1,5.
+     * Une question récente qui reçoit des votes et des réponses passe devant ; les questions sans réponse restent
+     * dans la liste. L'âge est mesuré par rapport à now() de l'application (et non au NOW() de PostgreSQL) :
+     * c'est l'horloge des données de démo (DemoClock) et des tests.
+     *
+     * @param  Builder<Question>  $query
+     */
+    public function scopeTrending(Builder $query, int $days = 14): void
+    {
+        $now = now()->toDateTimeString();
+
+        $query->visible()
+            ->whereBetween('created_at', [now()->subDays($days)->toDateTimeString(), $now])
+            ->orderByRaw('(score + 2 * answers_count + 1) / power(extract(epoch from (?::timestamp - created_at)) / 3600 + 2, 1.5) desc', [$now])
+            ->orderByDesc('id');
+    }
 }
