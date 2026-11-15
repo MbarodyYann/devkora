@@ -87,6 +87,9 @@
         @case('chevron-down')
             <path d="m6 9 6 6 6-6"/>
             @break
+        @case('x')
+            <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+            @break
         @case('clock')
             <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>
             @break

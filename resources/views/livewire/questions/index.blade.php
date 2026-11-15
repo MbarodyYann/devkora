@@ -7,11 +7,22 @@
                 <span wire:loading.remove>{{ $total }} {{ $total > 1 ? 'questions' : 'question' }}</span>
                 <span wire:loading>Recherche…</span>
             </p>
-            <x-segmented label="Statut" model="status" :options="App\Livewire\Questions\Index::STATUSES" />
+            {{-- Onglets : de vrais liens (chaque onglet a son adresse, même sans JavaScript), sans rechargement avec Livewire. --}}
+            <nav aria-label="Onglets du fil" data-tabs class="inline-flex max-w-full overflow-x-auto rounded-[10px] bg-bg-alt p-1 ring-1 ring-line [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                @foreach (App\Livewire\Questions\Index::TABS as $value => $tabLabel)
+                    <a href="{{ $this->tabUrl($value) }}" wire:click.prevent="showTab('{{ $value }}')" wire:key="onglet-{{ $value ?: 'moment' }}"
+                       @if ($status === $value) aria-current="page" @endif
+                       @class([
+                           'flex min-h-9 shrink-0 items-center whitespace-nowrap rounded-[7px] px-3 text-sm font-medium transition',
+                           'bg-surface text-ink shadow-soft' => $status === $value,
+                           'text-ink-muted hover:text-ink' => $status !== $value,
+                       ])>{{ $tabLabel }}</a>
+                @endforeach
+            </nav>
         </div>
         <form wire:submit.prevent role="search" aria-label="Chercher une question" class="grid gap-3 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] sm:items-end">
             <div class="min-w-0">
-                <label for="filtre-q" class="mb-1.5 block text-sm font-medium text-ink">Recherche</label>
+                <label for="filtre-q" class="mb-1.5 block text-sm font-medium text-ink">Cherche une question</label>
                 <div class="relative">
                     <x-icon name="search" class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-ink-muted" />
                     <x-input name="q" id="filtre-q" type="search" wire:model.live.debounce.400ms="q" placeholder="Ex. paiement Wave refusé" class="pl-9" autocomplete="off" />

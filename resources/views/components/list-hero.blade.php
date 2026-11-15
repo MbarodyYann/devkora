@@ -2,7 +2,9 @@
 
 {{-- En-tête compact des pages de liste (08) : bandeau primary-800 (primary-950 en sombre) avec arcs, sans photo ;
      H1 dont la fin est en italique ambre ; sous-titre masqué sur mobile. Visiteur : aucun CTA (celui de la
-     navigation suffit). Membre : l'action de la page, à droite. Le bas est libre pour la carte de filtres. --}}
+     navigation suffit). Membre : l'action de la page, à droite. Une action marquée « guests » (« Pose ta question »
+     sur l'accueil) s'affiche aussi pour le visiteur, qui passe par la connexion. Le bas est libre pour la carte de filtres. --}}
+@php($showAction = $action && (auth()->check() || ($action['guests'] ?? false)))
 <section id="hero" aria-labelledby="page-titre" class="relative -mt-[68px] overflow-hidden bg-primary-800 pt-[68px] text-white sm:-mt-[76px] sm:pt-[76px] dark:bg-primary-950">
     <svg class="pointer-events-none absolute bottom-0 left-0 h-[420px] w-[420px]" viewBox="0 0 760 760" fill="none" aria-hidden="true">
         @foreach ([340, 500, 660] as $radius)
@@ -24,10 +26,8 @@
             <p class="mt-4 hidden max-w-2xl leading-[1.6] text-white/80 sm:block">{{ $subtitle }}</p>
         </div>
 
-        @auth
-            @if ($action)
-                <x-button :href="route($action['route'])" class="shrink-0 self-start lg:self-center"><x-icon name="plus" class="size-4" /> {{ $action['label'] }}</x-button>
-            @endif
-        @endauth
+        @if ($showAction)
+            <x-button :href="route($action['route'])" class="shrink-0 self-start lg:self-center" data-cta="question"><x-icon name="plus" class="size-4" /> {{ $action['label'] }}</x-button>
+        @endif
     </div>
 </section>

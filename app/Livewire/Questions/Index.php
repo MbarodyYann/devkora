@@ -10,29 +10,25 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
-use Livewire\Attributes\Layout;
-use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 /**
- * Questions (/questions) : récentes, sans réponse ou résolues, par tag, recherche plein texte en français.
+ * Fil des questions (accueil) : en ce moment, récentes, sans réponse ou résolues, par tag,
+ * recherche plein texte en français. Chaque onglet et chaque filtre a son adresse.
  */
-#[Title('Questions')]
-#[Layout('components.layouts.app', ['pageHero' => [
-    'start' => 'Ta question ne se perdra plus',
-    'end' => 'dans un groupe WhatsApp.',
-    'subtitle' => 'Pose-la en français avec les bons tags : la communauté répond et vote, la meilleure réponse reste trouvable par tous.',
-    'action' => ['label' => 'Poser une question', 'route' => 'questions.create'],
-]])]
 class Index extends Component
 {
     use WithPagination;
 
     public const PER_PAGE = 15;
 
-    public const STATUSES = ['' => 'Récentes', 'sans-reponse' => 'Sans réponse', 'resolues' => 'Résolues'];
+    /** Onglets (paramètre « statut » de l'adresse) ; le premier est celui par défaut. */
+    public const TABS = ['' => 'En ce moment', 'recentes' => 'Récentes', 'sans-reponse' => 'Sans réponse', 'resolues' => 'Résolues'];
+
+    /** « En ce moment » : questions des 30 derniers jours. */
+    public const TRENDING_DAYS = 30;
 
     #[Url(except: '')]
     public string $q = '';
@@ -43,9 +39,29 @@ class Index extends Component
     #[Url(except: '')]
     public string $tag = '';
 
+    public function mount(): void
+    {
+        // Un onglet inconnu dans l'adresse ramène à « En ce moment ».
+        if (! array_key_exists($this->status, self::TABS)) {
+            $this->status = '';
+        }
+    }
+
     public function updated(): void
     {
         $this->resetPage();
+    }
+
+    public function showTab(string $tab): void
+    {
+        $this->status = array_key_exists($tab, self::TABS) ? $tab : '';
+        $this->resetPage();
+    }
+
+    /** Adresse d'un onglet, avec la recherche et le tag en cours. */
+    public function tabUrl(string $tab): string
+    {
+        return route('home', array_filter(['statut' => $tab, 'q' => Str::squish($this->q), 'tag' => $this->tag], fn (string $value) => $value !== ''));
     }
 
     public function resetFilters(): void
@@ -86,8 +102,20 @@ class Index extends Component
             ->when($this->tag !== '', fn (Builder $q) => $q->whereHas('skills', fn (Builder $s) => $s->where('slug', $this->tag)))
             ->when($search !== '', fn (Builder $q) => $q->search($search))
             ->with(['user.profile', 'skills'])
-            ->latest()
+            // « En ce moment » : classement façon Hacker News (votes et réponses pondérés par l'âge).
+            ->when($this->status === '', fn (Builder $q) => $q->trending($this->trendingDays($search)), fn (Builder $q) => $q->latest())
             ->paginate(self::PER_PAGE);
+    }
+
+    /**
+     * Fenêtre de « En ce moment » : 30 jours. Une recherche ou un tag porte sur toutes les questions, et
+     * si rien n'a été posé depuis 30 jours, le fil montre tout plutôt qu'une page vide.
+     */
+    private function trendingDays(string $search): int
+    {
+        $recent = fn () => Question::query()->visible()->where('created_at', '>=', now()->subDays(self::TRENDING_DAYS))->exists();
+
+        return $search === '' && $this->tag === '' && $recent() ? self::TRENDING_DAYS : 36500;
     }
 
     public function paginationView(): string

@@ -1,4 +1,4 @@
-@props(['skills', 'route' => 'questions.index'])
+@props(['skills', 'route' => 'home'])
 
 {{-- Tags d'une question ou d'un article : liens vers la liste filtrée ; les tags locaux (Wave, USSD…) sont mis en valeur. --}}
 @if ($skills->isNotEmpty())

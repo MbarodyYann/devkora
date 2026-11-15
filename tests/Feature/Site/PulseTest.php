@@ -81,11 +81,10 @@ test('la page /pouls : textes de 11, tableaux, sélecteur de pays, barres en CSS
     expect(app(PulseService::class)->rates()[0]['count'])->toBe(3);
 });
 
-test('Le Pouls : dans la navigation à partir de 1 280 px, dans le pied de page et le pilier de l\'accueil', function () {
+test('Le Pouls : dans la navigation à partir de 1 280 px et dans le pied de page', function () {
     $html = $this->get('/')->getContent();
 
     expect($html)->toMatch('/hidden xl:inline-block[^>]*>\s*Le Pouls/')
-        ->toContain('Voir le Pouls →')
         ->and(substr($html, strpos($html, '<footer')))->toContain('>Le Pouls<');
 });
 
