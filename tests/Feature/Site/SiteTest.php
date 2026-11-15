@@ -14,7 +14,7 @@ test('À propos : identité, équipe, licences, IA au mot près, marques', funct
     expect($main)->toContain('Plateforme d&#039;échange')->toContain('Par les devs')
         ->toContain('Ses 21 cordes ne sonnent juste qu\'ensemble')
         ->toContain('Yaya Niang')->toContain('Aminata Sall')->toContain('Baobab Stack')
-        ->toContain('<strong class="font-semibold text-ink">Claude Code (Anthropic)</strong> : code, tests et revue de code.')
+        ->toContain('<strong class="font-semibold text-ink">Claude Code (Anthropic)</strong> : assistance au développement, tests et revue de code.')
         ->toContain("<strong class=\"font-semibold text-ink\">ChatGPT (OpenAI)</strong> : image d'illustration de l'accueil.")
         ->toContain("sont les marques de leurs propriétaires. DevKora n'a aucune affiliation avec eux, et le paiement des missions est simulé")
         ->toContain('SIL OFL 1.1')->toContain('Lucide')->toContain('PostgreSQL License')

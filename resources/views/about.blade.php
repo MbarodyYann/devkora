@@ -208,7 +208,7 @@
     <section class="pt-16 sm:pt-24" aria-labelledby="ia-titre">
         <h2 id="ia-titre" class="text-[32px] sm:text-[44px]">Usage de l'intelligence artificielle</h2>
         <ul class="mt-4 space-y-2 text-ink-soft" data-ai>
-            <li><strong class="font-semibold text-ink">Claude Code (Anthropic)</strong> : code, tests et revue de code.</li>
+            <li><strong class="font-semibold text-ink">Claude Code (Anthropic)</strong> : assistance au développement, tests et revue de code.</li>
             <li><strong class="font-semibold text-ink">ChatGPT (OpenAI)</strong> : image d'illustration de l'accueil.</li>
         </ul>
     </section>

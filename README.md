@@ -144,7 +144,7 @@ Toutes les dépendances sont sous licence permissive. Elles sont lues dans `comp
 
 ## Usage de l'intelligence artificielle
 
-- Claude Code (Anthropic) : code, tests et revue de code.
+- Claude Code (Anthropic) : assistance au développement, tests et revue de code.
 - ChatGPT (OpenAI) : image d'illustration de l'accueil.
 
 ## Équipe

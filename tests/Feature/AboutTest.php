@@ -241,7 +241,7 @@ test('À propos : identité, équipe et déclaration de l\'IA mot pour mot', fun
         ->toContain('Plateforme d&#039;échange')->toContain('Africaine')->toContain('Pour les devs')->toContain('Par les devs')
         ->toContain('<strong class="font-semibold text-ink">Baobab Stack</strong> (Sénégal)')
         ->toContain('Yaya Niang')->toContain('Aminata Sall')->toContain('Baidy Sao')->not->toContain('Représentant')
-        ->toContain('<li><strong class="font-semibold text-ink">Claude Code (Anthropic)</strong> : code, tests et revue de code.</li>')
+        ->toContain('<li><strong class="font-semibold text-ink">Claude Code (Anthropic)</strong> : assistance au développement, tests et revue de code.</li>')
         ->toContain("<li><strong class=\"font-semibold text-ink\">ChatGPT (OpenAI)</strong> : image d'illustration de l'accueil.</li>")
         ->toContain('data-licenses');
 
