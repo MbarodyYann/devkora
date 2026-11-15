@@ -45,6 +45,18 @@ RUN chmod +x /usr/local/bin/devkora-entrypoint \
     && mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache
 
+# Base locale de secours : grappe PostgreSQL créée et démo semée dès la construction de l'image,
+# pour que le conteneur démarre en quelques secondes même si la base managée ne répond pas.
+RUN PGBIN=$(ls -d /usr/lib/postgresql/*/bin | head -n1) \
+    && install -d -o postgres -g postgres /var/lib/postgresql/devkora \
+    && su postgres -c "$PGBIN/initdb -D /var/lib/postgresql/devkora -E UTF8 --locale=C.UTF-8 -A trust" \
+    && su postgres -c "$PGBIN/pg_ctl -D /var/lib/postgresql/devkora -o '-c listen_addresses=127.0.0.1' -w start" \
+    && su postgres -c "psql -c \"create role devkora login password 'devkora' superuser\"" \
+    && su postgres -c "createdb -O devkora devkora" \
+    && su -s /bin/bash www-data -c "APP_ENV=production APP_DEMO=true APP_KEY=base64:$(head -c 32 /dev/urandom | base64) DB_CONNECTION=pgsql DB_HOST=127.0.0.1 DB_PORT=5432 DB_DATABASE=devkora DB_USERNAME=devkora DB_PASSWORD=devkora CACHE_STORE=database SESSION_DRIVER=database LOG_CHANNEL=stderr php artisan demo:reset" \
+    && su postgres -c "$PGBIN/pg_ctl -D /var/lib/postgresql/devkora -m fast -w stop" \
+    && rm -f bootstrap/cache/*.php
+
 ENV PORT=8080
 EXPOSE 8080
 ENTRYPOINT ["devkora-entrypoint"]
