@@ -1,6 +1,6 @@
 <x-layouts.app title="Confirmer le paiement" :noindex="true">
     <div class="mx-auto max-w-xl">
-        <h1 class="text-[34px] sm:text-[44px]">Dernière étape : le code de confirmation.</h1>
+        <h1 class="text-[34px] sm:text-[44px]">Confirmer le paiement</h1>
         <p class="mt-3 text-ink-soft">En vrai, {{ $provider->label() }} t'enverrait ce code par SMS au {{ $maskedPhone }}. Ici, tout est simulé : le voici.</p>
 
         <x-card class="mt-6">

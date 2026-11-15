@@ -60,8 +60,8 @@ test('la page /pouls : textes de 11, tableaux, sélecteur de pays, barres en CSS
 
     $this->get('/pouls')
         ->assertOk()
-        ->assertSee('Combien facturer ?')
-        ->assertSee('<em class="font-serif italic text-secondary-400">Le marché te répond.</em>', false)
+        ->assertSee('<h1 id="page-titre" class="text-[28px] leading-tight sm:text-[36px]">Le Pouls : tarifs et demande</h1>', false)
+        ->assertDontSee('Le marché te répond.')
         ->assertSee('Tarifs médians en FCFA, compétences recherchées et activité de la communauté, calculés à partir des échanges réels.')
         ->assertSee("150\u{202F}000\u{00A0}FCFA")
         ->assertSeeInOrder(['Compétence', 'Tarif médian', 'Fourchette habituelle', 'Données'])

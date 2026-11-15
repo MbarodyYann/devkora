@@ -77,7 +77,7 @@ test('les liens externes sont en nofollow et noopener', function () {
 });
 
 test('profil inexistant ou sans fiche : 404 en français', function () {
-    $this->get('/devs/999999')->assertNotFound()->assertSee("Cette page s'est perdue en route.", false);
+    $this->get('/devs/999999')->assertNotFound()->assertSee('Page introuvable', false);
     $this->get('/devs/abc')->assertNotFound();
     $this->get(route('devs.show', User::factory()->create()))->assertNotFound();
 });

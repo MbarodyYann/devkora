@@ -20,9 +20,8 @@ function poster(array $profile = []): User
 test('la liste reprend l\'en-tête de 11 ; « Publier une annonce » pour les membres', function () {
     $this->get('/annonces')
         ->assertOk()
-        ->assertSee('Construis avec les tiens,')
-        ->assertSee('<em class="font-serif italic text-secondary-400">d&#039;un pays à l&#039;autre.</em>', false)
-        ->assertSee('Trouve des coéquipiers pour ton projet ou confie une mission à un dev de confiance, payée en FCFA par Mobile Money.')
+        ->assertSee('<h1 id="page-titre" class="text-[28px] leading-tight sm:text-[36px]">Annonces</h1>', false)
+        ->assertSee('Équipes à rejoindre et missions entre devs, payées en FCFA par Mobile Money (paiement simulé).')
         ->assertDontSee('Publier une annonce');
 
     $html = $this->actingAs(poster())->get('/annonces')->getContent();

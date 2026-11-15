@@ -23,13 +23,8 @@ use Livewire\WithPagination;
 /**
  * Annuaire des devs (/devs) : cartes, filtres par compétence, pays, langue et disponibilité, recherche par nom.
  */
-#[Title('Les devs')]
-#[Layout('components.layouts.app', ['pageHero' => [
-    // Trait d'union insécable (U+2011) : « peut‑être » ne se coupe pas en fin de ligne.
-    'start' => 'Le bon dev est peut‑être',
-    'end' => 'dans ta ville.',
-    'subtitle' => 'Filtre par compétence, pays et langue : les cauris montrent qui aide la communauté et qui a déjà livré.',
-]])]
+#[Title('Développeurs')]
+#[Layout('components.layouts.app', ['description' => 'Filtre par compétence, pays, langue et disponibilité. Les cauris montrent qui aide la communauté.'])]
 class Directory extends Component
 {
     use WithPagination;

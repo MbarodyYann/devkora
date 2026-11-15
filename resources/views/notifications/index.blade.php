@@ -1,7 +1,7 @@
 <x-layouts.app title="Notifications" :noindex="true">
     <div class="mx-auto max-w-2xl">
         <div class="flex flex-wrap items-end justify-between gap-4">
-            <h1 class="text-[38px] sm:text-5xl">Ce qui s'est passé pour toi.</h1>
+            <h1 class="text-[28px] leading-tight sm:text-[36px]">Notifications</h1>
             @if (auth()->user()->unreadNotifications()->exists())
                 <form method="post" action="{{ route('notifications.read-all') }}">
                     @csrf

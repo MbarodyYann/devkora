@@ -3,7 +3,7 @@
         <a href="{{ route('home') }}" class="mb-4 inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-ink-muted hover:text-ink">
             <x-icon name="arrow-left" class="size-4" /> Toutes les questions
         </a>
-        <h1 class="text-[38px] sm:text-5xl">Explique ton blocage, la communauté répond.</h1>
+        <h1 class="text-[28px] leading-tight sm:text-[36px]">Poser une question</h1>
         <p class="mt-3 text-ink-soft">Un titre clair, le code qui coince et les bons tags : les devs qui connaissent le sujet la trouvent par son tag.</p>
 
         <x-card class="mt-8">

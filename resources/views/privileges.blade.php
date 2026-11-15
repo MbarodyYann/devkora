@@ -9,10 +9,10 @@
     $next = $me ? collect($tiers)->first(fn ($tier) => $tier['points'] > $me->reputation) : null;
 @endphp
 
-<x-layouts.app title="Privilèges" description="Tes cauris débloquent de nouveaux rôles : la communauté se gère elle-même.">
+<x-layouts.app title="Privilèges" description="Tes cauris débloquent des droits : voter contre une réponse, modérer, modifier les tags.">
     <div class="mx-auto max-w-3xl">
-        <h1 class="text-[38px] sm:text-5xl">Plus tu aides, <em class="font-serif italic text-primary-600 dark:text-secondary-400">plus tu comptes.</em></h1>
-        <p class="mt-3 text-ink-soft">Tes cauris débloquent de nouveaux rôles : la communauté se gère elle-même.</p>
+        <h1 class="text-[28px] leading-tight sm:text-[36px]">Privilèges</h1>
+        <p class="mt-1.5 text-ink-muted">Tes cauris débloquent des droits : voter contre une réponse, modérer, modifier les tags.</p>
 
         @if ($me)
             <x-card class="mt-8" data-progress>
