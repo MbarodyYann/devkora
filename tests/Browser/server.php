@@ -7,9 +7,8 @@ use Symfony\Component\Process\Process;
 | avec le build Vite et les en-têtes de sécurité de production (voir router.php).
 */
 
-function serve(): Process
+function serve(int $port = 8765): Process
 {
-    $port = 8765;
     // Un ancien serveur encore actif fausserait toutes les mesures : on refuse de continuer.
     if (@fsockopen('127.0.0.1', $port)) {
         throw new RuntimeException("Le port $port est déjà utilisé : arrête l'ancien serveur de test.");

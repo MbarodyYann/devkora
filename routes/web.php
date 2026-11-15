@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AboutController;
 use App\Http\Controllers\AnswerController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\CityController;
@@ -36,7 +37,7 @@ Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
 
 // À propos : identité, équipe, licences, usage de l'IA
-Route::view('/a-propos', 'about')->name('about');
+Route::get('/a-propos', AboutController::class)->name('about');
 
 // Villes : devs, événements, annonces et questions d'une ville
 Route::get('/villes/{slug}', CityController::class)->where('slug', '[a-z0-9-]+')->name('cities.show');
