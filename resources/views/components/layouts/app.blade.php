@@ -108,7 +108,7 @@
 
     {{-- Navigation : une barre pleine largeur, opaque, collée en haut. Ni effet flottant, ni transparence. --}}
     <div class="sticky top-0 z-40 border-b border-line bg-bg">
-        <header class="mx-auto flex h-14 max-w-page items-center gap-2 px-4 sm:h-16 sm:gap-3 sm:px-6 lg:gap-4 xl:gap-6">
+        <header class="mx-auto flex h-14 max-w-page items-center gap-2 bg-bg px-4 sm:h-16 sm:gap-3 sm:px-6 lg:gap-4 xl:gap-6">
             <a href="{{ route('home') }}" class="shrink-0" aria-label="{{ Brand::NAME }}, accueil">
                 <x-logo class="max-[379px]:text-[22px]" />
             </a>
