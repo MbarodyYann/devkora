@@ -21,7 +21,12 @@ use Livewire\WithPagination;
  * Articles (/articles) : par catégorie et par tag, recherche plein texte en français sans accents.
  */
 #[Title('Articles')]
-#[Layout('components.layouts.app', ['description' => 'Tutoriels, retours d\'expérience et bonnes pratiques écrits par des devs du continent.'])]
+#[Layout('components.layouts.app', ['pageHero' => [
+    'start' => 'Ce que tu as appris',
+    'end' => 'peut débloquer un autre dev.',
+    'subtitle' => 'Tutoriels, retours d\'expérience et bonnes pratiques écrits par des devs du continent, pour ton contexte.',
+    'action' => ['label' => 'Écrire un article', 'route' => 'articles.create'],
+]])]
 class Index extends Component
 {
     use WithPagination;

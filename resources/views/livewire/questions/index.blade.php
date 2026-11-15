@@ -1,6 +1,6 @@
 <div>
-    {{-- Carte de filtres : compteur, statut, recherche plein texte, tag. --}}
-    <x-card padding="p-3 sm:p-5">
+    {{-- Carte de filtres à cheval sur l'en-tête : compteur, statut, recherche plein texte, tag. --}}
+    <x-card padding="p-3 sm:p-5" class="relative z-10 -mt-6 sm:-mt-10">
         <div class="mb-3 flex flex-col gap-3 border-b border-line pb-3 sm:flex-row sm:items-center sm:justify-between">
             @php($total = $this->questions->total())
             <p class="text-sm font-medium text-ink" aria-live="polite">

@@ -5,7 +5,7 @@
 
     @if (! $this->listingType)
         {{-- Étape 1 : le type d'annonce (11, « Annonces ») --}}
-        <h1 class="text-[28px] leading-tight sm:text-[36px]">Publier une annonce</h1>
+        <h1 class="text-[38px] sm:text-5xl">Tu cherches du renfort ? Dis-le à la communauté.</h1>
         <p class="mt-3 text-ink-soft">Choisis d'abord ce que tu cherches : le formulaire s'adapte.</p>
         <ul class="mt-8 grid gap-4 sm:grid-cols-2">
             @foreach (App\Enums\ListingType::cases() as $choice)
@@ -25,7 +25,7 @@
         </ul>
     @else
         @php($team = $this->listingType === App\Enums\ListingType::Team)
-        <h1 class="text-[28px] leading-tight sm:text-[36px]">{{ $team ? 'Chercher des coéquipiers' : 'Confier une mission' }}</h1>
+        <h1 class="text-[38px] sm:text-5xl">{{ $team ? 'Trouve tes coéquipiers.' : 'Confie ta mission à un dev de confiance.' }}</h1>
         <p class="mt-3 text-ink-soft">
             {{ $team ? 'Décris le projet et les rôles : les devs intéressés t\'écrivent, tu choisis qui rejoint l\'équipe.' : 'Décris le travail, ton budget et ton délai : les devs proposent leur prix, tu compares et tu retiens.' }}
             <button type="button" wire:click="$set('type', '')" class="font-semibold text-primary-600 underline-offset-4 hover:underline dark:text-primary-300">Changer de type</button>

@@ -11,9 +11,9 @@ test('À propos : identité, équipe, licences, IA au mot près, marques', funct
     $html = $this->get('/a-propos')->assertOk()->getContent();
     $main = substr($html, strpos($html, '<main'), strpos($html, '</main>') - strpos($html, '<main'));
 
-    expect($main)->toContain('À propos de DevKora')->toContain("DevKora est une plateforme d'échange entre développeurs africains.")
+    expect($main)->toContain('Plateforme d&#039;échange')->toContain('Par les devs')
         ->toContain('Ses 21 cordes ne sonnent juste qu\'ensemble')
-        ->toContain('Yaya Niang')->toContain('Aminata Sall')->toContain('Baydi Sao')->toContain('Baobab Stack')
+        ->toContain('Yaya Niang')->toContain('Aminata Sall')->toContain('Baobab Stack')
         ->toContain('<strong class="font-semibold text-ink">Claude Code (Anthropic)</strong> : code, tests et revue de code.')
         ->toContain("<strong class=\"font-semibold text-ink\">ChatGPT (OpenAI)</strong> : image d'illustration de l'accueil.")
         ->toContain("sont les marques de leurs propriétaires. DevKora n'a aucune affiliation avec eux, et le paiement des missions est simulé")
@@ -90,7 +90,7 @@ test('pages ville : devs, événements, annonces et questions de la ville ; lien
     $event = Event::factory()->create(['title' => 'Meetup à Dakar', 'city' => 'Dakar']);
 
     $this->get('/villes/dakar')->assertOk()
-        ->assertSee('Développeurs à Dakar')->assertSee('1 dev inscrit à Dakar.')
+        ->assertSee('Les devs de Dakar,')
         ->assertSee('Moussa Diop')->assertDontSee('Koffi Mensah')
         ->assertSee('Une question posée à Dakar')->assertSee('Une mission de Dakar')->assertSee('Meetup à Dakar');
     $this->get('/villes/nulle-part')->assertNotFound();

@@ -1,5 +1,5 @@
 <x-layouts.app title="Connexion" description="Connecte-toi à DevKora pour retrouver ton profil et la communauté.">
-    <x-auth-card title="Connexion" :demo="true">
+    <x-auth-card title="Content de te revoir." :demo="true">
         <form method="post" action="{{ route('login.store') }}" class="space-y-5" novalidate>
             @csrf
             <x-field label="Adresse e-mail" name="email">

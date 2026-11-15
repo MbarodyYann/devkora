@@ -1,7 +1,6 @@
 <div>
-    @include('partials.page-header', ['title' => 'Articles', 'subtitle' => 'Tutoriels, retours d\'expérience et bonnes pratiques écrits par des devs du continent.', 'action' => ['label' => 'Écrire un article', 'route' => 'articles.create']])
     {{-- Carte de filtres à cheval sur l'en-tête : compteur, recherche, catégorie, tag. --}}
-    <x-card padding="p-3 sm:p-5" class="mt-5">
+    <x-card padding="p-3 sm:p-5" class="relative z-10 -mt-6 sm:-mt-10">
         @php($total = $this->articles->total())
         <p class="mb-3 border-b border-line pb-3 text-sm font-medium text-ink" aria-live="polite">
             <span wire:loading.remove>{{ $total }} {{ $total > 1 ? 'articles' : 'article' }}</span>

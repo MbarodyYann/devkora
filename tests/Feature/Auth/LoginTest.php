@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Notification;
 test('la page de connexion tutoie', function () {
     $this->get('/connexion')
         ->assertOk()
-        ->assertSee('Connexion')->assertDontSee('Content de te revoir.')
+        ->assertSee('Content de te revoir.')
         ->assertSee('Me connecter')
         ->assertDontSee('Pas encore membre ?') // le CTA de la navigation suffit
         ->assertDontSee('data-demo-panel', false);
@@ -55,7 +55,7 @@ test('mot de passe oublié : lien envoyé, page de nouveau mot de passe, changem
     Notification::fake();
     $user = User::factory()->withProfile()->create(['email' => 'fatou@exemple.sn']);
 
-    $this->get('/mot-de-passe-oublie')->assertOk()->assertSee('Mot de passe oublié')->assertSee('Recevoir le lien');
+    $this->get('/mot-de-passe-oublie')->assertOk()->assertSee('Ça arrive à tout le monde.')->assertSee('Recevoir le lien');
 
     $this->post('/mot-de-passe-oublie', ['email' => 'fatou@exemple.sn'])
         ->assertSessionHas('status', 'C\'est envoyé : ouvre l\'e-mail et clique sur le lien pour choisir un nouveau mot de passe.');
@@ -63,7 +63,7 @@ test('mot de passe oublié : lien envoyé, page de nouveau mot de passe, changem
     Notification::assertSentTo($user, ResetPassword::class, function (ResetPassword $notification) use ($user) {
         $this->get('/nouveau-mot-de-passe/'.$notification->token.'?email='.$user->email)
             ->assertOk()
-            ->assertSee('Nouveau mot de passe');
+            ->assertSee('Choisis ton nouveau mot de passe.');
 
         $this->post('/nouveau-mot-de-passe', [
             'token' => $notification->token,
@@ -92,5 +92,5 @@ test('la confirmation du mot de passe a sa page', function () {
     $this->actingAs(User::factory()->withProfile()->create())
         ->get(route('password.confirm'))
         ->assertOk()
-        ->assertSee('Confirme ton mot de passe');
+        ->assertSee('Confirme ton mot de passe.');
 });

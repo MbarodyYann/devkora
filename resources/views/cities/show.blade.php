@@ -1,11 +1,11 @@
 @php($name = $city['name'])
 
-<x-layouts.app :title="'Les devs de '.$name" :description="'Les devs de '.$name.' sur DevKora : profils, événements, annonces et questions de la communauté locale.'">
-    @include('partials.page-header', [
-        'title' => 'Développeurs à '.$name,
-        'subtitle' => $devCount.' '.($devCount > 1 ? 'devs inscrits' : 'dev inscrit').' à '.$name.'.',
-    ])
-    <x-card padding="p-4 sm:p-5" class="mt-5">
+<x-layouts.app :title="'Les devs de '.$name" :description="'Les devs de '.$name.' sur DevKora : profils, événements, annonces et questions de la communauté locale.'" :page-hero="[
+    'start' => 'Les devs de '.$name.',',
+    'end' => 'à deux pas de chez toi.',
+    'subtitle' => $devCount.' '.($devCount > 1 ? 'devs inscrits' : 'dev inscrit').' à '.$name.' : rencontre-les aux événements, réponds à leurs questions, construis avec eux.',
+]">
+    <x-card padding="p-4 sm:p-5" class="relative z-10 -mt-6 sm:-mt-10">
         <p class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-ink">
             <span class="inline-flex items-center gap-1.5"><x-icon name="map-pin" class="size-4 text-ink-muted" /> {{ $name }}, {{ App\Support\Countries::name($city['country']) }} <span aria-hidden="true">{{ App\Support\Countries::flag($city['country']) }}</span></span>
             <a href="{{ route('devs.index', ['pays' => $city['country']]) }}" class="font-semibold text-primary-600 underline-offset-4 hover:underline dark:text-primary-300">Tous les devs du pays →</a>

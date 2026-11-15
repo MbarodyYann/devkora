@@ -6,7 +6,7 @@ use App\Support\Copy;
 test('la page d\'inscription tutoie et reprend les textes de la charte', function () {
     $this->get('/inscription')
         ->assertOk()
-        ->assertSee('Inscription')
+        ->assertSee('Ton profil en ligne en 2 minutes.')
         ->assertSee('Nom, e-mail, pays, ville et mot de passe. Tes compétences viendront ensuite.')
         ->assertSee(Copy::SIGNUP_CTA)
         ->assertSee(Copy::SIGNUP_REASSURANCE)

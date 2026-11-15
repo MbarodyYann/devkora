@@ -1,5 +1,5 @@
 <x-layouts.app title="Mot de passe oublié" :noindex="true">
-    <x-auth-card title="Mot de passe oublié" subtitle="Donne ton adresse e-mail : tu reçois un lien pour choisir un nouveau mot de passe.">
+    <x-auth-card title="Ça arrive à tout le monde." subtitle="Donne ton adresse e-mail : tu reçois un lien pour choisir un nouveau mot de passe.">
         <form method="post" action="{{ route('password.email') }}" class="space-y-5" novalidate>
             @csrf
             <x-field label="Adresse e-mail" name="email">

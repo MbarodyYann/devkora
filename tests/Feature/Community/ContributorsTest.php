@@ -34,7 +34,7 @@ test('dans la colonne latérale de l\'accueil et en tête de /devs, sans filtre'
     $answer = Answer::factory()->create();
     app(ReputationService::class)->award($answer->user, ReputationReason::AnswerAccepted, $answer);
 
-    $this->get('/')->assertSee('Contributeurs du mois')->assertSee('+15');
-    Livewire::test(Directory::class)->assertSee('Contributeurs du mois')
-        ->set('q', 'personne')->assertDontSee('Contributeurs du mois');
+    $this->get('/')->assertSee('Les plus utiles ce mois-ci')->assertSee('+15');
+    Livewire::test(Directory::class)->assertSee('Les plus utiles ce mois-ci')
+        ->set('q', 'personne')->assertDontSee('Les plus utiles ce mois-ci');
 });

@@ -1,6 +1,5 @@
 <div>
-    @include('partials.page-header', ['title' => 'Événements', 'subtitle' => 'Meetups, ateliers et hackathons proposés par la communauté.', 'action' => ['label' => 'Proposer un événement', 'route' => 'events.create']])
-    <x-card padding="p-3 sm:p-5" class="mt-5">
+    <x-card padding="p-3 sm:p-5" class="relative z-10 -mt-6 sm:-mt-10">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div class="min-w-0 sm:w-64">
                 <label for="filtre-lieu" class="mb-1.5 block text-sm font-medium text-ink">Ville ou en ligne</label>

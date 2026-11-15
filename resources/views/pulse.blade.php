@@ -4,13 +4,13 @@
     $maxDemand = max(1, collect($demanded)->max('count'));
 @endphp
 
-<x-layouts.app title="Le Pouls" description="Tarifs médians en FCFA, compétences recherchées et activité de la communauté, calculés à partir des échanges réels.">
-    @include('partials.page-header', [
-        'title' => 'Le Pouls : tarifs et demande',
-        'subtitle' => 'Tarifs médians en FCFA, compétences recherchées et activité de la communauté, calculés à partir des échanges réels.',
-    ])
-    {{-- Activité des 30 derniers jours --}}
-    <x-card padding="p-4 sm:p-6" class="mt-6">
+<x-layouts.app title="Le Pouls" :page-hero="[
+    'start' => 'Combien facturer ?',
+    'end' => 'Le marché te répond.',
+    'subtitle' => 'Tarifs médians en FCFA, compétences recherchées et activité de la communauté, calculés à partir des échanges réels.',
+]">
+    {{-- Activité des 30 derniers jours, à cheval sur l'en-tête --}}
+    <x-card padding="p-4 sm:p-6" class="relative z-10 -mt-6 sm:-mt-10">
         <h2 class="text-xl sm:text-2xl">Les 30 derniers jours</h2>
         <dl class="mt-4 grid grid-cols-2 gap-x-6 gap-y-5 lg:grid-cols-4" data-activity>
             @foreach ([['resolved', 'Questions résolues'], ['articles', 'Articles publiés'], ['teams', 'Équipes formées'], ['missions', 'Missions terminées']] as [$key, $label])

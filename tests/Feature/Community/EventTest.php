@@ -29,7 +29,7 @@ test('la liste : à venir d\'abord (du plus proche au plus lointain), puis pass�
         ->and(Livewire::test(Index::class)->set('place', 'Lomé')->instance()->upcoming()->pluck('title')->all())->toBe([$soon->title])
         ->and(Livewire::test(Index::class)->set('type', 'workshop')->instance()->upcoming()->pluck('title')->all())->toBe([$online->title, $later->title]);
 
-    $this->get('/evenements')->assertOk()->assertSee('<h1 id="page-titre" class="text-[28px] leading-tight sm:text-[36px]">Événements</h1>', false)->assertSee('Meetups, ateliers et hackathons proposés par la communauté.')->assertSeeInOrder(['À venir', 'Passés']);
+    $this->get('/evenements')->assertOk()->assertSee('Rencontre les devs de ta ville,')->assertSeeInOrder(['À venir', 'Passés']);
 });
 
 test('« J\'y participe » / « Je n\'y vais plus », compteur et avatars ; pas après la fin', function () {

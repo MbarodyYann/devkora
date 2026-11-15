@@ -2,7 +2,7 @@
     <a href="{{ route('articles.index') }}" class="mb-4 inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-ink-muted hover:text-ink">
         <x-icon name="arrow-left" class="size-4" /> Tous les articles
     </a>
-    <h1 class="text-[28px] leading-tight sm:text-[36px]">Écrire un article</h1>
+    <h1 class="text-[38px] sm:text-5xl">Ce que tu sais peut faire gagner des semaines à un autre dev.</h1>
     <p class="mt-3 text-ink-soft">Un tutoriel, un retour d'expérience ou tes bonnes pratiques : écris en Markdown, vérifie l'aperçu, puis publie.</p>
 
     <x-card class="mt-8">

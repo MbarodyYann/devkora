@@ -1,5 +1,5 @@
 <x-layouts.app title="Nouveau mot de passe" :noindex="true">
-    <x-auth-card title="Nouveau mot de passe" subtitle="Ensuite, connecte-toi avec ce nouveau mot de passe.">
+    <x-auth-card title="Choisis ton nouveau mot de passe." subtitle="Ensuite, connecte-toi avec ce nouveau mot de passe.">
         <form method="post" action="{{ route('password.update') }}" class="space-y-5" novalidate>
             @csrf
             <input type="hidden" name="token" value="{{ $request->route('token') }}">
