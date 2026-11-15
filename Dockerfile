@@ -21,7 +21,7 @@ RUN composer dump-autoload --optimize --no-dev --classmap-authoritative --no-scr
 # 3. Exécution
 FROM php:8.2-fpm-bookworm
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends nginx supervisor gettext-base libpq-dev libpng-dev libjpeg62-turbo-dev libwebp-dev libfreetype6-dev libicu-dev libzip-dev \
+    && apt-get install -y --no-install-recommends nginx supervisor gettext-base postgresql postgresql-contrib libpq-dev libpng-dev libjpeg62-turbo-dev libwebp-dev libfreetype6-dev libicu-dev libzip-dev \
     && docker-php-ext-configure gd --with-jpeg --with-webp --with-freetype \
     && docker-php-ext-install -j"$(nproc)" pdo_pgsql pgsql gd intl bcmath zip opcache \
     && apt-get purge -y --auto-remove libpq-dev libpng-dev libjpeg62-turbo-dev libwebp-dev libfreetype6-dev libicu-dev libzip-dev \
