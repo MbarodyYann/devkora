@@ -97,22 +97,23 @@ test('pagination par 15, avec son adresse', function () {
     $this->get('/?page=2')->assertOk()->assertSee('16 à 16 sur 16');
 });
 
-test('bandeau du visiteur : une ligne vers À propos et l\'inscription, qu\'on peut fermer ; jamais pour un membre', function () {
+test('bandeau du visiteur : une ligne vers À propos, qu\'on peut fermer, sans bouton d\'inscription ; jamais pour un membre', function () {
     $html = $this->get('/')->getContent();
     $banner = substr($html, strpos($html, 'data-welcome'), strpos($html, 'Navigation principale') - strpos($html, 'data-welcome'));
 
     expect($banner)->toContain('Nouveau ici ?')
         ->toContain('DevKora, c\'est le point de rencontre des devs africains.')
         ->toContain('href="'.route('about').'"')->toContain('>Découvrir</a>')
-        ->toContain('href="'.route('register').'"')->toContain('>'.Copy::SIGNUP_CTA.'</a>')
+        // Pas de doublon : le bouton d'inscription reste celui de la navigation.
+        ->not->toContain(route('register'))->not->toContain(Copy::SIGNUP_CTA)
         // Fermeture gardée dans le navigateur, sans erreur si le stockage est refusé.
         ->toContain("localStorage.getItem('welcome')")->toContain("localStorage.setItem('welcome', 'closed')")
         ->and(substr_count($banner, 'try {'))->toBe(2)
         ->and($banner)->toContain('aria-label="Fermer ce message"');
 
-    // Aucun autre bouton d'inscription dans le corps de la page : seulement le bandeau et la navigation.
+    // Aucun bouton d'inscription dans le corps de la page : un seul sur l'écran, celui de la navigation.
     expect(mainOf($html))->not->toContain(Copy::SIGNUP_CTA)->not->toContain(route('register'))
-        ->and(substr_count($html, '>'.Copy::SIGNUP_CTA.'</a>'))->toBe(2);
+        ->and(substr_count($html, '>'.Copy::SIGNUP_CTA.'</a>'))->toBe(1);
 
     // Le bandeau est celui de l'accueil : ni sur les autres pages, ni pour un membre.
     $this->get('/devs')->assertDontSee('data-welcome', false);

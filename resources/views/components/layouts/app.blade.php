@@ -85,7 +85,7 @@
     @endif
 
     {{-- Bandeau du visiteur (accueil) : une ligne, qu'on peut fermer ; le choix est gardé dans le navigateur.
-         Sous 1 024 px, le bouton d'inscription de la navigation, juste en dessous, suffit. --}}
+         Pas de bouton d'inscription ici : celui de la navigation, juste en dessous, suffit (pas de doublon). --}}
     @if ($welcome && ! $me)
         <div data-welcome class="border-b border-white/10 bg-primary-950 text-white"
              x-data="{
@@ -97,7 +97,6 @@
             <div class="mx-auto flex max-w-page items-center gap-x-4 gap-y-1 px-4 py-2 text-sm max-sm:flex-wrap sm:px-6 lg:justify-center">
                 <p class="min-w-0 text-white/85 max-sm:basis-full"><strong class="font-semibold text-white">Nouveau ici ?</strong> DevKora, c'est le point de rencontre des devs africains.</p>
                 <a href="{{ route('about') }}" class="inline-flex min-h-9 shrink-0 items-center font-semibold text-secondary-400 underline underline-offset-4">Découvrir</a>
-                <x-button :href="route('register')" size="xs" class="hidden shrink-0 lg:inline-flex" data-welcome-cta="true">{{ Copy::SIGNUP_CTA }}</x-button>
                 <button type="button" x-cloak aria-label="Fermer ce message"
                         x-on:click="close()"
                         class="-mr-2 ml-auto inline-flex size-9 shrink-0 items-center justify-center rounded-btn text-white/70 transition hover:text-white lg:ml-0">

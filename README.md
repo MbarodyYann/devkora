@@ -88,7 +88,7 @@ app/
 
 - **Les contrôleurs et composants délèguent aux services** : une règle (par exemple les cauris d'une réponse acceptée) n'existe qu'à un endroit, et les données de démo passent par les mêmes services.
 - **Chaque écriture** passe par une Policy, une validation côté serveur et une limite de débit.
-- **Pages légères** : Livewire n'est chargé que sur les pages qui ont un composant ; ailleurs, Alpine seul. L'accueil pèse moins de 70 Ko sur mobile (polices exclues).
+- **Pages légères** : Livewire n'est chargé que sur les pages qui ont un composant ; ailleurs, Alpine seul. L'accueil pèse moins de 80 Ko (polices exclues).
 - **Sécurité** : CSP stricte, aucune origine externe, Markdown échappé, cookies sécurisés, paiement entièrement simulé.
 
 ## Installation locale
