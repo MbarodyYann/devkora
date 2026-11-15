@@ -24,7 +24,7 @@ test('la liste reprend l\'en-tête de 11 ; « Écrire un article » pour les mem
     $this->get('/articles')
         ->assertOk()
         ->assertSee('Ce que tu as appris')
-        ->assertSee('<em class="font-serif italic text-secondary-400">peut débloquer un autre dev.</em>', false)
+        ->assertSee('peut débloquer un autre dev.', false)
         ->assertSee('Tutoriels, retours d&#039;expérience et bonnes pratiques écrits par des devs du continent, pour ton contexte.', false)
         ->assertDontSee('Écrire un article');
 

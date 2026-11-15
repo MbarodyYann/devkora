@@ -79,7 +79,7 @@
     </a>
 
     @if ($demoPersona = App\Support\Demo::personaName($me))
-        <p role="status" data-demo-banner class="bg-primary-950 px-4 py-1.5 text-center text-[13px] text-white/85">
+        <p role="status" data-demo-banner class="border-b border-line bg-bg-alt px-4 py-2 text-center text-sm text-ink-soft">
             Tu explores DevKora avec le compte de démonstration de {{ $demoPersona }}.
         </p>
     @endif
@@ -87,7 +87,7 @@
     {{-- Bandeau du visiteur (accueil) : une ligne, qu'on peut fermer ; le choix est gardé dans le navigateur.
          Pas de bouton d'inscription ici : celui de la navigation, juste en dessous, suffit (pas de doublon). --}}
     @if ($welcome && ! $me)
-        <div data-welcome class="border-b border-white/10 bg-primary-950 text-white"
+        <div data-welcome class="border-b border-line bg-bg-alt"
              x-data="{
                  open: true,
                  init() { try { this.open = localStorage.getItem('welcome') !== 'closed' } catch (e) {} },
@@ -95,36 +95,20 @@
              }"
              x-show="open">
             <div class="mx-auto flex max-w-page items-center gap-x-4 gap-y-1 px-4 py-2 text-sm max-sm:flex-wrap sm:px-6 lg:justify-center">
-                <p class="min-w-0 text-white/85 max-sm:basis-full"><strong class="font-semibold text-white">Nouveau ici ?</strong> DevKora, c'est le point de rencontre des devs africains.</p>
-                <a href="{{ route('about') }}" class="inline-flex min-h-9 shrink-0 items-center font-semibold text-secondary-400 underline underline-offset-4">Découvrir</a>
+                <p class="min-w-0 text-ink-soft max-sm:basis-full"><strong class="font-semibold text-ink">Nouveau ici ?</strong> DevKora, c'est le point de rencontre des devs africains.</p>
+                <a href="{{ route('about') }}" class="inline-flex min-h-9 shrink-0 items-center font-semibold text-primary-600 underline underline-offset-4 dark:text-primary-300">Découvrir</a>
                 <button type="button" x-cloak aria-label="Fermer ce message"
                         x-on:click="close()"
-                        class="-mr-2 ml-auto inline-flex size-9 shrink-0 items-center justify-center rounded-btn text-white/70 transition hover:text-white lg:ml-0">
+                        class="-mr-2 ml-auto inline-flex size-9 shrink-0 items-center justify-center rounded-btn text-ink-muted transition hover:text-ink lg:ml-0">
                     <x-icon name="x" class="size-4" />
                 </button>
             </div>
         </div>
     @endif
 
-    {{-- Navigation flottante, à 12 px du haut. Sur un bandeau indigo : transparente tout en haut, puis opaque
-         (primary-800) dès le premier pixel de défilement. Sous 1 024 px, une fois la page défilée, elle se colle
-         au bord haut, sans espace où le contenu se lirait au-dessus ; sa hauteur totale ne change pas. --}}
-    {{-- Sous 1 024 px, l'espace au-dessus de la barre a un fond opaque de la couleur du haut de page (bandeau indigo
-         ou fond) : même avant le chargement du JavaScript, aucun texte ne se lit au-dessus de la navigation. --}}
-    <div @class([
-             'sticky top-0 z-40 px-2 pt-3 sm:px-6',
-             'max-lg:bg-primary-800 dark:max-lg:bg-primary-950' => $hasHero,
-             'max-lg:bg-bg' => ! $hasHero,
-         ])
-         x-data="{ scrolled: window.scrollY > 0 }"
-         x-on:scroll.window.passive="scrolled = window.scrollY > 0"
-         x-bind:class="scrolled && 'max-lg:px-0! max-lg:pt-0!'">
-        <header @class([
-                    'mx-auto flex h-14 max-w-page items-center gap-2 rounded-nav px-3 sm:h-16 sm:gap-3 sm:px-4 lg:gap-4 xl:gap-6',
-                    'nav-glass' => ! $hasHero,
-                    'nav-on-hero' => $hasHero,
-                ])
-                x-bind:class="{ 'max-lg:h-[68px]! max-lg:rounded-none max-lg:border-x-0 max-lg:border-t-0 max-lg:pt-3 sm:max-lg:h-[76px]!': scrolled }">
+    {{-- Navigation : une barre pleine largeur, opaque, collée en haut. Ni effet flottant, ni transparence. --}}
+    <div class="sticky top-0 z-40 border-b border-line bg-bg">
+        <header class="mx-auto flex h-14 max-w-page items-center gap-2 px-4 sm:h-16 sm:gap-3 sm:px-6 lg:gap-4 xl:gap-6">
             <a href="{{ route('home') }}" class="shrink-0" aria-label="{{ Brand::NAME }}, accueil">
                 <x-logo class="max-[379px]:text-[22px]" />
             </a>
@@ -137,13 +121,10 @@
                            // Entre 1 024 et 1 280 px, les rubriques se resserrent pour que le bouton de droite reste dans la barre.
                            'relative rounded-btn px-2 py-2 font-medium transition xl:px-3',
                            'hidden xl:inline-block' => $item['wide'] ?? false,
-                           'text-ink' => $active,
+                           'bg-bg-alt text-ink' => $active,
                            'text-ink-muted hover:text-ink' => ! $active,
                        ])>
                         {{ $item['label'] }}
-                        @if ($active)
-                            <span class="absolute inset-x-2 -bottom-0.5 h-0.5 rounded-full bg-secondary-400 xl:inset-x-3" aria-hidden="true"></span>
-                        @endif
                     </a>
                 @endforeach
             </nav>
@@ -160,7 +141,7 @@
                                 <x-icon name="plus" class="size-4" /> Publier <x-icon name="chevron-down" class="size-4" />
                             </button>
                             <div x-cloak x-show="open" x-transition.opacity
-                                 class="nav-menu absolute right-0 mt-2 w-60 overflow-hidden rounded-2xl border border-line bg-surface p-1.5 shadow-card-hover">
+                                 class="absolute right-0 mt-2 w-60 overflow-hidden rounded-2xl border border-line bg-surface p-1.5 shadow-card-hover">
                                 @foreach ($publishMenu as $item)
                                     <a href="{{ route($item['route']) }}" class="flex min-h-11 items-center gap-2 rounded-btn px-3 font-medium text-ink hover:bg-bg-alt">
                                         <x-icon :name="$item['icon']" class="size-4" /> {{ $item['label'] }}
@@ -177,11 +158,11 @@
                                 class="relative inline-flex size-10 items-center justify-center rounded-btn text-ink-soft transition hover:bg-surface hover:text-ink">
                             <x-icon name="bell" class="size-5" />
                             @if ($unreadCount)
-                                <span class="absolute -right-0.5 -top-0.5 inline-flex min-w-5 items-center justify-center rounded-full bg-secondary-400 px-1 text-xs font-semibold text-primary-950" aria-hidden="true">{{ $unreadCount > 9 ? '9+' : $unreadCount }}</span>
+                                <span class="absolute -right-0.5 -top-0.5 inline-flex min-w-5 items-center justify-center rounded-full bg-primary-600 px-1 text-xs font-semibold text-white" aria-hidden="true">{{ $unreadCount > 9 ? '9+' : $unreadCount }}</span>
                             @endif
                         </button>
                         <div x-cloak x-show="open" x-transition.opacity
-                             class="nav-menu absolute right-0 mt-2 w-96 overflow-hidden rounded-2xl border border-line bg-surface shadow-card-hover">
+                             class="absolute right-0 mt-2 w-96 overflow-hidden rounded-2xl border border-line bg-surface shadow-card-hover">
                             <div class="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
                                 <p class="font-semibold text-ink">Notifications</p>
                                 @if ($unreadCount)
@@ -212,7 +193,7 @@
                             <span class="sr-only">Ouvrir le menu de ton compte</span>
                         </button>
                         <div x-cloak x-show="open" x-transition.opacity
-                             class="nav-menu absolute right-0 mt-2 w-60 overflow-hidden rounded-2xl border border-line bg-surface p-1.5 shadow-card-hover">
+                             class="absolute right-0 mt-2 w-60 overflow-hidden rounded-2xl border border-line bg-surface p-1.5 shadow-card-hover">
                             <p class="truncate px-3 py-2 text-sm text-ink-muted">{{ $me->name }}</p>
                             @include('partials.account-links')
                         </div>
@@ -240,7 +221,7 @@
     <main id="contenu" @class(['mx-auto max-w-page px-4 sm:px-6', 'pb-16 sm:pb-24' => trim($slot) !== '' || session('status'), 'pt-8 sm:pt-14' => ! $hasHero])>
         @if (session('status'))
             <div role="status" class="mb-8 flex items-start gap-3 rounded-2xl border border-line bg-surface px-4 py-3 font-medium text-ink shadow-card">
-                <span class="inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-primary-600 text-white dark:bg-secondary-400 dark:text-primary-950">
+                <span class="inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-primary-600 text-white">
                     <x-icon name="check" class="size-4" />
                 </span>
                 <span class="pt-0.5">{{ session('status') }}</span>
@@ -250,23 +231,9 @@
         {{ $slot }}
     </main>
 
-    {{-- Pied de page : grand texte défilant lisible (ink plein, partie italique en primary-600 ou secondary-400
-         en sombre), puis l'accroche et les liens. Si l'utilisateur réduit les animations, le texte est arrêté
-         et affiché en entier. --}}
-    <footer class="overflow-hidden border-t border-line bg-bg-alt">
-        <div class="py-10 sm:py-14">
-            <p class="sr-only">Trouve des missions. Partage tes connaissances. Construis avec les tiens.</p>
-            <div class="defile flex w-max whitespace-nowrap font-serif text-5xl font-medium tracking-tight text-ink sm:text-7xl motion-reduce:mx-auto motion-reduce:w-auto motion-reduce:max-w-page motion-reduce:flex-wrap motion-reduce:justify-center motion-reduce:px-4 motion-reduce:text-center motion-reduce:whitespace-normal motion-reduce:text-4xl motion-reduce:sm:text-6xl" aria-hidden="true" data-defile>
-                @foreach (range(1, 2) as $copy)
-                    <span @class(['flex gap-x-[0.3em] pr-[0.6em] motion-reduce:flex-wrap motion-reduce:justify-center motion-reduce:pr-0', 'motion-reduce:hidden' => $copy === 2])>
-                        <span>Trouve des missions.</span>
-                        <span>Partage tes connaissances.</span>
-                        <span class="italic text-primary-600 dark:text-secondary-400">Construis avec les tiens.</span>
-                    </span>
-                @endforeach
-            </div>
-        </div>
-        <div class="mx-auto grid max-w-page gap-8 border-t border-line px-4 py-10 sm:grid-cols-[2fr_1fr_1fr] sm:px-6">
+    {{-- Pied de page : l'accroche, les rubriques et les liens de DevKora. --}}
+    <footer class="border-t border-line bg-bg-alt">
+        <div class="mx-auto grid max-w-page gap-8 px-4 py-10 sm:grid-cols-[2fr_1fr_1fr] sm:px-6">
             <div class="max-w-sm">
                 <x-logo />
                 <p class="mt-4 text-sm leading-relaxed text-ink-soft">{{ Brand::TAGLINE }}</p>
@@ -291,7 +258,7 @@
         </div>
     </footer>
 
-    {{-- Barre du bas mobile : flottante à 12 px du bas, opaque (aucun texte lisible au travers). --}}
+    {{-- Barre du bas mobile : opaque (aucun texte lisible au travers). --}}
     <nav class="fixed inset-x-3 bottom-3 z-40 lg:hidden" aria-label="Navigation mobile" style="margin-bottom: env(safe-area-inset-bottom)">
         <ul class="flex rounded-2xl border border-line bg-surface p-1.5 shadow-card-hover">
             @foreach ($bottomNav as $item)
@@ -300,7 +267,7 @@
                     <a href="{{ route($item['route']) }}" @if ($active) aria-current="page" @endif
                        @class([
                            'flex h-14 flex-col items-center justify-center gap-0.5 rounded-xl text-xs font-medium transition',
-                           'bg-bg-alt text-primary-600 ring-1 ring-secondary-400 dark:text-secondary-400' => $active,
+                           'bg-bg-alt text-ink' => $active,
                            'text-ink-muted' => ! $active,
                        ])>
                         <x-icon :name="$item['icon']" class="size-5" />
@@ -314,17 +281,17 @@
                             aria-label="Moi{{ $unreadCount ? ', '.$unreadCount.' notification'.($unreadCount > 1 ? 's' : '').' non lue'.($unreadCount > 1 ? 's' : '') : '' }}"
                             @class([
                                 'relative flex h-14 w-full flex-col items-center justify-center gap-0.5 rounded-xl text-xs font-medium transition',
-                                'bg-bg-alt text-primary-600 ring-1 ring-secondary-400 dark:text-secondary-400' => $meActive,
+                                'bg-bg-alt text-ink' => $meActive,
                                 'text-ink-muted' => ! $meActive,
                             ])>
                         <x-icon name="user" class="size-5" />
                         Moi
                         @if ($unreadCount)
-                            <span class="absolute right-3 top-1.5 inline-flex min-w-5 items-center justify-center rounded-full bg-secondary-400 px-1 text-xs font-semibold text-primary-950" aria-hidden="true">{{ $unreadCount > 9 ? '9+' : $unreadCount }}</span>
+                            <span class="absolute right-3 top-1.5 inline-flex min-w-5 items-center justify-center rounded-full bg-primary-600 px-1 text-xs font-semibold text-white" aria-hidden="true">{{ $unreadCount > 9 ? '9+' : $unreadCount }}</span>
                         @endif
                     </button>
                     <div x-cloak x-show="open" x-transition.opacity
-                         class="nav-menu absolute bottom-full right-0 z-10 mb-3 w-64 overflow-hidden rounded-2xl border border-line bg-surface p-1.5 shadow-card-hover">
+                         class="absolute bottom-full right-0 z-10 mb-3 w-64 overflow-hidden rounded-2xl border border-line bg-surface p-1.5 shadow-card-hover">
                         <p class="truncate px-3 py-2 text-sm text-ink-muted">{{ $me->name }}</p>
                         @include('partials.account-links')
                     </div>
@@ -332,7 +299,7 @@
                     <a href="{{ route('login') }}" @if ($meActive) aria-current="page" @endif
                        @class([
                            'flex h-14 flex-col items-center justify-center gap-0.5 rounded-xl text-xs font-medium transition',
-                           'bg-bg-alt text-primary-600 ring-1 ring-secondary-400 dark:text-secondary-400' => $meActive,
+                           'bg-bg-alt text-ink' => $meActive,
                            'text-ink-muted' => ! $meActive,
                        ])>
                         <x-icon name="user" class="size-5" />
