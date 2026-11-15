@@ -1,5 +1,5 @@
 <x-layouts.app title="Inscription" description="Crée ton profil gratuit sur DevKora : nom, e-mail, pays, ville et mot de passe. Ton profil est en ligne en 2 minutes.">
-    <x-auth-card title="Ton profil en ligne en 2 minutes." subtitle="Nom, e-mail, pays, ville et mot de passe. Tes compétences viendront ensuite.">
+    <x-auth-card title="Inscription" subtitle="Nom, e-mail, pays, ville et mot de passe. Tes compétences viendront ensuite.">
         <form method="post" action="{{ route('register.store') }}" class="space-y-5" novalidate>
             @csrf
             <x-field label="Nom complet" name="name">

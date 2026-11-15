@@ -59,7 +59,7 @@ test('le bouton « Signaler » est sur les questions, réponses, articles, annon
 
 test('la file de modération : à partir de 250 cauris', function () {
     $this->actingAs(withCauris(249))->get('/moderation')->assertForbidden();
-    $this->actingAs(withCauris(250))->get('/moderation')->assertOk()->assertSee('Garde les échanges utiles et sains.');
+    $this->actingAs(withCauris(250))->get('/moderation')->assertOk()->assertSee('Modération');
 });
 
 test('masquer : contenu en 404 pour les autres, visible du modérateur, signalements classés, action journalisée', function () {
@@ -132,8 +132,8 @@ test('modifier les tags d\'une question d\'autrui : à partir de 500 cauris, jou
 
 test('page des privilèges : paliers de 11 et progression du membre', function () {
     $this->get('/privileges')->assertOk()
-        ->assertSee('Plus tu aides,')->assertSee('plus tu comptes.')
-        ->assertSee('Tes cauris débloquent de nouveaux rôles : la communauté se gère elle-même.')
+        ->assertSee('>Privilèges</h1>', false)->assertDontSee('plus tu comptes.')
+        ->assertSee('Tes cauris débloquent des droits : voter contre une réponse, modérer, modifier les tags.')
         ->assertSeeInOrder(['Vote négatif', '50', 'Modération communautaire', '250', 'Modifier les tags', '500']);
 
     $this->actingAs(withCauris(120))->get('/privileges')->assertSee('Encore 130 cauris pour débloquer « Modération communautaire ».');

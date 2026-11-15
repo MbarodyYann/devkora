@@ -31,8 +31,9 @@ test('l\'accueil est le fil des questions : titre, recherche et questions, sans 
 
     expect($html)
         ->toContain('<title>DevKora · Le point de rencontre des devs africains</title>')
-        ->toContain('Ce que les devs se demandent en ce moment.')
-        ->toContain('Cherche, lis et réponds sans attendre : la communauté vote, la meilleure réponse reste trouvable par tous.')
+        ->toContain('<h1 id="page-titre" class="text-[28px] leading-tight sm:text-[36px]">Questions</h1>')
+        ->toContain('Cherche une question, lis les réponses, ou pose la tienne.')
+        ->not->toContain('en ce moment.')
         ->toContain('role="search"')
         ->toContain('Webhook Wave refusé en production')
         ->not->toContain('Question masquée par la modération')
@@ -152,11 +153,11 @@ test('colonne latérale : tags locaux, prochains événements, annonces ouvertes
     $html = $this->get('/')->getContent();
     $aside = substr($html, strpos($html, 'data-feed-aside'), strpos($html, '</aside>') - strpos($html, 'data-feed-aside'));
 
-    expect($aside)->toContain('Les sujets d\'ici')
+    expect($aside)->toContain('Tags locaux')
         ->toContain('href="'.url('/').'?tag=wave"')
         ->not->toContain('?tag=laravel')->not->toContain('?tag=ussd')
         ->toContain('Prochains événements')->toContain('Meetup Laravel à Dakar')->not->toContain('Atelier déjà passé')
-        ->toContain('Des devs cherchent du renfort')->toContain('Mission ouverte de démonstration')
+        ->toContain('Annonces ouvertes')->toContain('Mission ouverte de démonstration')
         ->toContain('Équipe ouverte de démonstration')->not->toContain('Mission annulée de démonstration');
 
     // Le filtre par tag du lien.

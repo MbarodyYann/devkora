@@ -1,7 +1,7 @@
 @php use App\Support\Moderation; @endphp
 
 <x-layouts.app title="Modération" :noindex="true">
-    <h1 class="text-[38px] sm:text-5xl">Garde les échanges utiles et sains.</h1>
+    <h1 class="text-[28px] leading-tight sm:text-[36px]">Modération</h1>
     <p class="mt-3 max-w-2xl text-ink-soft">Les contenus signalés par la communauté. Masque ce qui doit l'être, classe sans suite le reste : chaque action est journalisée et réversible.</p>
 
     <section class="mt-10" aria-labelledby="file-titre">

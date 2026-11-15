@@ -103,7 +103,7 @@ test('ouvrir une notification la marque comme lue et mène au contenu ; jamais c
     $this->actingAs($question->user)->get(route('notifications.open', $notification->id))->assertRedirect($notification->data['url']);
     expect($notification->fresh()->read_at)->not->toBeNull();
 
-    $this->actingAs($question->user)->get('/notifications')->assertOk()->assertSee("Ce qui s'est passé pour toi.", false);
+    $this->actingAs($question->user)->get('/notifications')->assertOk()->assertSee('>Notifications</h1>', false);
     auth()->logout();
     $this->get('/notifications')->assertRedirect('/connexion');
 });

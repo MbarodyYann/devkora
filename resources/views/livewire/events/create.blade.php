@@ -2,7 +2,7 @@
     <a href="{{ route('events.index') }}" class="mb-4 inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-ink-muted hover:text-ink">
         <x-icon name="arrow-left" class="size-4" /> Tous les événements
     </a>
-    <h1 class="text-[38px] sm:text-5xl">Réunis les devs autour de toi.</h1>
+    <h1 class="text-[28px] leading-tight sm:text-[36px]">Proposer un événement</h1>
     <p class="mt-3 text-ink-soft">Un meetup, un atelier ou un hackathon : décris le programme, la date et le lieu. Les devs intéressés indiquent qu'ils participent.</p>
 
     <x-card class="mt-8">

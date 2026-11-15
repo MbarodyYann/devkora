@@ -23,9 +23,9 @@ function longBody(): string
 test('la liste reprend l\'en-tête de 11 ; « Écrire un article » pour les membres seulement', function () {
     $this->get('/articles')
         ->assertOk()
-        ->assertSee('Ce que tu as appris')
-        ->assertSee('peut débloquer un autre dev.', false)
-        ->assertSee('Tutoriels, retours d&#039;expérience et bonnes pratiques écrits par des devs du continent, pour ton contexte.', false)
+        ->assertSee('<h1 id="page-titre" class="text-[28px] leading-tight sm:text-[36px]">Articles</h1>', false)
+        ->assertSee('Tutoriels, retours d&#039;expérience et bonnes pratiques écrits par des devs du continent.', false)
+        ->assertDontSee('peut débloquer un autre dev.')
         ->assertDontSee('Écrire un article');
 
     $this->actingAs(writer())->get('/articles')->assertSee('Écrire un article');

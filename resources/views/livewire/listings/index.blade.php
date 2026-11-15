@@ -1,6 +1,7 @@
 <div>
+    @include('partials.page-header', ['title' => 'Annonces', 'subtitle' => 'Équipes à rejoindre et missions entre devs, payées en FCFA par Mobile Money (paiement simulé).', 'action' => ['label' => 'Publier une annonce', 'route' => 'listings.create']])
     {{-- Carte de filtres à cheval sur l'en-tête : compteur, type (segmenté), recherche, compétence, lieu. --}}
-    <x-card padding="p-3 sm:p-5" class="relative z-10 -mt-6 sm:-mt-10">
+    <x-card padding="p-3 sm:p-5" class="mt-5">
         <div class="mb-3 flex flex-col gap-3 border-b border-line pb-3 sm:flex-row sm:items-center sm:justify-between">
             @php($total = $this->listings->total())
             <p class="text-sm font-medium text-ink" aria-live="polite">

@@ -23,12 +23,7 @@ use Livewire\WithPagination;
  * Annonces entre devs (/annonces) : équipes et missions, par compétence, pays ou télétravail, recherche.
  */
 #[Title('Annonces')]
-#[Layout('components.layouts.app', ['pageHero' => [
-    'start' => 'Construis avec les tiens,',
-    'end' => 'd\'un pays à l\'autre.',
-    'subtitle' => 'Trouve des coéquipiers pour ton projet ou confie une mission à un dev de confiance, payée en FCFA par Mobile Money.',
-    'action' => ['label' => 'Publier une annonce', 'route' => 'listings.create'],
-]])]
+#[Layout('components.layouts.app', ['description' => 'Équipes à rejoindre et missions entre devs, payées en FCFA par Mobile Money (paiement simulé).'])]
 class Index extends Component
 {
     use WithPagination;

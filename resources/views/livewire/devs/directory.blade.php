@@ -1,7 +1,8 @@
 <div>
+    @include('partials.page-header', ['title' => 'Développeurs', 'subtitle' => 'Filtre par compétence, pays, langue et disponibilité. Les cauris montrent qui aide la communauté.'])
     {{-- Carte de filtres à cheval sur le bas de l'en-tête compact, compteur dedans (08). --}}
     @php($advanced = collect([$skill, $country, $language])->filter()->count())
-    <x-card padding="p-3 sm:p-5" class="relative z-10 -mt-6 sm:-mt-10" x-data="{ open: false }">
+    <x-card padding="p-3 sm:p-5" class="mt-5" x-data="{ open: false }">
         <div class="mb-3 flex flex-col gap-3 border-b border-line pb-3 sm:flex-row sm:items-center sm:justify-between">
             @php($total = $this->devs->total())
             <p class="text-sm font-medium text-ink" aria-live="polite">
@@ -53,7 +54,7 @@
 
     @if ($this->contributors->isNotEmpty())
         <section class="mt-8" aria-labelledby="utiles-titre">
-            <h2 id="utiles-titre" class="text-[28px] sm:text-[32px]">Les plus utiles ce mois-ci</h2>
+            <h2 id="utiles-titre" class="text-[28px] sm:text-[32px]">Contributeurs du mois</h2>
             <x-contributors :contributors="$this->contributors" :compact="true" class="mt-4" />
         </section>
     @endif

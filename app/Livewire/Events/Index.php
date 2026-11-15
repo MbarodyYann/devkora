@@ -17,12 +17,7 @@ use Livewire\Component;
  * Événements (/evenements) : à venir d'abord, puis passés ; filtres par lieu (ville ou en ligne) et par type.
  */
 #[Title('Événements')]
-#[Layout('components.layouts.app', ['pageHero' => [
-    'start' => 'Rencontre les devs de ta ville,',
-    'end' => 'ou en ligne.',
-    'subtitle' => 'Meetups, ateliers et hackathons proposés par la communauté : inscris-toi, et trouve des coéquipiers pour les hackathons.',
-    'action' => ['label' => 'Proposer un événement', 'route' => 'events.create'],
-]])]
+#[Layout('components.layouts.app', ['description' => 'Meetups, ateliers et hackathons proposés par la communauté.'])]
 class Index extends Component
 {
     public const ONLINE = 'en-ligne';
