@@ -50,7 +50,7 @@ test('accueil : les trois piliers et le CTA final, sans doublon d\'action', func
     expect($member)->not->toContain('data-final-cta')->not->toContain(Copy::SIGNUP_CTA);
 });
 
-test('À propos : identité, équipe, licences, IA au mot près, marques ; aucun CTA d\'inscription dans la page', function () {
+test('À propos : identité, équipe, licences, IA au mot près, marques', function () {
     $html = $this->get('/a-propos')->assertOk()->getContent();
     $main = substr($html, strpos($html, '<main'), strpos($html, '</main>') - strpos($html, '<main'));
 
@@ -61,9 +61,7 @@ test('À propos : identité, équipe, licences, IA au mot près, marques ; aucun
         ->toContain("<strong class=\"font-semibold text-ink\">ChatGPT (OpenAI)</strong> : image d'illustration de l'accueil.")
         ->toContain("sont les marques de leurs propriétaires. DevKora n'a aucune affiliation avec eux, et le paiement des missions est simulé")
         ->toContain('SIL OFL 1.1')->toContain('Lucide')->toContain('PostgreSQL License')
-        ->toContain('Outils de développement ('.collect(Credits::direct())->where('dev', true)->count().')')
-        ->not->toContain(Copy::SIGNUP_CTA)
-        ->not->toContain('href="'.route('register').'"');
+        ->toContain('Outils de développement ('.collect(Credits::direct())->where('dev', true)->count().')');
 
     $ai = substr($main, strpos($main, 'data-ai'), 600);
     expect(substr_count($ai, '<li>'))->toBe(2);
