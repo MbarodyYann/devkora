@@ -197,9 +197,10 @@
     <section class="pt-16 sm:pt-24" aria-labelledby="equipe-titre">
         <h2 id="equipe-titre" class="text-[32px] sm:text-[44px]">L'équipe</h2>
         <p class="mt-3 text-ink-soft"><strong class="font-semibold text-ink">Baobab Stack</strong> (Sénégal), pour le concours CADEV 2026 organisé par Systalink.</p>
-        <ul class="mt-6 grid max-w-3xl gap-3 sm:grid-cols-2">
-            <li class="rounded-2xl border border-line bg-surface p-5"><p class="font-serif text-xl text-ink">Yaya Niang</p><p class="text-sm text-ink-muted">Représentant de l'équipe</p></li>
+        <ul class="mt-6 grid max-w-4xl gap-3 sm:grid-cols-3">
+            <li class="rounded-2xl border border-line bg-surface p-5"><p class="font-serif text-xl text-ink">Yaya Niang</p><p class="text-sm text-ink-muted">Membre de l'équipe</p></li>
             <li class="rounded-2xl border border-line bg-surface p-5"><p class="font-serif text-xl text-ink">Aminata Sall</p><p class="text-sm text-ink-muted">Membre de l'équipe</p></li>
+            <li class="rounded-2xl border border-line bg-surface p-5"><p class="font-serif text-xl text-ink">Baydi Sao</p><p class="text-sm text-ink-muted">Membre de l'équipe</p></li>
         </ul>
     </section>
 
