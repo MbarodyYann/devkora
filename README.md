@@ -149,6 +149,6 @@ Toutes les dépendances sont sous licence permissive. Elles sont lues dans `comp
 
 ## Équipe
 
-**Baobab Stack** (Sénégal), pour le concours CADEV 2026 organisé par Systalink : Yaya Niang, Aminata Sall, Baydi Sao.
+**Baobab Stack** (Sénégal), pour le concours CADEV 2026 organisé par Systalink : Yaya Niang, Aminata Sall, Baidy Sao.
 
 Wave, Orange Money, Free Money, MTN MoMo et Moov Money sont les marques de leurs propriétaires. DevKora n'a aucune affiliation avec eux, et le paiement des missions est simulé : aucun argent réel n'est débité.

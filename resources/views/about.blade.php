@@ -200,7 +200,7 @@
         <ul class="mt-6 grid max-w-4xl gap-3 sm:grid-cols-3">
             <li class="rounded-2xl border border-line bg-surface p-5"><p class="font-serif text-xl text-ink">Yaya Niang</p><p class="text-sm text-ink-muted">Membre de l'équipe</p></li>
             <li class="rounded-2xl border border-line bg-surface p-5"><p class="font-serif text-xl text-ink">Aminata Sall</p><p class="text-sm text-ink-muted">Membre de l'équipe</p></li>
-            <li class="rounded-2xl border border-line bg-surface p-5"><p class="font-serif text-xl text-ink">Baydi Sao</p><p class="text-sm text-ink-muted">Membre de l'équipe</p></li>
+            <li class="rounded-2xl border border-line bg-surface p-5"><p class="font-serif text-xl text-ink">Baidy Sao</p><p class="text-sm text-ink-muted">Membre de l'équipe</p></li>
         </ul>
     </section>
 
