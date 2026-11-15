@@ -42,7 +42,7 @@ test('la navigation ne montre que les rubriques qui existent', function () {
         ->and(Route::has('cities.index'))->toBeFalse();
 });
 
-test('chaque page : français, thème sans flash, favicon, lien d\'évitement, pied de page simple', function () {
+test('chaque page : français, thème sans flash, favicon, lien d\'évitement, pied de page lisible', function () {
     foreach (publicPages() as $url) {
         $html = $this->get($url)->getContent();
 
@@ -52,8 +52,7 @@ test('chaque page : français, thème sans flash, favicon, lien d\'évitement, p
             ->toContain('href="/favicon.svg"')
             ->toContain('Aller au contenu')
             ->toContain('Le point de rencontre des développeurs africains pour travailler, apprendre et grandir ensemble.')
-            // Pied de page simple : plus de grand texte défilant.
-            ->not->toContain('data-defile')
+            ->toContain('<span class="italic text-primary-600 dark:text-secondary-400">Construis avec les tiens.</span>')
             ->toContain('aria-label="Thème"');
     }
 });
@@ -115,13 +114,11 @@ test('charte : aucun dégradé, aucun point devant un texte, la palette par déf
         ->and($css.$views)->not->toMatch('/overflow-x:\s*clip|overflow-x-clip/');
 });
 
-test('boutons : le principal en aplat ambre, le secondaire en contour gris', function () {
+test('tous les boutons sont ambre : aplat ou contour', function () {
     $css = file_get_contents(resource_path('css/app.css'));
 
     expect($css)->toMatch('/@utility btn-amber \{\s+color: var\(--color-primary-950\);\s+background-color: var\(--color-secondary-400\);/')
-        ->toMatch('/@utility btn-outline \{\s+color: var\(--color-ink\);\s+background-color: transparent;\s+border: 1px solid color-mix\(in srgb, var\(--color-ink\) 28%, transparent\);/')
-        // À plat : aucun soulèvement au survol.
-        ->not->toContain('translateY');
+        ->toMatch('/@utility btn-outline \{\s+color: var\(--color-ink\);\s+background-color: transparent;\s+border: 1.5px solid var\(--color-secondary-400\);/');
 
     // Chaque <button> visible des vues porte une classe de bouton ambre, ou est un contrôle d'interface
     // (menus, segmentés, liens de pagination) sans fond coloré.
@@ -129,25 +126,18 @@ test('boutons : le principal en aplat ambre, le secondaire en contour gris', fun
     expect($views)->not->toMatch('/<button[^>]*class="[^"]*\bbg-primary-\d/');
 });
 
-test('navigation sobre : une barre opaque collée en haut, sans flou ni transparence ; état actif discret', function () {
+test('aucun texte lisible sous la navigation : opaque sous 768 px, 96 % et flou au-dessus', function () {
     $css = file_get_contents(resource_path('css/app.css'));
-    $html = $this->get('/devs')->getContent();
+    $nav = substr($css, strpos($css, '@utility nav-glass'), strpos($css, '@utility nav-menu') - strpos($css, '@utility nav-glass'));
 
-    expect($css)->not->toContain('backdrop-filter')->not->toContain('@utility nav-glass')->not->toContain('@utility nav-on-hero')
-        ->and($html)->toContain('<div class="sticky top-0 z-40 border-b border-line bg-bg">')
-        ->toMatch('/aria-current="page"[^>]*bg-bg-alt text-ink[^>]*>\s*Devs/');
-});
-
-test('couleurs : gris neutres partout ; plus de bandeau indigo ni d\'ambre décoratif dans les composants', function () {
-    $components = collect(File::allFiles(resource_path('views/components')))
-        ->reject(fn ($f) => in_array($f->getFilename(), ['field.blade.php', 'input.blade.php', 'select.blade.php', 'textarea.blade.php', 'simulation-notice.blade.php', 'stars.blade.php'], true))
-        ->map(fn ($f) => $f->getContents())->join("\n");
-
-    // L'ambre ne reste que dans le bouton principal (btn-amber) ; les champs en erreur, l'avis de simulation
-    // et les étoiles d'un avis gardent leur ambre fonctionnel.
-    expect($components)->not->toMatch('/(bg|text|ring|border|stroke|fill|decoration)-secondary-\d/')
-        ->not->toMatch('/bg-primary-(800|900|950)/')
-        ->not->toContain('italic text-secondary');
+    expect($nav)->toContain('color-mix(in srgb, var(--color-bg-alt) 96%, transparent)')
+        ->toContain('color-mix(in srgb, var(--color-primary-800) 96%, transparent)')
+        ->toContain('color-mix(in srgb, var(--color-primary-950) 96%, transparent)')
+        ->not->toMatch('/\b([0-8]\d|9[0-5])%/')
+        // Flou seulement à partir de 768 px : chaque backdrop-filter est dans un bloc @media (min-width: 768px).
+        ->toContain('min-width: 768px')
+        ->not->toContain('min-width: 1024px')
+        ->and(preg_match_all('/^\s{4}(-webkit-)?backdrop-filter/m', $nav))->toBe(0);
 });
 
 test('aucun doublon de lien d\'inscription ou de connexion sur les pages d\'authentification', function () {

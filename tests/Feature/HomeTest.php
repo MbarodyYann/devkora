@@ -31,7 +31,7 @@ test('l\'accueil est le fil des questions : titre, recherche et questions, sans 
 
     expect($html)
         ->toContain('<title>DevKora · Le point de rencontre des devs africains</title>')
-        ->toContain('Ce que les devs se demandent en ce moment.')
+        ->toContain('Ce que les devs se demandent <em class="font-serif italic text-secondary-400">en ce moment.</em>')
         ->toContain('Cherche, lis et réponds sans attendre : la communauté vote, la meilleure réponse reste trouvable par tous.')
         ->toContain('role="search"')
         ->toContain('Webhook Wave refusé en production')

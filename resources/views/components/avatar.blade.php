@@ -16,6 +16,6 @@
     <img src="{{ $url }}" alt="" width="256" height="256" loading="lazy" decoding="async"
          {{ $attributes->merge(['class' => "$dimensions shrink-0 rounded-full object-cover ring-2 ring-surface"]) }}>
 @else
-    <span {{ $attributes->merge(['class' => "$dimensions inline-flex shrink-0 items-center justify-center rounded-full bg-bg-alt font-sans font-medium text-ink-soft ring-2 ring-surface"]) }}
+    <span {{ $attributes->merge(['class' => "$dimensions inline-flex shrink-0 items-center justify-center rounded-full bg-primary-50 font-serif font-medium text-primary-700 ring-2 ring-surface dark:bg-primary-900 dark:text-primary-200"]) }}
           aria-hidden="true">{{ $user->initials() }}</span>
 @endif

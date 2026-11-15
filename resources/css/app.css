@@ -106,50 +106,43 @@
     --color-secondary-900: #5c3c06;
     --color-secondary-950: #3d2402;
 
-    /* Gris neutres, redéfinis en sombre plus bas. Avec l'indigo (liens, repères) et l'ambre (bouton principal),
-       ce sont les seules couleurs de l'interface. */
+    /* Neutres, redéfinis en sombre plus bas */
     --color-bg: #ffffff;
-    --color-bg-alt: #f5f6f7;
+    --color-bg-alt: #f7f8fb;
     --color-surface: #ffffff;
-    --color-line: rgb(17 24 39 / 0.12);
-    --color-ink: #16181d;
-    --color-ink-soft: #3d424b;
-    --color-ink-muted: #5c626d;
+    --color-line: rgb(20 26 46 / 0.08);
+    --color-ink: #141a2e;
+    --color-ink-soft: #3f4659;
+    --color-ink-muted: #5f6679;
 
     --font-sans: 'Schibsted Grotesk', ui-sans-serif, system-ui, 'Segoe UI', Roboto, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji';
     --font-serif: 'Newsreader', ui-serif, Georgia, serif;
     --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
-    /* Deux graisses seulement : 400 (texte) et 500 (titres, libellés, boutons). */
-    --font-weight-semibold: 500;
-    --font-weight-bold: 500;
-
-    /* Rayons sur une grille de 4 px : 8 px (boutons, champs) et 12 px (cartes, menus). */
     --radius-btn: 8px;
-    --radius-field: 8px;
-    --radius-nav: 0px;
-    --radius-2xl: 12px;
-    --radius-card: 12px;
+    --radius-field: 10px;
+    --radius-nav: 12px;
+    --radius-card: 24px;
 
-    /* Cartes plates : une bordure fine, pas d'ombre portée. Seuls les menus ouverts gardent une ombre légère. */
-    --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.06);
-    --shadow-card: 0 0 0 0 transparent;
-    --shadow-card-hover: 0 4px 16px rgb(0 0 0 / 0.08);
+    --shadow-soft: 0 2px 8px rgb(0 0 0 / 0.05);
+    --shadow-card: 0 2px 18px rgb(17 17 17 / 0.05);
+    --shadow-card-hover: 0 8px 30px rgb(17 17 17 / 0.08);
 
     --container-page: 75rem; /* 1 200 px */
 }
 
 @layer base {
     .dark {
-        --color-bg: #111317;
-        --color-bg-alt: #16191e;
-        --color-surface: #1a1d23;
-        --color-line: rgb(255 255 255 / 0.12);
-        --color-ink: #f2f3f5;
-        --color-ink-soft: #c8ccd3;
-        --color-ink-muted: #9da3ae;
-        --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.3);
-        --shadow-card-hover: 0 4px 16px rgb(0 0 0 / 0.4);
+        --color-bg: #0b1022;
+        --color-bg-alt: #10172e;
+        --color-surface: #141c38;
+        --color-line: rgb(255 255 255 / 0.08);
+        --color-ink: #f3f4f8;
+        --color-ink-soft: #c5ccdc;
+        --color-ink-muted: #97a1b8;
+        --shadow-soft: 0 2px 8px rgb(0 0 0 / 0.2);
+        --shadow-card: 0 2px 18px rgb(0 0 0 / 0.25);
+        --shadow-card-hover: 0 8px 30px rgb(0 0 0 / 0.35);
         color-scheme: dark;
     }
 
@@ -171,27 +164,8 @@
     h3 {
         @apply font-serif text-ink;
         font-weight: 500;
-        letter-spacing: -0.01em;
-        line-height: 1.2;
-    }
-
-    /* Échelle courte : titre de page, titre de section, sous-titre ; le texte est en 16 px, le petit en 14 px. */
-    h1 {
-        font-size: 1.75rem;
-    }
-
-    h2 {
-        font-size: 1.5rem;
-    }
-
-    h3 {
-        font-size: 1.25rem;
-    }
-
-    @media (min-width: 640px) {
-        h1 {
-            font-size: 2.25rem;
-        }
+        letter-spacing: -0.02em;
+        line-height: 1.08;
     }
 
     :focus-visible {
@@ -214,15 +188,27 @@
     }
 }
 
-/* Bouton principal : aplat ambre, texte primary-950, dans les deux thèmes. L'ambre est réservé à cette action.
-   À plat ; la couleur ne change pas au survol, une ombre légère suffit. */
+/* Bouton principal (08, règle 4) : aplat ambre, texte primary-950, dans les deux thèmes.
+   Au survol, ombre plus marquée et léger soulèvement ; la couleur ne change pas. */
 @utility btn-amber {
     color: var(--color-primary-950);
     background-color: var(--color-secondary-400);
-    transition: box-shadow 150ms;
+    box-shadow:
+        0 1px 2px rgb(20 26 46 / 0.12),
+        0 4px 12px rgb(20 26 46 / 0.12);
+    transition:
+        box-shadow 150ms,
+        transform 150ms;
 
     &:hover {
-        box-shadow: 0 2px 6px rgb(0 0 0 / 0.16);
+        box-shadow:
+            0 2px 4px rgb(20 26 46 / 0.16),
+            0 10px 22px rgb(20 26 46 / 0.2);
+        transform: translateY(-1px);
+    }
+
+    &:active {
+        transform: translateY(0);
     }
 
     &:focus-visible {
@@ -234,18 +220,19 @@
     &[aria-disabled='true'] {
         opacity: 0.5;
         box-shadow: none;
+        transform: none;
     }
 }
 
-/* Bouton secondaire : contour gris, fond transparent, texte ink. */
+/* Bouton secondaire : contour ambre de 1,5 px, fond transparent, texte ink. */
 @utility btn-outline {
     color: var(--color-ink);
     background-color: transparent;
-    border: 1px solid color-mix(in srgb, var(--color-ink) 28%, transparent);
+    border: 1.5px solid var(--color-secondary-400);
     transition: background-color 150ms;
 
     &:hover {
-        background-color: var(--color-bg-alt);
+        background-color: rgb(249 178 24 / 0.12);
     }
 
     &:focus-visible {
@@ -265,6 +252,95 @@
 
     &:where(.dark, .dark *) {
         background-image: url('/images/dots-dark.svg');
+    }
+}
+
+/* Navigation flottante sur fond clair (08) : aucun texte de la page ne doit se lire au travers.
+   Opaque sous 768 px (3G, pas de flou) ; à partir de 768 px, 96 % et flou. */
+@utility nav-glass {
+    background-color: var(--color-bg-alt);
+    border: 1px solid var(--color-line);
+
+    &:where(.dark, .dark *) {
+        background-color: var(--color-primary-950);
+    }
+
+    @media (min-width: 768px) {
+        background-color: color-mix(in srgb, var(--color-bg-alt) 96%, transparent);
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
+
+        &:where(.dark, .dark *) {
+            background-color: color-mix(in srgb, var(--color-primary-950) 96%, transparent);
+        }
+    }
+}
+
+/* Navigation posée sur un bandeau indigo (accueil, en-têtes de liste) : même aplat que le bandeau, donc invisible
+   tout en haut, et opaque dès qu'on défile, même sans JavaScript (08 : aucun texte lisible sous la navigation).
+   Jetons neutres redéfinis en clair pour que tous ses composants passent en blanc. */
+@utility nav-on-hero {
+    --color-ink: #ffffff;
+    --color-ink-soft: rgb(255 255 255 / 0.85);
+    --color-ink-muted: rgb(255 255 255 / 0.78);
+    --color-line: rgb(255 255 255 / 0.14);
+    --color-surface: rgb(255 255 255 / 0.12);
+    --color-bg-alt: rgb(255 255 255 / 0.08);
+    background-color: var(--color-primary-800);
+    border: 1px solid rgb(255 255 255 / 0.14);
+
+    &:where(.dark, .dark *) {
+        background-color: var(--color-primary-950);
+    }
+
+    /* « Kora » en ambre sur l'indigo (primary-600 y serait illisible), comme en sombre. */
+    & .logo-end {
+        color: var(--color-secondary-400);
+    }
+
+    /* À partir de 768 px : 96 % et flou. */
+    @media (min-width: 768px) {
+        background-color: color-mix(in srgb, var(--color-primary-800) 96%, transparent);
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
+
+        &:where(.dark, .dark *) {
+            background-color: color-mix(in srgb, var(--color-primary-950) 96%, transparent);
+        }
+    }
+}
+
+/* Menus déroulants : jetons normaux, même ouverts depuis une navigation posée sur l'indigo. */
+@utility nav-menu {
+    --color-ink: #141a2e;
+    --color-ink-soft: #3f4659;
+    --color-ink-muted: #5f6679;
+    --color-line: rgb(20 26 46 / 0.08);
+    --color-surface: #ffffff;
+    --color-bg-alt: #f7f8fb;
+
+    &:where(.dark, .dark *) {
+        --color-ink: #f3f4f8;
+        --color-ink-soft: #c5ccdc;
+        --color-ink-muted: #97a1b8;
+        --color-line: rgb(255 255 255 / 0.08);
+        --color-surface: #141c38;
+        --color-bg-alt: #10172e;
+    }
+}
+
+/* Texte défilant du pied de page : deux copies, la piste glisse de la moitié de sa largeur. */
+@keyframes defile {
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+@utility defile {
+    animation: defile 40s linear infinite;
+
+    @media (prefers-reduced-motion: reduce) {
+        animation: none;
     }
 }
 
@@ -292,7 +368,7 @@
         & h3,
         & h4 {
             font-family: var(--font-sans);
-            font-weight: 600;
+            font-weight: 700;
             letter-spacing: 0;
             color: var(--color-ink);
             margin-top: 1.5em;
@@ -340,7 +416,7 @@
         }
 
         & blockquote {
-            border-left: 3px solid var(--color-line);
+            border-left: 3px solid var(--color-secondary-400);
             padding-left: 1em;
             color: var(--color-ink-muted);
         }
@@ -419,13 +495,14 @@
         min-height: 2rem;
         padding: 0 0.7rem;
         border-radius: 7px;
-        font-weight: 500;
-        color: var(--color-primary-100);
-        border: 1px solid rgb(255 255 255 / 0.2);
+        font-weight: 600;
+        color: var(--color-primary-950);
+        background-color: var(--color-secondary-400);
     }
 
+    /* Bouton ambre : la couleur ne change pas au survol, seule l'ombre apparaît. */
     .code-copy:hover {
-        background-color: rgb(255 255 255 / 0.08);
+        box-shadow: 0 2px 8px rgb(0 0 0 / 0.35);
     }
 
     .code-block pre {

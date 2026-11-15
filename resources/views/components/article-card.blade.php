@@ -2,7 +2,7 @@
 
 {{-- Carte article (08) : catégorie, titre en Newsreader 22 px, extrait, temps de lecture, nombre de « Utile »,
      auteur avec avatar. --}}
-<article {{ $attributes->merge(['class' => 'relative flex h-full min-w-0 flex-col rounded-2xl border border-line bg-surface p-5 shadow-card transition hover:shadow-card-hover sm:rounded-card sm:p-6']) }}>
+<article {{ $attributes->merge(['class' => 'relative flex h-full min-w-0 flex-col rounded-2xl border border-line bg-surface p-5 shadow-card transition hover:-translate-y-0.5 hover:shadow-card-hover motion-reduce:hover:translate-y-0 sm:rounded-card sm:p-6']) }}>
     <x-chip class="self-start">{{ $article->category->label() }}</x-chip>
     <h3 class="mt-4 font-serif text-[22px] leading-snug">
         <a href="{{ route('articles.show', $article) }}" class="text-ink after:absolute after:inset-0 hover:text-primary-600 dark:hover:text-primary-300">{{ $article->title }}</a>

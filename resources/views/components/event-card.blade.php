@@ -1,7 +1,7 @@
 @props(['event'])
 
 {{-- Carte événement : type, date, titre, lieu ou en ligne, participants. --}}
-<article {{ $attributes->merge(['class' => 'relative flex h-full min-w-0 flex-col rounded-2xl border border-line bg-surface p-5 shadow-card transition hover:shadow-card-hover sm:rounded-card sm:p-6']) }}>
+<article {{ $attributes->merge(['class' => 'relative flex h-full min-w-0 flex-col rounded-2xl border border-line bg-surface p-5 shadow-card transition hover:-translate-y-0.5 hover:shadow-card-hover motion-reduce:hover:translate-y-0 sm:rounded-card sm:p-6']) }}>
     <div class="flex flex-wrap items-center gap-2">
         <x-chip :tone="$event->type === App\Enums\EventType::Hackathon ? 'warm' : 'info'">{{ $event->type->label() }}</x-chip>
         @if ($event->isPast())

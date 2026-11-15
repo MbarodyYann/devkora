@@ -23,7 +23,7 @@ test('l\'annuaire affiche l\'en-tête de la charte et des cartes de devs', funct
     $this->get('/devs')
         ->assertOk()
         ->assertSee("Le bon dev est peut\u{2011}être")
-        ->assertSee('dans ta ville.', false)
+        ->assertSee('<em class="font-serif italic text-secondary-400">dans ta ville.</em>', false)
         ->assertSee('Filtre par compétence, pays et langue : les cauris montrent qui aide la communauté et qui a déjà livré.')
         ->assertSee('3 devs')
         ->assertSee('Moussa Diop')

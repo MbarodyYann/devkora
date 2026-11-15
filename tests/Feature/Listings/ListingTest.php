@@ -21,7 +21,7 @@ test('la liste reprend l\'en-tête de 11 ; « Publier une annonce » pour les me
     $this->get('/annonces')
         ->assertOk()
         ->assertSee('Construis avec les tiens,')
-        ->assertSee('d&#039;un pays à l&#039;autre.', false)
+        ->assertSee('<em class="font-serif italic text-secondary-400">d&#039;un pays à l&#039;autre.</em>', false)
         ->assertSee('Trouve des coéquipiers pour ton projet ou confie une mission à un dev de confiance, payée en FCFA par Mobile Money.')
         ->assertDontSee('Publier une annonce');
 

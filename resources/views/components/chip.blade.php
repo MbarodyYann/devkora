@@ -1,13 +1,15 @@
 @props(['tone' => 'info'])
 
-{{-- Étiquette texte seul : aucun point ni tiret devant, en gris neutre. Le sens est porté par le mot.
-     Seul le ton « done » (Terminée, Acceptée, Résolue) se distingue : aplat indigo et coche.
-     « muted » (Indisponible, Close) est plus effacé. --}}
+{{-- Étiquette texte seul (08, règle 3) : aucun point ni tiret devant. Tons :
+     info (Ouvert aux collaborations, Ouverte) · warm (En cours, Nouveau) · done (Terminée, Acceptée : coche)
+     · muted (Indisponible, Close) · neutral (compétences). L'ambre n'est jamais du texte sur fond clair. --}}
 @php
     $classes = match ($tone) {
-        'done' => 'bg-primary-600 text-white',
+        'warm' => 'bg-secondary-100 text-secondary-800 dark:bg-secondary-950 dark:text-secondary-300',
+        'done' => 'bg-primary-600 text-white dark:bg-secondary-400 dark:text-primary-950',
         'muted' => 'bg-bg-alt text-ink-muted ring-1 ring-line',
-        default => 'bg-bg-alt text-ink-soft ring-1 ring-line',
+        'neutral' => 'bg-bg-alt text-ink-soft ring-1 ring-line',
+        default => 'bg-primary-50 text-primary-700 dark:bg-primary-900 dark:text-primary-200',
     };
 @endphp
 
