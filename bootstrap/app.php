@@ -16,6 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [TouchLastSeen::class]);
         // Un membre connecté qui ouvre /connexion ou /inscription revient à l'accueil.
         $middleware->redirectUsersTo('/');
+        // En production, le proxy de l'hébergeur termine le HTTPS : on lit X-Forwarded-Proto (TRUSTED_PROXIES=*).
+        if ($proxies = env('TRUSTED_PROXIES')) {
+            $middleware->trustProxies(at: $proxies === '*' ? '*' : explode(',', $proxies));
+        }
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
