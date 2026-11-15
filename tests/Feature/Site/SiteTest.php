@@ -1,54 +1,12 @@
 <?php
 
-use App\Enums\ReputationReason;
-use App\Models\Answer;
 use App\Models\Article;
 use App\Models\Event;
 use App\Models\Listing;
 use App\Models\Question;
 use App\Models\User;
-use App\Services\ReputationService;
 use App\Support\Copy;
 use App\Support\Credits;
-
-test('accueil complet, dans l\'ordre de 08', function () {
-    $resolved = Question::factory()->create();
-    $resolved->forceFill(['accepted_answer_id' => Answer::factory()->for($resolved)->create()->id])->save();
-    Article::factory()->create();
-    Listing::factory()->create();
-    Event::factory()->create();
-    $answer = Answer::factory()->create();
-    app(ReputationService::class)->award($answer->user, ReputationReason::AnswerAccepted, $answer);
-
-    $this->get('/')->assertSeeInOrder([
-        'Le point de rencontre',
-        'Gratuit, sans abonnement',
-        'Devs inscrits',
-        'Ici, on échange.',
-        'Ce que les devs se demandent en ce moment.',
-        'Ce que les devs du continent ont appris, pour toi.',
-        'Des devs cherchent du renfort, peut-être le tien.',
-        'Les prochaines occasions de se rencontrer.',
-        'Ils ont fait avancer la communauté ce mois-ci.',
-        'Ne reste plus seul',
-    ]);
-});
-
-test('accueil : les trois piliers et le CTA final, sans doublon d\'action', function () {
-    $html = $this->get('/')->getContent();
-
-    expect($html)->toContain('Pose tes questions, partage tes tutoriels : la meilleure réponse reste trouvable par tous.')
-        ->toContain('Trouve des coéquipiers d&#039;autres pays ou confie une mission à un dev de confiance.')
-        ->toContain('Combien facturer ? Quelles compétences sont recherchées ? Les chiffres réels de la communauté.')
-        ->toContain('<em class="font-serif italic text-secondary-400">face à ton code.</em>')
-        // Le même libellé partout : navigation, hero, CTA final.
-        ->and(substr_count($html, '>'.Copy::SIGNUP_CTA.'</a>'))->toBe(3)
-        ->and(substr_count($html, Copy::SIGNUP_REASSURANCE))->toBe(2);
-
-    // Un membre n'a ni le CTA final ni l'inscription.
-    $member = $this->actingAs(User::factory()->withProfile()->create())->get('/')->getContent();
-    expect($member)->not->toContain('data-final-cta')->not->toContain(Copy::SIGNUP_CTA);
-});
 
 test('À propos : identité, équipe, licences, IA au mot près, marques ; aucun CTA d\'inscription dans la page', function () {
     $html = $this->get('/a-propos')->assertOk()->getContent();
@@ -107,7 +65,7 @@ test('SEO : titre, description, canonical sans filtres, Open Graph et Twitter, i
         ->toContain('<meta property="og:title" content="Intégrer Wave · DevKora">')
         ->toContain('<meta property="og:type" content="article">');
 
-    expect($this->get('/questions?statut=resolues')->getContent())->toContain('<link rel="canonical" href="'.url('/questions').'">');
+    expect($this->get('/?statut=resolues')->getContent())->toContain('<link rel="canonical" href="'.url('/').'">');
     expect(array_slice(getimagesize(public_path('images/og-default.png')), 0, 2))->toBe([1200, 630]);
 });
 

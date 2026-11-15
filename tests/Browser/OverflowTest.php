@@ -50,14 +50,14 @@ test('aucun débordement horizontal à 360 px, en clair et en sombre', function 
         $openMission = Listing::where('user_id', $aissatou->id)->where('type', 'mission')->where('status', 'open')->sole();
         $doneMission = Listing::where('status', 'completed')->has('review')->first();
         $team = Listing::where('type', 'team')->has('acceptedProposals')->first();
-        $visitor = measure(['/pouls', '/pouls?pays=SN', '/a-propos', '/villes/dakar', '/evenements', "/evenements/{$hackathon->id}", '/privileges', '/annonces', "/annonces/{$openMission->id}", "/annonces/{$doneMission->id}", "/annonces/{$team->id}", '/articles', "/articles/{$article->slug}", '/questions', '/questions?statut=resolues', "/questions/{$question->id}", '/', '/devs', '/devs?competence=laravel', "/devs/{$moussa->id}", "/devs/{$longest->id}", '/connexion', '/inscription', '/mot-de-passe-oublie', '/devs/999999']);
-        $member = measure(['/', '/devs', "/devs/{$moussa->id}", "/devs/{$moussa->id}/modifier", '/questions', '/questions/poser', "/questions/{$question->id}", '/articles/ecrire', '/annonces/publier', "/annonces/{$openMission->id}", "/evenements/{$hackathon->id}", '/evenements/proposer', '/notifications', '/privileges'], 'Moussa');
+        $visitor = measure(['/pouls', '/pouls?pays=SN', '/a-propos', '/villes/dakar', '/evenements', "/evenements/{$hackathon->id}", '/privileges', '/annonces', "/annonces/{$openMission->id}", "/annonces/{$doneMission->id}", "/annonces/{$team->id}", '/articles', "/articles/{$article->slug}", '/?statut=recentes', '/?statut=resolues', "/questions/{$question->id}", '/', '/devs', '/devs?competence=laravel', "/devs/{$moussa->id}", "/devs/{$longest->id}", '/connexion', '/inscription', '/mot-de-passe-oublie', '/devs/999999']);
+        $member = measure(['/', '/devs', "/devs/{$moussa->id}", "/devs/{$moussa->id}/modifier", '/?statut=sans-reponse', '/questions/poser', "/questions/{$question->id}", '/articles/ecrire', '/annonces/publier', "/annonces/{$openMission->id}", "/evenements/{$hackathon->id}", '/evenements/proposer', '/notifications', '/privileges'], 'Moussa');
         $moderator = measure(['/moderation'], 'Koffi');
         $homeWeights = [weigh(375), weigh(1366)];
         $author = measure(["/annonces/{$openMission->id}", "/annonces/{$openMission->id}/reponses/{$openMission->proposals()->first()->id}/paiement"], 'Aïssatou');
         $desktop = measure(['/', '/devs', "/devs/{$moussa->id}", "/questions/{$question->id}", "/articles/{$article->slug}", "/annonces/{$openMission->id}"], width: 1280);
         // Sans JavaScript (script pas encore arrivé en 3G) : la bande au-dessus de la barre reste couverte.
-        $noScript = measure(['/', '/questions', "/devs/{$moussa->id}"], javascript: false);
+        $noScript = measure(['/', '/?statut=resolues', "/devs/{$moussa->id}"], javascript: false);
         // I2 : l'accueil et une fiche d'article tiennent aussi à 320 px (petits Android).
         $narrow = measure(['/', "/articles/{$article->slug}"], width: 320);
     } finally {

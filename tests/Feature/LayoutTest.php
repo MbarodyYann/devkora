@@ -78,7 +78,8 @@ test('Livewire seulement sur les pages qui ont un composant, Alpine seul ailleur
     expect(str_contains($html, 'livewire.min.js') || str_contains($html, 'livewire.js'))->toBe($livewire)
         ->and(str_contains($html, 'alpine'))->toBe(! $livewire);
 })->with([
-    'accueil' => ['/', false],
+    'accueil (fil des questions)' => ['/', true],
+    'privilèges' => ['/privileges', false],
     'connexion' => ['/connexion', false],
     'annuaire' => ['/devs', true],
 ]);

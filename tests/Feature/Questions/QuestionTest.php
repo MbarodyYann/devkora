@@ -14,26 +14,11 @@ function member(array $attributes = []): User
     return User::factory()->withProfile()->create($attributes);
 }
 
-test('la liste reprend l\'en-tête de la charte ; le membre a « Poser une question », pas le visiteur', function () {
-    $this->get('/questions')
-        ->assertOk()
-        ->assertSee('Ta question ne se perdra plus')
-        ->assertSee('<em class="font-serif italic text-secondary-400">dans un groupe WhatsApp.</em>', false)
-        ->assertSee('Pose-la en français avec les bons tags : la communauté répond et vote, la meilleure réponse reste trouvable par tous.')
-        ->assertDontSee('Poser une question');
-
-    // Une fois dans l'en-tête, une fois dans le menu global « Publier » (fermé par défaut).
-    $html = $this->actingAs(member())->get('/questions')->getContent();
-    $menu = substr($html, strpos($html, 'data-publish-menu'), 2000);
-    expect(substr_count($html, 'Poser une question'))->toBe(2)
-        ->and($menu)->toContain('Poser une question');
-});
-
 test('« Questions » apparaît dans la navigation', function () {
     $this->get('/devs')->assertSee('>Questions<', false);
 });
 
-test('filtres : récentes, sans réponse, résolues, par tag', function () {
+test('filtres : en ce moment, récentes, sans réponse, résolues, par tag', function () {
     $wave = Skill::factory()->local()->create(['name' => 'Wave', 'slug' => 'wave']);
     $open = Question::factory()->create(['title' => 'Question ouverte sans réponse ici']);
     $answered = Question::factory()->create(['title' => 'Question avec une réponse ici', 'answers_count' => 1]);
@@ -44,6 +29,7 @@ test('filtres : récentes, sans réponse, résolues, par tag', function () {
     $titles = fn (array $filters) => Livewire::test(Index::class)->set($filters)->instance()->questions()->pluck('title')->sort()->values()->all();
 
     expect($titles([]))->toHaveCount(3)
+        ->and($titles(['status' => 'recentes']))->toHaveCount(3)
         ->and($titles(['status' => 'sans-reponse']))->toBe([$open->title])
         ->and($titles(['status' => 'resolues']))->toBe([$resolved->title])
         ->and($titles(['tag' => 'wave']))->toBe([$resolved->title]);

@@ -10,21 +10,23 @@ use Illuminate\Support\Facades\Route;
  */
 class Navigation
 {
-    /** @var list<array{label: string, route: string, active: string, icon: string, wide?: bool}> */
+    /** @var list<array{label: string, route: string, active: string|list<string>, icon: string, wide?: bool}> */
     private const ITEMS = [
-        ['label' => 'Questions', 'route' => 'questions.index', 'active' => 'questions.*', 'icon' => 'message'],
+        // L'accueil est le fil des questions : « Questions » y mène et reste actif sur une question.
+        ['label' => 'Questions', 'route' => 'home', 'active' => ['home', 'questions.*'], 'icon' => 'message'],
         ['label' => 'Articles', 'route' => 'articles.index', 'active' => 'articles.*', 'icon' => 'book'],
         ['label' => 'Annonces', 'route' => 'listings.index', 'active' => 'listings.*', 'icon' => 'megaphone'],
         ['label' => 'Événements', 'route' => 'events.index', 'active' => 'events.*', 'icon' => 'calendar'],
         ['label' => 'Devs', 'route' => 'devs.index', 'active' => 'devs.*', 'icon' => 'users'],
-        // Le Pouls ne tient dans la barre du haut qu'à partir de 1 280 px ; en dessous : pied de page et accueil.
+        // Le Pouls et À propos ne tiennent dans la barre du haut qu'à partir de 1 280 px ; en dessous : pied de page.
         ['label' => 'Le Pouls', 'route' => 'pulse', 'active' => 'pulse', 'icon' => 'chart', 'wide' => true],
+        ['label' => 'À propos', 'route' => 'about', 'active' => 'about', 'icon' => 'flag', 'wide' => true],
     ];
 
     /**
      * Rubriques de la navigation du haut.
      *
-     * @return list<array{label: string, route: string, active: string, icon: string}>
+     * @return list<array{label: string, route: string, active: string|list<string>, icon: string}>
      */
     public static function main(): array
     {
@@ -47,13 +49,13 @@ class Navigation
     }
 
     /**
-     * Rubriques de la barre du bas mobile : 4 rubriques et « Moi » (ajouté par le gabarit). Les Événements et
-     * Le Pouls n'y tiennent pas : ils sont accessibles depuis l'accueil, /annonces et le menu « Moi ».
+     * Rubriques de la barre du bas mobile : 4 rubriques et « Moi » (ajouté par le gabarit). Les Événements,
+     * Le Pouls et À propos n'y tiennent pas : ils sont accessibles depuis l'accueil, le pied de page et le menu « Moi ».
      *
-     * @return list<array{label: string, route: string, active: string, icon: string}>
+     * @return list<array{label: string, route: string, active: string|list<string>, icon: string}>
      */
     public static function bottom(): array
     {
-        return array_values(array_filter(self::main(), fn (array $item) => ! in_array($item['route'], ['pulse', 'events.index'], true)));
+        return array_values(array_filter(self::main(), fn (array $item) => ! in_array($item['route'], ['pulse', 'events.index', 'about'], true)));
     }
 }

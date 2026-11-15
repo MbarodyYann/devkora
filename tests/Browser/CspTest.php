@@ -51,7 +51,7 @@ test('la CSP de production ne bloque rien, sur toutes les pages et pour chaque r
     $server = serve();
 
     try {
-        $visitor = csp(['/', '/questions', "/questions/{$question->id}", '/articles', "/articles/{$article->slug}", '/annonces', "/annonces/{$openMission->id}", "/annonces/{$doneMission->id}", '/evenements', "/evenements/{$event->id}", '/devs', "/devs/{$moussa->id}", '/pouls', '/a-propos', '/privileges', '/villes/dakar', '/connexion', '/inscription', '/mot-de-passe-oublie', '/devs/999999']);
+        $visitor = csp(['/', '/?statut=resolues', "/questions/{$question->id}", '/articles', "/articles/{$article->slug}", '/annonces', "/annonces/{$openMission->id}", "/annonces/{$doneMission->id}", '/evenements', "/evenements/{$event->id}", '/devs', "/devs/{$moussa->id}", '/pouls', '/a-propos', '/privileges', '/villes/dakar', '/connexion', '/inscription', '/mot-de-passe-oublie', '/devs/999999']);
         $member = csp(['/', "/questions/{$other->id}", '/questions/poser', '/articles/ecrire', '/annonces/publier', '/evenements/proposer', "/devs/{$moussa->id}/modifier", '/notifications', "/annonces/{$openMission->id}"], 'Moussa');
         $moderator = csp(['/moderation'], 'Koffi');
         $author = csp(["/annonces/{$openMission->id}", "/annonces/{$openMission->id}/reponses/{$openMission->proposals()->first()->id}/paiement"], 'Aïssatou');

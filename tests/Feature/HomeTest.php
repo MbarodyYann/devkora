@@ -1,225 +1,190 @@
 <?php
 
-use App\Http\Controllers\HomeController;
+use App\Livewire\Questions\Index;
 use App\Models\Answer;
-use App\Models\Article;
+use App\Models\Event;
 use App\Models\Listing;
 use App\Models\Question;
+use App\Models\Skill;
 use App\Models\User;
 use App\Support\Copy;
-use Illuminate\Support\Facades\Cache;
+use Livewire\Livewire;
 
-test('le hero reprend l\'identité : titre, promesse, CTA unique et réassurance', function () {
+/** Le contenu de la page, sans la navigation ni le pied de page. */
+function mainOf(string $html): string
+{
+    return substr($html, strpos($html, '<main'), strpos($html, '</main>') - strpos($html, '<main'));
+}
+
+function markResolved(Question $question): Question
+{
+    $question->forceFill(['accepted_answer_id' => Answer::factory()->for($question)->create()->id])->save();
+
+    return $question;
+}
+
+test('l\'accueil est le fil des questions : titre, recherche et questions, sans compte', function () {
+    Question::factory()->create(['title' => 'Webhook Wave refusé en production']);
+    Question::factory()->create(['title' => 'Question masquée par la modération', 'hidden_at' => now()]);
+
     $html = $this->get('/')->assertOk()->getContent();
 
     expect($html)
         ->toContain('<title>DevKora · Le point de rencontre des devs africains</title>')
-        ->toContain('Le point de rencontre')
-        ->toContain('<em class="block font-serif italic text-secondary-400">des devs africains.</em>')
-        ->toContain('Trouve des missions. Partage tes connaissances. Construis avec les tiens.')
-        ->toContain(Copy::SIGNUP_REASSURANCE)
-        ->and(substr_count($html, 'data-cta="principal"'))->toBe(1)
-        ->and(substr_count($html, '>'.Copy::SIGNUP_CTA.'</a>'))->toBe(3); // navigation, hero et CTA final
+        ->toContain('Ce que les devs se demandent <em class="font-serif italic text-secondary-400">en ce moment.</em>')
+        ->toContain('Cherche, lis et réponds sans attendre : la communauté vote, la meilleure réponse reste trouvable par tous.')
+        ->toContain('role="search"')
+        ->toContain('Webhook Wave refusé en production')
+        ->not->toContain('Question masquée par la modération')
+        // L'ancienne présentation n'est plus sur l'accueil.
+        ->not->toContain('Ici, on échange.')
+        ->not->toContain('Ne reste plus seul');
 });
 
-test('l\'image du hero : WebP en deux tailles, dimensions et texte alternatif, chargée à la demande sur mobile', function () {
-    $html = $this->get('/')->getContent();
+test('onglets : chacun filtre le fil et a son adresse', function () {
+    $open = Question::factory()->create(['title' => 'Question ouverte sans réponse']);
+    $answered = Question::factory()->create(['title' => 'Question avec une réponse', 'answers_count' => 1]);
+    $resolved = markResolved(Question::factory()->create(['title' => 'Question déjà résolue', 'answers_count' => 1]));
 
-    expect($html)->toContain('srcset="/images/hero/portrait-480.webp 480w, /images/hero/portrait-800.webp 800w"')
-        ->toContain('srcset="/images/hero/paysage-480.webp 480w, /images/hero/paysage-800.webp 800w"')
-        ->toContain('width="800" height="450"')
-        ->toContain('alt="Deux développeurs travaillent ensemble sur du code"')
-        ->toContain('loading="lazy"')
-        ->toContain('media="(min-width: 1024px)" fetchpriority="high"');
+    $titles = fn (string $url) => collect([$open, $answered, $resolved])->pluck('title')
+        ->filter(fn (string $title) => str_contains(mainOf($this->get($url)->assertOk()->getContent()), $title))->values()->all();
 
-    foreach (['portrait-480' => 40_000, 'portrait-800' => 80_000, 'paysage-480' => 40_000, 'paysage-800' => 80_000] as $file => $max) {
-        expect(filesize(public_path("images/hero/$file.webp")))->toBeLessThanOrEqual($max);
-    }
+    expect($titles('/'))->toHaveCount(3)
+        ->and($titles('/?statut=recentes'))->toHaveCount(3)
+        ->and($titles('/?statut=sans-reponse'))->toBe([$open->title])
+        ->and($titles('/?statut=resolues'))->toBe([$resolved->title])
+        // Un onglet inconnu ramène à « En ce moment ».
+        ->and($titles('/?statut=nimporte'))->toHaveCount(3);
+
+    $html = $this->get('/?statut=resolues&tag=wave')->getContent();
+    $tabs = substr($html, strpos($html, 'data-tabs'), 3000);
+
+    expect($tabs)->toContain('En ce moment')->toContain('Récentes')->toContain('Sans réponse')->toContain('Résolues')
+        // Chaque onglet est un lien qui garde le tag en cours ; l'onglet ouvert est signalé.
+        ->toContain('href="'.url('/').'?tag=wave"')
+        ->toContain('href="'.url('/').'?statut=recentes&amp;tag=wave"')
+        ->toContain('href="'.url('/').'?statut=sans-reponse&amp;tag=wave"')
+        ->and(substr_count($tabs, 'aria-current="page"'))->toBe(1)
+        ->and($tabs)->toMatch('/statut=resolues&amp;tag=wave"[^>]*aria-current="page"/');
 });
 
-test('bande de garanties et bande de confiance aux chiffres réels', function () {
-    User::factory()->count(3)->withProfile(['country' => 'SN'])->create();
-    User::factory()->withProfile(['country' => 'GH'])->create();
-    User::factory()->create(); // sans profil : pas compté
-
-    $this->get('/')
-        ->assertSeeInOrder(['Gratuit, sans abonnement', 'Pensé pour ton contexte', 'Une réputation qui te suit'])
-        ->assertSee('missions payées en Mobile Money')
-        ->assertDontSee('carte bancaire')
-        ->assertSee('data-stat="devs">4<', false)
-        ->assertSee('data-stat="countries">2<', false)
-        ->assertSee('🇸🇳')
-        ->assertSee('🇬🇭')
-        ->assertDontSee('Pensé pour</dt>', false);
-
-    // J1 : « Devs inscrits » affiche le chiffre seul, sans pile d'avatars.
-    $html = $this->get('/')->getContent();
-    $devs = substr($html, strpos($html, 'Devs inscrits'), strpos($html, '>Pays<') - strpos($html, 'Devs inscrits'));
-    expect(substr_count($devs, '<dd'))->toBe(1);
-});
-
-test('les chiffres sont mis en cache 10 minutes', function () {
-    User::factory()->withProfile()->create();
-    $this->get('/');
-    User::factory()->withProfile()->create();
-
-    $this->get('/')->assertSee('data-stat="devs">1<', false);
-
-    Cache::forget('home.stats');
-    $this->get('/')->assertSee('data-stat="devs">2<', false);
-    expect(HomeController::STATS_TTL)->toBe(600);
-});
-
-test('un membre voit son action, pas le CTA d\'inscription', function () {
-    $this->actingAs(User::factory()->withProfile()->create())
-        ->get('/')
-        ->assertSee('Poser une question')
-        ->assertDontSee(Copy::SIGNUP_CTA);
-});
-
-test('bande de confiance : sur une ligne, 5 drapeaux sous 360 px, 6 sous 640 px et 8 au-dessus, puis le reste en texte', function () {
-    foreach (['SN', 'CI', 'TG', 'BJ', 'ML', 'BF', 'CM', 'GN', 'NE', 'GH'] as $country) {
-        User::factory()->withProfile(['country' => $country])->create();
-    }
-
-    $html = $this->get('/')->getContent();
-    $flags = substr($html, strpos($html, 'data-flags'), 1500);
-
-    expect(substr_count($flags, '<span class="">') + substr_count($flags, '<span>'))->toBe(5)
-        ->and(substr_count($flags, '<span class="max-[360px]:hidden">'))->toBe(1)
-        ->and(substr_count($flags, '<span class="max-sm:hidden">'))->toBe(2)
-        ->and($flags)->toContain('max-[360px]:inline">+5</span>')
-        ->toContain('max-[360px]:hidden sm:hidden">+4</span>')
-        ->toContain('sm:inline">+2</span>')
-        ->and($html)->toContain('flex-nowrap items-center gap-1 text-base leading-7" aria-hidden="true" data-flags');
-});
-
-test('le sous-titre du hero et tous les H1 et H2 sont équilibrés (pas de mot orphelin)', function () {
-    $css = file_get_contents(resource_path('css/app.css'));
-
-    expect($css)->toMatch('/h1,\s+h2 \{\s+text-wrap: balance;/')
-        ->and($this->get('/')->getContent())->toContain('<p class="mt-6 max-w-xl text-balance');
-});
-
-test('questions résolues : colonne de la bande de confiance', function () {
-    $resolved = Question::factory()->create(['title' => 'Question résolue sur le webhook Wave']);
-    $answer = Answer::factory()->for($resolved)->create();
-    $resolved->forceFill(['accepted_answer_id' => $answer->id])->save();
-    Question::factory()->create(['title' => 'Question encore ouverte sur USSD']);
-
-    $this->get('/')
-        ->assertSee('Questions résolues')
-        ->assertSee('data-stat="resolved">1<', false);
-});
-
-test('questions du moment : classement façon Hacker News, en SQL', function () {
+test('« En ce moment » classe par votes et réponses pondérés par l\'âge ; « Récentes » par date', function () {
     $this->freezeTime();
     $old = Question::factory()->create(['title' => 'Vieille question très votée', 'score' => 8, 'created_at' => now()->subDays(10)]);
-    $fresh = Question::factory()->create(['title' => 'Question récente avec réponses', 'answers_count' => 3, 'created_at' => now()->subHours(2)]);
-    $unanswered = Question::factory()->create(['title' => 'Question sans réponse de ce matin', 'created_at' => now()->subHours(5)]);
-    Question::factory()->create(['title' => 'Question masquée', 'score' => 50, 'answers_count' => 9, 'created_at' => now()->subHour(), 'hidden_at' => now()]);
-    Question::factory()->create(['title' => 'Question d\'il y a 20 jours', 'created_at' => now()->subDays(20)]);
+    $fresh = Question::factory()->create(['title' => 'Question récente avec réponses', 'answers_count' => 3, 'created_at' => now()->subHours(5)]);
+    $unanswered = Question::factory()->create(['title' => 'Question sans réponse de ce matin', 'created_at' => now()->subHours(2)]);
+    $ancient = Question::factory()->create(['title' => 'Question d\'il y a 40 jours', 'score' => 30, 'created_at' => now()->subDays(40)]);
 
-    // 2 h et 3 réponses : (0 + 6 + 1) / 4^1,5 ≈ 0,88 ; 10 jours et 8 votes : 9 / 242^1,5 ≈ 0,002.
-    expect(Question::query()->trending()->pluck('id')->all())->toBe([$fresh->id, $unanswered->id, $old->id])
-        // Moins de 5 questions sur 14 jours : l'accueil élargit à 30 jours.
-        ->and(Question::query()->trending(30)->count())->toBe(4);
+    $ids = fn (array $state) => Livewire::test(Index::class)->set($state)->instance()->questions()->pluck('id')->all();
 
+    // 5 h et 3 réponses : 7 / 7^1,5 ≈ 0,38 ; 2 h sans réponse : 1 / 4^1,5 ≈ 0,13 ; 10 jours et 8 votes : 9 / 242^1,5 ≈ 0,002.
+    expect($ids([]))->toBe([$fresh->id, $unanswered->id, $old->id])
+        ->and($ids(['status' => 'recentes']))->toBe([$unanswered->id, $fresh->id, $old->id, $ancient->id])
+        // Une recherche ou un tag porte sur toutes les questions, pas seulement sur les 30 derniers jours.
+        ->and($ids(['q' => '40 jours']))->toBe([$ancient->id]);
+});
+
+test('« En ce moment » : si rien n\'a été posé depuis 30 jours, le fil montre tout', function () {
+    Question::factory()->count(2)->create(['created_at' => now()->subDays(45)]);
+
+    expect(Livewire::test(Index::class)->instance()->questions()->total())->toBe(2);
+});
+
+test('pagination par 15, avec son adresse', function () {
+    Question::factory()->count(16)->create();
+
+    $this->get('/')->assertSee('16 questions')->assertSee('1 à 15 sur 16');
+    $this->get('/?page=2')->assertOk()->assertSee('16 à 16 sur 16');
+});
+
+test('bandeau du visiteur : une ligne vers À propos et l\'inscription, qu\'on peut fermer ; jamais pour un membre', function () {
     $html = $this->get('/')->getContent();
-    $section = trendingSection($html);
+    $banner = substr($html, strpos($html, 'data-welcome'), strpos($html, 'Navigation principale') - strpos($html, 'data-welcome'));
 
-    expect($section)->toContain('Ce que les devs se demandent en ce moment.')
-        ->toContain('Réponds si tu sais, ou pose ta propre question.')
-        ->toContain('Voir toutes les questions →')
-        ->not->toContain('Question masquée')
-        ->and(strpos($section, 'Question récente avec réponses'))->toBeLessThan(strpos($section, 'Question sans réponse de ce matin'))
-        ->and(strpos($section, 'Question sans réponse de ce matin'))->toBeLessThan(strpos($section, 'Vieille question très votée'))
-        ->and(strpos($section, 'Vieille question très votée'))->toBeLessThan(strpos($section, 'Question d&#039;il y a 20 jours'))
-        ->and($html)->not->toContain('Ces blocages ont déjà trouvé leur solution.');
+    expect($banner)->toContain('Nouveau ici ?')
+        ->toContain('DevKora, c\'est le point de rencontre des devs africains.')
+        ->toContain('href="'.route('about').'"')->toContain('>Découvrir</a>')
+        ->toContain('href="'.route('register').'"')->toContain('>'.Copy::SIGNUP_CTA.'</a>')
+        // Fermeture gardée dans le navigateur, sans erreur si le stockage est refusé.
+        ->toContain("localStorage.getItem('welcome')")->toContain("localStorage.setItem('welcome', 'closed')")
+        ->and(substr_count($banner, 'try {'))->toBe(2)
+        ->and($banner)->toContain('aria-label="Fermer ce message"');
+
+    // Aucun autre bouton d'inscription dans le corps de la page : seulement le bandeau et la navigation.
+    expect(mainOf($html))->not->toContain(Copy::SIGNUP_CTA)->not->toContain(route('register'))
+        ->and(substr_count($html, '>'.Copy::SIGNUP_CTA.'</a>'))->toBe(2);
+
+    // Le bandeau est celui de l'accueil : ni sur les autres pages, ni pour un membre.
+    $this->get('/devs')->assertDontSee('data-welcome', false);
+    $this->actingAs(User::factory()->withProfile()->create())->get('/')
+        ->assertDontSee('data-welcome', false)->assertDontSee('Nouveau ici ?')->assertDontSee(Copy::SIGNUP_CTA);
 });
 
-test('questions du moment : 14 jours suffisent dès qu\'il y a 5 questions ; cache de 10 minutes', function () {
-    Question::factory()->count(5)->create(['created_at' => now()->subDays(3)]);
-    Question::factory()->create(['title' => 'Question d\'il y a 20 jours', 'score' => 30, 'created_at' => now()->subDays(20)]);
-
-    $this->get('/')->assertDontSee('Question d&#039;il y a 20 jours', false);
-
-    Question::factory()->create(['title' => 'Question toute neuve', 'answers_count' => 5]);
-    $this->get('/')->assertDontSee('Question toute neuve');
-
-    Cache::forget('home.trending');
-    $this->get('/')->assertSee('Question toute neuve');
-});
-
-test('questions du moment : carte vivante (depuis quand, réponses, score, Résolue, auteur et pays)', function () {
-    $this->freezeTime();
-    $author = User::factory()->withProfile(['country' => 'CI'])->create(['name' => 'Awa Koné']);
-    $question = Question::factory()->for($author)->create(['title' => 'Question résolue il y a 3 h', 'score' => 4, 'answers_count' => 2, 'created_at' => now()->subHours(3)]);
-    $question->forceFill(['accepted_answer_id' => Answer::factory()->for($question)->create()->id])->save();
-
-    $html = $this->get('/')->getContent();
-    $card = trendingSection($html);
-
-    expect($card)->toContain('il y a 3 h')
-        ->toContain('Awa Koné')
-        ->toContain('🇨🇮')
-        ->toContain('<span class="sr-only">Côte d&#039;Ivoire</span>')
-        ->toContain('Résolue')
-        ->toContain('>4</dd>')
-        ->toContain('>2</dd>');
-});
-
-test('questions du moment : un seul bouton « Pose ta question » pour le visiteur, qui passe par la connexion ; aucun pour le membre', function () {
+test('« Pose ta question » : un seul bouton, pour tous ; le visiteur passe par la connexion', function () {
     Question::factory()->create();
 
     $html = $this->get('/')->getContent();
-    expect(substr_count($html, '>Pose ta question</a>'))->toBe(1)
-        ->and($html)->toContain('href="'.route('questions.create').'"');
+    expect(substr_count($html, 'Pose ta question'))->toBe(1)
+        ->and($html)->toMatch('/href="'.preg_quote(route('questions.create'), '/').'"[^>]*data-cta="question"/');
 
     $this->get(route('questions.create'))->assertRedirect(route('login'));
     expect(session('url.intended'))->toBe(route('questions.create'));
 
-    // Le membre a déjà « Poser une question » dans le hero : pas de doublon.
+    // Membre : le même bouton, une seule fois ; « Poser une question » reste dans le menu « Publier ».
     $member = $this->actingAs(User::factory()->withProfile()->create())->get('/')->getContent();
-    expect($member)->not->toContain('Pose ta question')
-        ->not->toContain('data-cta="question"')
-        ->toContain('data-cta="principal">Poser une question</a>');
+    expect(substr_count($member, 'Pose ta question'))->toBe(1)
+        ->and(substr_count($member, 'Poser une question'))->toBe(1);
 });
 
-test('le membre voit « Poser une question » sur l\'accueil', function () {
-    $this->actingAs(User::factory()->withProfile()->create())->get('/')->assertSee('Poser une question');
-});
+test('colonne latérale : tags locaux, prochains événements, annonces ouvertes et contributeurs du mois', function () {
+    $wave = Skill::factory()->local()->create(['name' => 'Wave', 'slug' => 'wave']);
+    $laravel = Skill::factory()->create(['name' => 'Laravel', 'slug' => 'laravel']);
+    Skill::factory()->local()->create(['name' => 'USSD', 'slug' => 'ussd']); // aucune question : pas affiché
+    Question::factory()->create()->skills()->attach([$wave->id, $laravel->id]);
 
-test('bande de confiance finale : devs, pays, questions résolues, articles partagés ; derniers articles', function () {
-    Article::factory()->count(2)->create();
-    $latest = Article::factory()->create(['title' => 'Le tout dernier article publié', 'created_at' => now()->addMinute()]);
-
-    $html = $this->get('/')->getContent();
-    $band = substr($html, strpos($html, 'aria-label="DevKora en chiffres"'), 5000);
-
-    preg_match_all('/<dt[^>]*>([^<]+)<\/dt>/', $band, $labels);
-    expect(array_map('trim', $labels[1]))->toBe(['Devs inscrits', 'Pays', 'Questions résolues', 'Articles partagés'])
-        ->and($band)->toContain('data-stat="articles">3<')
-        ->and($html)->toContain('Ce que les devs du continent ont appris, pour toi.')
-        ->and(strpos($html, 'Le tout dernier article publié'))->toBeGreaterThan(strpos($html, 'articles-titre'));
-});
-
-test('accueil : section des annonces ouvertes, équipes et missions mélangées', function () {
+    Event::factory()->create(['title' => 'Meetup Laravel à Dakar', 'starts_at' => now()->addDays(3), 'ends_at' => now()->addDays(3)->addHours(2)]);
+    Event::factory()->create(['title' => 'Atelier déjà passé', 'starts_at' => now()->subDays(3), 'ends_at' => now()->subDays(3)->addHours(2)]);
     Listing::factory()->create(['title' => 'Mission ouverte de démonstration']);
     Listing::factory()->team()->create(['title' => 'Équipe ouverte de démonstration']);
     Listing::factory()->create(['title' => 'Mission annulée de démonstration', 'status' => 'cancelled']);
 
-    $this->get('/')
-        ->assertSee('Des devs cherchent du renfort, peut-être le tien.')
-        ->assertSee('Mission ouverte de démonstration')
-        ->assertSee('Équipe ouverte de démonstration')
-        ->assertDontSee('Mission annulée de démonstration');
+    $html = $this->get('/')->getContent();
+    $aside = substr($html, strpos($html, 'data-feed-aside'), strpos($html, '</aside>') - strpos($html, 'data-feed-aside'));
+
+    expect($aside)->toContain('Les sujets d\'ici')
+        ->toContain('href="'.url('/').'?tag=wave"')
+        ->not->toContain('?tag=laravel')->not->toContain('?tag=ussd')
+        ->toContain('Prochains événements')->toContain('Meetup Laravel à Dakar')->not->toContain('Atelier déjà passé')
+        ->toContain('Des devs cherchent du renfort')->toContain('Mission ouverte de démonstration')
+        ->toContain('Équipe ouverte de démonstration')->not->toContain('Mission annulée de démonstration');
+
+    // Le filtre par tag du lien.
+    Question::factory()->create(['title' => 'Question sans le tag Wave']);
+    expect(mainOf($this->get('/?tag=wave')->getContent()))->toContain('1 question')->not->toContain('Question sans le tag Wave');
 });
 
-/** La section « Questions du moment » de l'accueil, de son ouverture à sa fermeture. */
-function trendingSection(string $html): string
-{
-    $start = strpos($html, 'data-trending');
+test('/questions mène à l\'accueil, avec ses filtres', function () {
+    $this->get('/questions')->assertRedirect('/')->assertStatus(301);
+    $this->get('/questions?statut=resolues&tag=wave&q=webhook')->assertStatus(301)
+        ->assertRedirect(url('/').'?statut=resolues&tag=wave&q=webhook');
+});
 
-    return substr($html, $start, strpos($html, '</section>', $start) - $start);
-}
+test('navigation : « Questions » mène à l\'accueil et y est actif ; « À propos » est dans la barre du haut', function () {
+    $html = $this->get('/')->getContent();
+    $nav = substr($html, strpos($html, 'Navigation principale'), strpos($html, '</nav>') - strpos($html, 'Navigation principale'));
+
+    expect($nav)->toMatch('/href="'.preg_quote(url('/'), '/').'"\s+aria-current="page"[^>]*>\s*Questions/')
+        ->toMatch('/href="'.preg_quote(route('about'), '/').'"[^>]*hidden xl:inline-block[^>]*>\s*À propos/')
+        ->and(substr_count($nav, 'aria-current="page"'))->toBe(1);
+
+    // Sur une question, « Questions » reste actif ; sur À propos, c'est « À propos ».
+    $question = substr($this->get(route('questions.show', Question::factory()->create()))->getContent(), 0, 20000);
+    expect($question)->toMatch('/aria-current="page"[^>]*>\s*Questions/');
+    expect($this->get('/a-propos')->getContent())->toMatch('/aria-current="page"[^>]*>\s*À propos/');
+
+    // Barre du bas mobile : 4 rubriques et « Moi » ; pied de page : « À propos » une seule fois.
+    $bottom = substr($html, strpos($html, 'Navigation mobile'));
+    $footer = substr($html, strpos($html, '<footer'), strpos($html, '</footer>') - strpos($html, '<footer'));
+    expect($bottom)->toContain('Questions')->not->toContain('À propos')
+        ->and(substr_count($footer, '>À propos</a>'))->toBe(1);
+});

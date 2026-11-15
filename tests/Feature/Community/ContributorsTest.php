@@ -30,11 +30,11 @@ test('contributeurs du mois : cauris gagnés sur 30 jours, les 5 premiers, en ca
         ->and(Contributors::CACHE_SECONDS)->toBe(600);
 });
 
-test('sur l\'accueil (H2 de 11) et en tête de /devs, sans filtre', function () {
+test('dans la colonne latérale de l\'accueil et en tête de /devs, sans filtre', function () {
     $answer = Answer::factory()->create();
     app(ReputationService::class)->award($answer->user, ReputationReason::AnswerAccepted, $answer);
 
-    $this->get('/')->assertSee('Ils ont fait avancer la communauté ce mois-ci.')->assertSee('+15');
+    $this->get('/')->assertSee('Les plus utiles ce mois-ci')->assertSee('+15');
     Livewire::test(Directory::class)->assertSee('Les plus utiles ce mois-ci')
         ->set('q', 'personne')->assertDontSee('Les plus utiles ce mois-ci');
 });

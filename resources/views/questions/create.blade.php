@@ -1,6 +1,6 @@
 <x-layouts.app title="Poser une question" :noindex="true">
     <div class="mx-auto max-w-3xl">
-        <a href="{{ route('questions.index') }}" class="mb-4 inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-ink-muted hover:text-ink">
+        <a href="{{ route('home') }}" class="mb-4 inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-ink-muted hover:text-ink">
             <x-icon name="arrow-left" class="size-4" /> Toutes les questions
         </a>
         <h1 class="text-[38px] sm:text-5xl">Explique ton blocage, la communauté répond.</h1>

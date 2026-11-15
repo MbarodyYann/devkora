@@ -4,7 +4,7 @@
 @endphp
 
 <x-layouts.app :title="$question->title" :description="$question->excerpt">
-    <a href="{{ route('questions.index') }}" class="mb-4 inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-ink-muted hover:text-ink">
+    <a href="{{ route('home') }}" class="mb-4 inline-flex min-h-11 items-center gap-1.5 text-sm font-medium text-ink-muted hover:text-ink">
         <x-icon name="arrow-left" class="size-4" /> Toutes les questions
     </a>
 

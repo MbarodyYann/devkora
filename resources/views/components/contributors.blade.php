@@ -1,10 +1,11 @@
-@props(['contributors', 'compact' => false])
+@props(['contributors', 'compact' => false, 'stacked' => false])
 
-{{-- Contributeurs du mois : rang, avatar, nom, ville, cauris gagnés sur 30 jours. --}}
-<ol {{ $attributes->merge(['class' => 'grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5']) }} data-contributors>
+{{-- Contributeurs du mois : rang, avatar, nom, ville, cauris gagnés sur 30 jours.
+     stacked (colonne latérale de l'accueil) : une seule colonne, en lignes, à toutes les largeurs. --}}
+<ol {{ $attributes->merge(['class' => 'grid grid-cols-1 gap-3'.($stacked ? ' sm:grid-cols-2 lg:grid-cols-1' : ' sm:grid-cols-2 lg:grid-cols-5')]) }} data-contributors>
     @foreach ($contributors as $contributor)
         <li class="min-w-0">
-            <a href="{{ route('devs.show', $contributor) }}" class="flex h-full min-w-0 items-center gap-3 rounded-2xl border border-line bg-surface p-4 shadow-card transition hover:-translate-y-0.5 hover:shadow-card-hover lg:flex-col lg:text-center">
+            <a href="{{ route('devs.show', $contributor) }}" @class(['flex h-full min-w-0 items-center gap-3 rounded-2xl border border-line bg-surface p-4 shadow-card transition hover:-translate-y-0.5 hover:shadow-card-hover', 'lg:flex-col lg:text-center' => ! $stacked])>
                 <span class="relative shrink-0">
                     <x-avatar :user="$contributor" :size="$compact ? 'sm' : 'md'" />
                     <span class="absolute -right-1 -top-1 inline-flex size-6 items-center justify-center rounded-full bg-secondary-400 text-xs font-semibold text-primary-950" aria-label="Rang {{ $loop->iteration }}">{{ $loop->iteration }}</span>

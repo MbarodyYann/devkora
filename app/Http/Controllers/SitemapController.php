@@ -18,7 +18,7 @@ class SitemapController extends Controller
 {
     public function __invoke(): Response
     {
-        $static = collect(['home', 'questions.index', 'articles.index', 'listings.index', 'events.index', 'devs.index', 'pulse', 'privileges', 'about'])
+        $static = collect(['home', 'articles.index', 'listings.index', 'events.index', 'devs.index', 'pulse', 'privileges', 'about'])
             ->map(fn (string $route) => ['loc' => route($route), 'lastmod' => null]);
 
         $urls = $static

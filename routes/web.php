@@ -26,9 +26,9 @@ use App\Livewire\Events\Create as EventCreate;
 use App\Livewire\Events\Index as EventIndex;
 use App\Livewire\Listings\Create as ListingCreate;
 use App\Livewire\Listings\Index as ListingIndex;
-use App\Livewire\Questions\Index as QuestionIndex;
 use Illuminate\Support\Facades\Route;
 
+// Accueil : le fil des questions (recherche, onglets, colonne latérale)
 Route::get('/', HomeController::class)->name('home');
 
 // SEO : plan du site et consignes aux robots (dynamiques, pour donner l'adresse absolue du plan)
@@ -60,7 +60,8 @@ Route::middleware('auth')->group(function () {
 });
 
 // Entraide : questions-réponses
-Route::get('/questions', QuestionIndex::class)->name('questions.index');
+// Le fil est sur l'accueil : /questions y mène, avec ses filtres (anciens liens, moteurs de recherche).
+Route::get('/questions', [HomeController::class, 'questions'])->name('questions.index');
 Route::get('/questions/{question}', [QuestionController::class, 'show'])->name('questions.show');
 
 Route::middleware('auth')->group(function () {

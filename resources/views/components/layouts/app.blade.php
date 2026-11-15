@@ -1,4 +1,4 @@
-@props(['title' => null, 'description' => null, 'pageHero' => null, 'noindex' => false, 'ogImage' => null, 'ogType' => 'website'])
+@props(['title' => null, 'description' => null, 'pageHero' => null, 'noindex' => false, 'ogImage' => null, 'ogType' => 'website', 'welcome' => false])
 
 @php
     use App\Support\Brand;
@@ -12,7 +12,7 @@
     $mainNav = Navigation::main();
     $bottomNav = Navigation::bottom();
     $meActive = $me ? request()->routeIs('devs.show', 'profile.edit') && request()->route('user')?->is($me) : request()->routeIs('login', 'register');
-    // Bandeau indigo sous la navigation : hero de l'accueil (slot) ou en-tête compact d'une page de liste.
+    // Bandeau indigo sous la navigation : hero d'une page (slot) ou en-tête compact d'une page de liste.
     $hasHero = isset($hero) || $pageHero;
     // Livewire (qui embarque Alpine) seulement si la page a rendu un composant Livewire ; sinon Alpine seul,
     // bien plus léger en 3G. Le contenu est rendu avant le gabarit : l'indicateur est fiable ici.
@@ -84,6 +84,29 @@
         </p>
     @endif
 
+    {{-- Bandeau du visiteur (accueil) : une ligne, qu'on peut fermer ; le choix est gardé dans le navigateur.
+         Sous 1 024 px, le bouton d'inscription de la navigation, juste en dessous, suffit. --}}
+    @if ($welcome && ! $me)
+        <div data-welcome class="border-b border-white/10 bg-primary-950 text-white"
+             x-data="{
+                 open: true,
+                 init() { try { this.open = localStorage.getItem('welcome') !== 'closed' } catch (e) {} },
+                 close() { this.open = false; try { localStorage.setItem('welcome', 'closed') } catch (e) {} },
+             }"
+             x-show="open">
+            <div class="mx-auto flex max-w-page items-center gap-x-4 gap-y-1 px-4 py-2 text-sm max-sm:flex-wrap sm:px-6 lg:justify-center">
+                <p class="min-w-0 text-white/85 max-sm:basis-full"><strong class="font-semibold text-white">Nouveau ici ?</strong> DevKora, c'est le point de rencontre des devs africains.</p>
+                <a href="{{ route('about') }}" class="inline-flex min-h-9 shrink-0 items-center font-semibold text-secondary-400 underline underline-offset-4">Découvrir</a>
+                <x-button :href="route('register')" size="xs" class="hidden shrink-0 lg:inline-flex" data-welcome-cta="true">{{ Copy::SIGNUP_CTA }}</x-button>
+                <button type="button" x-cloak aria-label="Fermer ce message"
+                        x-on:click="close()"
+                        class="-mr-2 ml-auto inline-flex size-9 shrink-0 items-center justify-center rounded-btn text-white/70 transition hover:text-white lg:ml-0">
+                    <x-icon name="x" class="size-4" />
+                </button>
+            </div>
+        </div>
+    @endif
+
     {{-- Navigation flottante, à 12 px du haut. Sur un bandeau indigo : transparente tout en haut, puis opaque
          (primary-800) dès le premier pixel de défilement. Sous 1 024 px, une fois la page défilée, elle se colle
          au bord haut, sans espace où le contenu se lirait au-dessus ; sa hauteur totale ne change pas. --}}
@@ -98,7 +121,7 @@
          x-on:scroll.window.passive="scrolled = window.scrollY > 0"
          x-bind:class="scrolled && 'max-lg:px-0! max-lg:pt-0!'">
         <header @class([
-                    'mx-auto flex h-14 max-w-page items-center gap-2 rounded-nav px-3 sm:h-16 sm:gap-3 sm:px-4 lg:gap-6',
+                    'mx-auto flex h-14 max-w-page items-center gap-2 rounded-nav px-3 sm:h-16 sm:gap-3 sm:px-4 lg:gap-4 xl:gap-6',
                     'nav-glass' => ! $hasHero,
                     'nav-on-hero' => $hasHero,
                 ])
@@ -112,14 +135,15 @@
                     @php($active = request()->routeIs($item['active']))
                     <a href="{{ route($item['route']) }}" @if ($active) aria-current="page" @endif
                        @class([
-                           'relative rounded-btn px-3 py-2 font-medium transition',
+                           // Entre 1 024 et 1 280 px, les rubriques se resserrent pour que le bouton de droite reste dans la barre.
+                           'relative rounded-btn px-2 py-2 font-medium transition xl:px-3',
                            'hidden xl:inline-block' => $item['wide'] ?? false,
                            'text-ink' => $active,
                            'text-ink-muted hover:text-ink' => ! $active,
                        ])>
                         {{ $item['label'] }}
                         @if ($active)
-                            <span class="absolute inset-x-3 -bottom-0.5 h-0.5 rounded-full bg-secondary-400" aria-hidden="true"></span>
+                            <span class="absolute inset-x-2 -bottom-0.5 h-0.5 rounded-full bg-secondary-400 xl:inset-x-3" aria-hidden="true"></span>
                         @endif
                     </a>
                 @endforeach
@@ -251,6 +275,8 @@
             <nav aria-label="Rubriques" class="space-y-2 text-sm">
                 <p class="font-semibold text-ink">Explorer</p>
                 @foreach ($mainNav as $item)
+                    {{-- À propos est déjà dans la colonne « DevKora ». --}}
+                    @continue($item['route'] === 'about')
                     <a href="{{ route($item['route']) }}" class="block py-1 text-ink-muted hover:text-ink">{{ $item['label'] }}</a>
                 @endforeach
             </nav>
